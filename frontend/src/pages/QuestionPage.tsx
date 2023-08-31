@@ -7,7 +7,7 @@ const QuestionPage = () => {
   const { id } = useParams();
   const { data, isError } = useQuery({
     queryKey: ["questions", id],
-    queryFn: () => getQuestion(parseInt(id!)),
+    queryFn: () => getQuestion(id!),
   });
 
   return (

@@ -15,7 +15,7 @@ export const getQuestions = () => {
   return JSON.parse(savedQuestions!) as Question[];
 };
 
-export const getQuestion = (id: number) => {
+export const getQuestion = (id: string) => {
   const savedQuestions = localStorage.getItem("questions");
   const question = JSON.parse(savedQuestions!).find(
     (question: Question) => question.id === id,
@@ -25,7 +25,7 @@ export const getQuestion = (id: number) => {
   return question;
 };
 
-export const deleteQuestion = (id: number) => {
+export const deleteQuestion = (id: string) => {
   const savedQuestions = localStorage.getItem("questions");
   const newQuestions = JSON.parse(savedQuestions!).filter(
     (question: Question) => question.id !== id,
@@ -35,6 +35,13 @@ export const deleteQuestion = (id: number) => {
   return Promise.resolve(newQuestions as Question[]);
 };
 
-// export const addQuestion = (question: Question) => {
+export const addQuestion = (question: Question) => {
+  const savedQuestions = localStorage.getItem("questions");
+  const newQuestions = [
+    ...(JSON.parse(savedQuestions!) as Question[]),
+    question,
+  ];
 
-// };
+  localStorage.setItem("questions", JSON.stringify(newQuestions));
+  return Promise.resolve(newQuestions as Question[]);
+};

@@ -4,8 +4,9 @@ export enum Complexity {
     hard = "Hard"
 }
 
+// change id to number when database is up
 export type Question = {
-    id: number,
+    id: string, 
     title: string,
     description: string,
     categories: string[],
