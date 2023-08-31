@@ -5,6 +5,7 @@ import {
   NativeSelect,
   Paper,
   Stack,
+  Text,
   TextInput,
   Textarea,
   Title,
@@ -37,6 +38,12 @@ const CreateQuestionPage = () => {
     validate: {
       title: isNotEmpty("Title cannot be empty"),
       description: isNotEmpty("Enter description"),
+      categories: (categories) =>
+        categories.includes("")
+          ? "Empty category"
+          : new Set(categories).size !== categories.length
+          ? "Duplicate categories"
+          : null,
     },
   });
 
@@ -80,6 +87,9 @@ const CreateQuestionPage = () => {
                 {...form.getInputProps(`categories.${index}`)}
               />
             ))}
+            {form.errors.categories && (
+              <Text color="red">{form.errors.categories}</Text>
+            )}
             <Button onClick={() => form.insertListItem("categories", "")}>
               Add category
             </Button>
