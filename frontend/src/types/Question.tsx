@@ -1,4 +1,4 @@
-enum Complexity {
+export enum Complexity {
     easy= "Easy",
     medium = "Medium",
     hard = "Hard"
@@ -6,8 +6,8 @@ enum Complexity {
 
 export type Question = {
     id: number,
-    title: number,
+    title: string,
     description: string,
-    category: string,
+    categories: string[],
     complexity: Complexity
 }

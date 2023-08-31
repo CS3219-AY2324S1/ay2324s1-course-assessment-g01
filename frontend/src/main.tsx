@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
 import { MantineProvider } from "@mantine/core";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import App from "./App.tsx";
