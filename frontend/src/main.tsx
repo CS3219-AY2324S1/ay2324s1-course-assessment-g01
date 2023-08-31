@@ -13,7 +13,7 @@ const queryClient = new QueryClient();
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <MantineProvider>
+      <MantineProvider theme={{colorScheme: "dark"}} withGlobalStyles withNormalizeCSS>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<App />}>
