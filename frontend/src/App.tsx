@@ -5,7 +5,6 @@ import { Link, Outlet } from "react-router-dom";
 function App() {
   return (
     <AppShell
-      p="lg"
       header={
         <Header p="xs" height={60}>
           <Text size={24} component={Link} to="/">Home</Text>
