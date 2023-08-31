@@ -70,7 +70,7 @@ const CreateQuestionPage = () => {
         }
       }}
     >
-      <Paper shadow="xs" p="md" mb="xs">
+      <Paper mx='auto' maw={"50%"} shadow="xs" p="xl" mb="xs">
         <Title>Add a new question</Title>
 
         <Stack>
