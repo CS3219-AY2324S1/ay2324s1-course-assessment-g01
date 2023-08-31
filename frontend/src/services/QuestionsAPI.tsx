@@ -36,11 +36,15 @@ export const deleteQuestion = (id: string) => {
 };
 
 export const addQuestion = (question: Question) => {
-  const savedQuestions = localStorage.getItem("questions");
-  const newQuestions = [
-    ...(JSON.parse(savedQuestions!) as Question[]),
-    question,
-  ];
+  const savedQuestions: Question[] = JSON.parse(
+    localStorage.getItem("questions")!,
+  );
+  for (const q of savedQuestions) {
+    if (q.title === question.title)
+      return Promise.reject("Question with this title exists");
+  }
+
+  const newQuestions = [...savedQuestions, question];
 
   localStorage.setItem("questions", JSON.stringify(newQuestions));
   return Promise.resolve(newQuestions as Question[]);

@@ -30,6 +30,10 @@ const CreateQuestionPage = () => {
       description: "",
     },
 
+    initialErrors: {
+      title: null,
+    },
+
     validate: {
       title: isNotEmpty("Title cannot be empty"),
       description: isNotEmpty("Enter description"),
@@ -44,6 +48,9 @@ const CreateQuestionPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(["questions"]);
       nav("/");
+    },
+    onError: (error) => {
+      form.setErrors({ title: error as string });
     },
   });
 
