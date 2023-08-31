@@ -1,11 +1,11 @@
 import { AppShell } from "@mantine/core";
 import "./App.css";
-import LandingPage from "./pages/LandingPage";
+import { Outlet } from "react-router-dom";
 
 function App() {
   return (
     <AppShell>
-      <LandingPage />
+      <Outlet></Outlet>
     </AppShell>
   );
 }
