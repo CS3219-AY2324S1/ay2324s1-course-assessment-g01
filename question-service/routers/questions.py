@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 import database.database as db
-from models.models import Question
+from models.models import Question, QuestionWithId
 from typing import List
 
 router = APIRouter(
@@ -14,26 +14,26 @@ router = APIRouter(
 
 
 @router.get("/", description="Get all questions")
-async def get_questions() -> List[Question]:
-    questions: List[Question] = await db.get_questions()
+async def get_questions() -> List[QuestionWithId]:
+    questions: List[QuestionWithId] = await db.get_questions()
     return questions
 
 
 @router.get("/easy", description="Get random easy question")
-async def get_easy_question() -> Question:
-    question: Question = await db.get_easy_question()
+async def get_easy_question() -> QuestionWithId:
+    question: QuestionWithId = await db.get_easy_question()
     return question
 
 
 @router.get("/medium", description="Get random medium question")
-async def get_medium_question() -> Question:
-    question: Question = await db.get_medium_question()
+async def get_medium_question() -> QuestionWithId:
+    question: QuestionWithId = await db.get_medium_question()
     return question
 
 
 @router.get("/hard", description="Get random hard question")
-async def get_hard_question() -> Question:
-    question: Question = await db.get_hard_question()
+async def get_hard_question() -> QuestionWithId:
+    question: QuestionWithId = await db.get_hard_question()
     return question
 
 
@@ -44,12 +44,12 @@ async def add_question(question: Question) -> str:
 
 
 @router.put("/{question_id}", description="Update a question")
-async def update_question(question: Question):
-    id = await db.update_question(question)
+async def update_question(question: QuestionWithId):
+    id: str = await db.update_question(question)
     return id
 
 
 @router.delete("/{question_id}", description="Delete a question")
 async def delete_question(question_id: str):
-    count = await db.delete_question(question_id)
+    count: int = await db.delete_question(question_id)
     return count
