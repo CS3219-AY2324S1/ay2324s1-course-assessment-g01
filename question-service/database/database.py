@@ -17,7 +17,7 @@ def init_database():
 
 # Get all questions
 async def get_questions() -> List[QuestionWithId]:
-    data: List = await db["questions"].find().to_list(length=100)
+    data: List = await db["questions"].find().to_list(length=None)
     questions: List[QuestionWithId] = [convert(question) for question in data]
     return questions
 
@@ -37,7 +37,7 @@ async def get_easy_question():
 
     # Check if data is empty
     if len(data) == 0:
-        raise HTTPException(status_code=404, detail="Question not found")
+        raise Exception("Question not found")
 
     # Return the first element
     questions: List[QuestionWithId] = [convert(question) for question in data]
@@ -59,7 +59,7 @@ async def get_medium_question():
 
     # Check if data is empty
     if len(data) == 0:
-        raise HTTPException(status_code=404, detail="Question not found")
+        raise Exception("Question not found")
 
     # Return the first element
     questions: List[QuestionWithId] = [convert(question) for question in data]
@@ -81,7 +81,7 @@ async def get_hard_question():
 
     # Check if data is empty
     if len(data) == 0:
-        raise HTTPException(status_code=404, detail="Question not found")
+        raise Exception("Question not found")
 
     # Return the first element
     questions: List[QuestionWithId] = [convert(question) for question in data]
@@ -94,9 +94,9 @@ async def add_question(question: Question) -> str:
 
     # Check if inserted
     if not res.acknowledged:
-        raise HTTPException(status_code=500, detail="Failed to add question")
+        raise Exception("Failed to insert question")
 
-    return JSONResponse(status_code=201, content=str(res.inserted_id))
+    return str(res.inserted_id)
 
 
 # Update a question
@@ -107,9 +107,9 @@ async def update_question(question: QuestionWithId):
 
     # Check if updated
     if not res.acknowledged or res.modified_count != 1:
-        raise HTTPException(status_code=500, detail="Failed to update question")
+        raise Exception("Failed to update question")
 
-    return JSONResponse(status_code=200, content=str(res.upserted_id))
+    return str(res.upserted_id)
 
 
 # Delete a question
@@ -118,6 +118,6 @@ async def delete_question(question_id: str):
 
     # Check if deleted
     if not res.acknowledged or res.deleted_count != 1:
-        raise HTTPException(status_code=500, detail="Failed to delete question")
+        raise Exception("Failed to delete question", res.acknowledged)
 
-    return JSONResponse(status_code=200, content=str(res.deleted_count))
+    return str(res.deleted_count)
