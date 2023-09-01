@@ -1,0 +1,49 @@
+### Insert the jwt_token received from login response
+POST http://localhost:3000/api/user
+{
+    "jwt_token": ""
+}
+###
+
+POST http://localhost:3000/api/user/register
+Content-Type: application/json
+
+{
+  "email": "test1@example.com",
+  "password": "1234",
+  "name": "test1",
+  "access_type": "1"
+}
+###
+
+POST http://localhost:3000/api/user/deregister
+Content-Type: application/json
+
+{
+  "email": "test1@example.com"
+}
+###
+POST http://localhost:3000/api/user/login
+Content-Type: application/json
+
+{
+  "email": "abby@test.com",
+  "password": "abby123456"
+}
+### password value is the new password
+POST http://localhost:3000/api/user/changepassword
+Content-Type: application/json
+
+{
+  "email": "bob@test.com",
+  "password": "654321"
+}
+### name value is the new name
+POST http://localhost:3000/api/user/changename
+Content-Type: application/json
+
+{
+  "email": "bob@test.com",
+  "name": "newBobby"
+}
+###
