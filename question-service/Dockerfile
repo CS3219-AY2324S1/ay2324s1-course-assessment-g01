@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.11.5
 WORKDIR /app
 
 ADD requirements.txt /app/requirements.txt
