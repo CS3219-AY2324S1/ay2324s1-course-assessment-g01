@@ -31,9 +31,9 @@ async def get_hard_question() -> Question:
 
 
 @router.post("/", description="Add a question")
-async def add_question(question: Question):
-    question: Question = await db.add_question(question)
-    return question
+async def add_question(question: Question) -> str:
+    id: str = await db.add_question(question)
+    return id
 
 
 @router.put("/{question_id}", description="Update a question")

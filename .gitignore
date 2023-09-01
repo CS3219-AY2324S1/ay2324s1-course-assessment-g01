@@ -24,5 +24,6 @@
 *.sln
 *.sw?
 
-# Python virtual env
-*/venv
+# Python
+*venv
+*__pycache__
