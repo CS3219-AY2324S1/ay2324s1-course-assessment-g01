@@ -9,19 +9,20 @@ class PyObjectId(ObjectId):
         yield cls.validate
 
     @classmethod
-    def validate(cls, v):
+    def validate(cls, v, field_schema):
+        print(field_schema)
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid objectid")
         return ObjectId(v)
 
     @classmethod
-    def __modify_schema__(cls, field_schema):
+    def _get_pydantic_json_schema__(cls, field_schema):
         field_schema.update(type="string")
 
 
-class MongoQuestion(BaseModel):
+class Question(BaseModel):
     # MongoDB _id fields urecognised by Pydantic without an alias
-    id: int = Field(default_factory=PyObjectId, alias="_id")
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     title: str
     description: str
     categories: List[str]
@@ -29,24 +30,7 @@ class MongoQuestion(BaseModel):
 
     class Config:
         json_encoders = {ObjectId: str}
-        schema_extra = {
-            "example": {
-                "title": "Programming question",
-                "description": "Answer this easy question",
-                "category": ["array", "string"],
-                "complexity": "easy",
-            }
-        }
-
-
-class Question(BaseModel):
-    id: str
-    title: str
-    description: str
-    categories: List[str]
-    complexity: str
-
-    class Config:
+        arbitrary_types_allowed = True
         schema_extra = {
             "example": {
                 "title": "Programming question",

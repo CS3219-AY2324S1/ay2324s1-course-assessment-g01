@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI, Depends
 from fastapi.security import HTTPBearer
-from routers.question import router as question_router
+from routers.questions import router as question_router
 from database.database import init_database
 
 app = FastAPI(

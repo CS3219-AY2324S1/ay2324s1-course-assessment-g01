@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 import database.database as db
 from models.models import Question
+from typing import List
 
 router = APIRouter(
     prefix="/api/questions",
@@ -10,6 +11,12 @@ router = APIRouter(
         500: {"description": "Internal Server Error"},
     },
 )
+
+
+@router.get("/", description="Get all questions")
+async def get_questions() -> List[Question]:
+    questions: List[Question] = await db.get_questions()
+    return questions
 
 
 @router.get("/easy", description="Get random easy question")
@@ -37,10 +44,12 @@ async def add_question(question: Question) -> str:
 
 
 @router.put("/{question_id}", description="Update a question")
-async def update_question(question_id: int):
-    return {"message": f"Update question {question_id}"}
+async def update_question(question: Question):
+    id = await db.update_question(question)
+    return id
 
 
 @router.delete("/{question_id}", description="Delete a question")
-async def delete_question(question_id: int):
-    return {"message": f"Delete question {question_id}"}
+async def delete_question(question_id: str):
+    count = await db.delete_question(question_id)
+    return count

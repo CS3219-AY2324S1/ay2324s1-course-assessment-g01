@@ -3,8 +3,9 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from motor import motor_asyncio
 from motor.core import AgnosticClient, AgnosticDatabase
-from models.models import Question, MongoQuestion
+from models.models import Question
 from config.config import Settings
+from bson import ObjectId
 
 client: AgnosticClient = None
 db: AgnosticDatabase = None
@@ -17,9 +18,15 @@ def init_database():
     db = client.questions
 
 
+# Get all questions
+async def get_questions() -> List[Question]:
+    questions: List[Question] = await db["questions"].find().to_list(length=100)
+    return questions
+
+
 # Get random easy question
 async def get_easy_question():
-    data: List[MongoQuestion] = (
+    data: List[Question] = (
         await db["questions"]
         .aggregate(
             [
@@ -29,16 +36,13 @@ async def get_easy_question():
         )
         .to_list(length=1)
     )
+
+    # Check if data is empty
     if len(data) == 0:
         raise HTTPException(status_code=404, detail="Question not found")
-    question: Question = {
-        "id": str(data[0]["_id"]),
-        "title": data[0]["title"],
-        "description": data[0]["description"],
-        "categories": data[0]["categories"],
-        "complexity": data[0]["complexity"],
-    }
-    return question
+
+    # Return the first element
+    return data[0]
 
 
 # Get random medium question
@@ -53,16 +57,13 @@ async def get_medium_question():
         )
         .to_list(length=1)
     )
+
+    # Check if data is empty
     if len(data) == 0:
         raise HTTPException(status_code=404, detail="Question not found")
-    question = {
-        "id": str(data[0]["_id"]),
-        "title": data[0]["title"],
-        "description": data[0]["description"],
-        "categories": data[0]["categories"],
-        "complexity": data[0]["complexity"],
-    }
-    return question
+
+    # Return the first element
+    return data[0]
 
 
 # Get random hard question
@@ -77,16 +78,13 @@ async def get_hard_question() -> Question:
         )
         .to_list(length=1)
     )
+
+    # Check if data is empty
     if len(data) == 0:
         raise HTTPException(status_code=404, detail="Question not found")
-    question: Question = {
-        "id": str(data[0]["_id"]),
-        "title": data[0]["title"],
-        "description": data[0]["description"],
-        "categories": data[0]["categories"],
-        "complexity": data[0]["complexity"],
-    }
-    return question
+
+    # Return the first element
+    return data[0]
 
 
 # Add a question
@@ -95,3 +93,21 @@ async def add_question(question: Question) -> str:
     if not res.acknowledged:
         raise HTTPException(status_code=500, detail="Failed to add question")
     return JSONResponse(status_code=201, content=str(res.inserted_id))
+
+
+# Update a question
+async def update_question(question: Question):
+    res = await db["questions"].update_one(
+        {"_id": ObjectId(question.id)}, {"$set": question.model_dump()}
+    )
+    if not res.acknowledged or res.modified_count != 1:
+        raise HTTPException(status_code=500, detail="Failed to update question")
+    return JSONResponse(status_code=200, content=str(res.upserted_id))
+
+
+# Delete a question
+async def delete_question(question_id: str):
+    res = await db["questions"].delete_one({"_id": ObjectId(question_id)})
+    if not res.acknowledged or res.deleted_count != 1:
+        raise HTTPException(status_code=500, detail="Failed to delete question")
+    return JSONResponse(status_code=200, content=str(res.deleted_count))
