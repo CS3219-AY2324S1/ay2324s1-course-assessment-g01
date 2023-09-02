@@ -1,20 +1,27 @@
 from pydantic import BaseModel, Field
 from typing import List
+from enum import Enum
+
+
+class Complexity(str, Enum):
+    EASY = "Easy"
+    MEDIUM = "Medium"
+    HARD = "Hard"
 
 
 class Question(BaseModel):
     title: str
     description: str
     categories: List[str]
-    complexity: str
+    complexity: Complexity
 
     class Config:
         schema_extra = {
             "example": {
                 "title": "Programming question",
                 "description": "Answer this easy question",
-                "categories": ["array", "string"],
-                "complexity": "easy",
+                "categories": ["Array", "String"],
+                "complexity": "Easy",
             }
         }
 
@@ -24,15 +31,16 @@ class QuestionWithId(BaseModel):
     title: str
     description: str
     categories: List[str]
-    complexity: str
+    complexity: Complexity
 
     class Config:
         schema_extra = {
             "example": {
+                "_id": "5f8f1a9b9d9b4b3d9c1d9c7a",
                 "title": "Programming question",
                 "description": "Answer this easy question",
-                "categories": ["array", "string"],
-                "complexity": "easy",
+                "categories": ["Array", "String"],
+                "complexity": "Easy",
             }
         }
 
@@ -43,5 +51,5 @@ def convert(question: dict) -> QuestionWithId:
         title=question["title"],
         description=question["description"],
         categories=question["categories"],
-        complexity=question["complexity"],
+        complexity=str(question["complexity"]),
     )

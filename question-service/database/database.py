@@ -28,7 +28,7 @@ async def get_easy_question():
         await db["questions"]
         .aggregate(
             [
-                {"$match": {"complexity": "easy"}},
+                {"$match": {"complexity": "Easy"}},
                 {"$sample": {"size": 1}},
             ]
         )
@@ -50,7 +50,7 @@ async def get_medium_question():
         await db["questions"]
         .aggregate(
             [
-                {"$match": {"complexity": "medium"}},
+                {"$match": {"complexity": "Medium"}},
                 {"$sample": {"size": 1}},
             ]
         )
@@ -72,7 +72,7 @@ async def get_hard_question():
         await db["questions"]
         .aggregate(
             [
-                {"$match": {"complexity": "hard"}},
+                {"$match": {"complexity": "Hard"}},
                 {"$sample": {"size": 1}},
             ]
         )
