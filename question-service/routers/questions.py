@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 import database.database as db
-from models.models import Question, QuestionWithId
+from models.models import Question, QuestionWithId, Complexity
 from typing import List
 import logging
 
@@ -29,7 +29,7 @@ async def get_questions() -> List[QuestionWithId]:
 @router.get("/easy", description="Get random easy question")
 async def get_easy_question() -> QuestionWithId:
     try:
-        question: QuestionWithId = await db.get_easy_question()
+        question: QuestionWithId = await db.get_random_question(Complexity.EASY)
         return question
     except Exception as e:
         logging.error(f"get_easy_question | {str(e)}")
@@ -39,7 +39,7 @@ async def get_easy_question() -> QuestionWithId:
 @router.get("/medium", description="Get random medium question")
 async def get_medium_question() -> QuestionWithId:
     try:
-        question: QuestionWithId = await db.get_medium_question()
+        question: QuestionWithId = await db.get_random_question(Complexity.MEDIUM)
         return question
     except Exception as e:
         logging.error(f"get_medium_question | {str(e)}")
@@ -49,7 +49,7 @@ async def get_medium_question() -> QuestionWithId:
 @router.get("/hard", description="Get random hard question")
 async def get_hard_question() -> QuestionWithId:
     try:
-        question: QuestionWithId = await db.get_hard_question()
+        question: QuestionWithId = await db.get_random_question(Complexity.HARD)
         return question
     except Exception as e:
         logging.error(f"get_hard_question | {str(e)}")

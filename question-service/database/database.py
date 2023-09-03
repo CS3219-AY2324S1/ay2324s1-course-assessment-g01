@@ -1,9 +1,7 @@
 from typing import List
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import HTTPException
 from motor import motor_asyncio
 from motor.core import AgnosticClient
-from models.models import Question, QuestionWithId, convert
+from models.models import Question, QuestionWithId, Complexity, convert
 from config.config import Settings
 from bson import ObjectId
 
@@ -22,57 +20,13 @@ async def get_questions() -> List[QuestionWithId]:
     return questions
 
 
-# Get random easy question
-async def get_easy_question():
+# Get random question of specified difficulty
+async def get_random_question(complexity: Complexity):
     data: List = (
         await db["questions"]
         .aggregate(
             [
-                {"$match": {"complexity": "Easy"}},
-                {"$sample": {"size": 1}},
-            ]
-        )
-        .to_list(length=1)
-    )
-
-    # Check if data is empty
-    if len(data) == 0:
-        raise Exception("Question not found")
-
-    # Return the first element
-    questions: List[QuestionWithId] = [convert(question) for question in data]
-    return questions[0]
-
-
-# Get random medium question
-async def get_medium_question():
-    data: List = (
-        await db["questions"]
-        .aggregate(
-            [
-                {"$match": {"complexity": "Medium"}},
-                {"$sample": {"size": 1}},
-            ]
-        )
-        .to_list(length=1)
-    )
-
-    # Check if data is empty
-    if len(data) == 0:
-        raise Exception("Question not found")
-
-    # Return the first element
-    questions: List[QuestionWithId] = [convert(question) for question in data]
-    return questions[0]
-
-
-# Get random hard question
-async def get_hard_question():
-    data = (
-        await db["questions"]
-        .aggregate(
-            [
-                {"$match": {"complexity": "Hard"}},
+                {"$match": {"complexity": complexity.value}},
                 {"$sample": {"size": 1}},
             ]
         )
