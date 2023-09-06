@@ -94,7 +94,7 @@ func Register(c *fiber.Ctx) error {
 	}
 
 	if err := database.DB.Create(&user).Error; err != nil {
-		return utils.ErrorResponse(c, err.Error())
+		return utils.ErrorResponse(c, utils.DuplicateRecord)
 	}
 	return utils.CreateRequestResponse(c, user)
 }
@@ -108,10 +108,10 @@ func Deregister(c *fiber.Ctx) error {
 
 	var user models.User
 
-	// Find user with this email
-	res := database.DB.Where("email = ?", data["email"]).First(&user)
+	// Find user by user_id
+	res := database.DB.Where("user_id = ?", data["user_id"]).First(&user)
 	if res.RowsAffected == 0 {
-		return utils.ErrorResponse(c, utils.InvalidEmail)
+		return utils.ErrorResponse(c, utils.RecordNotFound)
 	}
 
 	database.DB.Delete(&user)
