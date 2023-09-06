@@ -20,8 +20,16 @@ async def get_questions() -> List[QuestionWithId]:
     return questions
 
 
+async def get_specific_question(question_id: str) -> QuestionWithId:
+    # find one with id
+    data = await db["questions"].find_one({"_id": ObjectId(question_id)})
+    if data is None:
+        raise Exception("Question not found")
+    return convert(data)
+
+
 # Get random question of specified difficulty
-async def get_random_question(complexity: Complexity):
+async def get_random_question(complexity: Complexity) -> QuestionWithId:
     data: List = (
         await db["questions"]
         .aggregate(
@@ -54,7 +62,7 @@ async def add_question(question: Question) -> str:
 
 
 # Update a question
-async def update_question(question: QuestionWithId):
+async def update_question(question: QuestionWithId) -> str:
     res = await db["questions"].update_one(
         {"_id": ObjectId(question.id)}, {"$set": question.model_dump()}
     )
@@ -67,11 +75,11 @@ async def update_question(question: QuestionWithId):
 
 
 # Delete a question
-async def delete_question(question_id: str):
+async def delete_question(question_id: str) -> int:
     res = await db["questions"].delete_one({"_id": ObjectId(question_id)})
 
     # Check if deleted
     if not res.acknowledged or res.deleted_count != 1:
         raise Exception("Failed to delete question", res.acknowledged)
 
-    return str(res.deleted_count)
+    return res.deleted_count
