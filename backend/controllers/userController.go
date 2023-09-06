@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -15,12 +16,31 @@ import (
 const SecretKey = "secret"
 
 func UserJwt(c *fiber.Ctx) error {
-	var data map[string]string
 
-	if err := c.BodyParser(&data); err != nil {
-		return err
+	// Get the Authorization header from the request
+	authHeader := c.Get("Authorization")
+
+	// Check if the Authorization header is empty
+	if authHeader == "" {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"message": "Unauthorized",
+		})
 	}
-	user, err := utils.GetCurrentUser(c, SecretKey, data["jwt"])
+
+	// Split the Authorization header into two parts: "Bearer" and the token
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"message": "Invalid token",
+		})
+	}
+
+	// Get the token from the Authorization header
+	token := parts[1]
+
+	user, err := utils.GetCurrentUser(c, SecretKey, token)
 
 	if err != nil {
 		c.Status(fiber.StatusNotFound)

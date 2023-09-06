@@ -1,10 +1,7 @@
-### Insert the jwt received from login response
+### Insert the jwt received from login response as auth bearer token
 POST http://localhost:3000/api/v1/user
 Content-Type: application/json
 
-{
-    "jwt": ""
-}
 ###
 GET http://localhost:3000/api/v1/user?id=6
 Content-Type: application/json
@@ -30,22 +27,22 @@ Content-Type: application/json
 }
 ###
 
-POST http://localhost:3000/api/user/deregister
+POST http://localhost:3000/api/v1/user/deregister
 Content-Type: application/json
 
 {
   "email": "test1@example.com"
 }
 ###
-POST http://localhost:3000/api/user/login
+POST http://localhost:3000/api/v1/user/login
 Content-Type: application/json
 
 {
-  "email": "abby@test.com",
-  "password": "abby123456"
+  "email": "test1@example.com",
+  "password": "1234"
 }
 ### password value is the new password
-POST http://localhost:3000/api/user/changepassword
+POST http://localhost:3000/api/v1/user/changepassword
 Content-Type: application/json
 
 {
