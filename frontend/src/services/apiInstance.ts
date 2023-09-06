@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const baseInstance = axios.create({
-  baseURL: "http://localhost:5173/api/v1", // TODO: change to env for deployment
+  baseURL: "/api/v1", // TODO: change to env for deployment
 });
 
 // TODO: change for login
