@@ -15,8 +15,8 @@ const QuestionPage = () => {
       <LoadingOverlay visible={isLoading} overlayBlur={2} />
       {data && (
         <>
-          <Title mb='md'>
-            {data.id}: {data.title}
+          <Title mb="md">
+            {data._id}: {data.title}
           </Title>
           <Paper withBorder p="md">
             <Title order={2}>Description</Title>
