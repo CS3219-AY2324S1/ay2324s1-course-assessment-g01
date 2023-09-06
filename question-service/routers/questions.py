@@ -26,6 +26,18 @@ async def get_questions() -> List[QuestionWithId]:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
+@router.get("/{question_id}", description="Get a specific question")
+async def get_specific_question(question_id: str) -> QuestionWithId:
+    try:
+        question: QuestionWithId = await db.get_specific_question(question_id)
+        return question
+    except Exception as e:
+        logging.error(f"get_specific_question | {str(e)}")
+        raise HTTPException(
+            status_code=404, detail=f"No question with id={question_id} exists"
+        )
+
+
 @router.get("/easy", description="Get random easy question")
 async def get_easy_question() -> QuestionWithId:
     try:
