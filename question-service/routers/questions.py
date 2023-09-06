@@ -7,7 +7,7 @@ from typing import List
 import logging
 
 router = APIRouter(
-    prefix="/api/questions",
+    prefix="/api/v1/questions",
     tags=["Questions"],
     responses={
         404: {"description": "Not found"},
