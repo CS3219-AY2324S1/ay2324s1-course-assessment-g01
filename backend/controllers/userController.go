@@ -14,19 +14,43 @@ import (
 
 const SecretKey = "secret"
 
-func User(c *fiber.Ctx) error {
+func UserJwt(c *fiber.Ctx) error {
 	var data map[string]string
 
 	if err := c.BodyParser(&data); err != nil {
 		return err
 	}
-	user, err := utils.GetCurrentUser(c, SecretKey, data["jwt_token"])
+	user, err := utils.GetCurrentUser(c, SecretKey, data["jwt"])
 
 	if err != nil {
 		c.Status(fiber.StatusNotFound)
 		return utils.ErrorResponse(c, utils.UserNotFound)
 	}
 	return utils.GetRequestResponse(c, user)
+}
+
+func GetUserById(c *fiber.Ctx) error {
+	userId := c.Query("id")
+	id, err := strconv.Atoi(userId)
+	if err != nil {
+		return utils.ErrorResponse(c, utils.InvalidId)
+	}
+
+	var user models.User
+
+	if err := database.DB.Where("user_id = ?", id).First(&user).Error; err != nil {
+		c.Status(fiber.StatusNotFound)
+		return utils.ErrorResponse(c, utils.UserNotFound)
+	}
+
+	return utils.GetRequestResponse(c, user)
+}
+
+func GetAllUsers(c *fiber.Ctx) error {
+	var users []models.User
+
+	database.DB.Find(&users)
+	return utils.GetRequestResponse(c, users)
 }
 
 func Register(c *fiber.Ctx) error {
@@ -50,7 +74,7 @@ func Register(c *fiber.Ctx) error {
 	}
 
 	if err := database.DB.Create(&user).Error; err != nil {
-		return utils.ErrorResponse(c, utils.CreateError)
+		return utils.ErrorResponse(c, err.Error())
 	}
 	return utils.CreateRequestResponse(c, user)
 }
@@ -107,7 +131,7 @@ func Login(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, utils.LogInError)
 	}
 
-	return utils.GetRequestResponse(c, fiber.Map{"jwt_token": token})
+	return utils.GetRequestResponse(c, fiber.Map{"jwt": token})
 }
 
 func ResetPassword(c *fiber.Ctx) error {
