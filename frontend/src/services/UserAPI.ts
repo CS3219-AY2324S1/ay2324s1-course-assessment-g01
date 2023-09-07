@@ -33,6 +33,12 @@ export const logout = () => {
   localStorage.removeItem("jwt");
 };
 
+// TODO: should use JWT to determine user
+export const deregister = async (user_id: number) => {
+  const data = await baseInstance.post("/user/deregister", { user_id });
+  return data.data;
+};
+
 // TODO: should use JWT to determine user and change name accordingly
 export const changeName = async (email: string, name: string) => {
   const data = await baseInstance.post("/user/changename", {
