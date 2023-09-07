@@ -12,17 +12,19 @@ import {
   Stack,
   Center,
 } from "@mantine/core";
-import { FormEvent, useContext, useState } from "react";
-import { register } from "../services/UserAPI";
+import { FormEvent, useContext, useEffect, useState } from "react";
+import { getUserData, login, register } from "../services/UserAPI";
 import { UserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 
 export function LoginPage(props: PaperProps) {
   const [type, toggle] = useToggle(["login", "register"]);
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const [message, setMessage] = useState("");
   const nav = useNavigate();
-  if (user) nav("/");
+  useEffect(() => {
+    if (user) nav("/questions");
+  });
 
   const form = useForm({
     initialValues: {
@@ -54,7 +56,16 @@ export function LoginPage(props: PaperProps) {
         });
       }
     } else {
-      console.log("login");
+      try {
+        const { jwt } = await login(form.values.email, form.values.password);
+        const userData = await getUserData();
+        setUser({ jwt, ...userData });
+        localStorage.setItem("user", JSON.stringify({ jwt, ...userData }));
+      } catch (e) {
+        console.log(e);
+
+        form.setErrors({ error: "Login failed" });
+      }
     }
   };
 

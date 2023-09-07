@@ -21,8 +21,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         withGlobalStyles
         withNormalizeCSS
       >
-        <BrowserRouter>
-          <UserContextProvider>
+        <UserContextProvider>
+          <BrowserRouter>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/" element={<ProtectedRoute />}>
@@ -33,8 +33,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 </Route>
               </Route>
             </Routes>
-          </UserContextProvider>
-        </BrowserRouter>
+          </BrowserRouter>
+        </UserContextProvider>
       </MantineProvider>
     </QueryClientProvider>
   </React.StrictMode>,

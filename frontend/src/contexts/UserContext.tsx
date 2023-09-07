@@ -1,12 +1,6 @@
-import React, { PropsWithChildren, createContext, useState } from "react";
-
-type User = {
-  jwt: string;
-  name: string;
-  access_type: string;
-  email: string;
-  userId: string;
-};
+import { PropsWithChildren, createContext, useEffect, useState } from "react";
+import { User } from "../types/User";
+import { setInterceptor } from "../services/apiInstance";
 
 type UserContextProps = {
   user: User | null;
@@ -16,9 +10,15 @@ type UserContextProps = {
 export const UserContext = createContext<UserContextProps>(
   {} as UserContextProps,
 );
-
 const UserContextProvider = ({ children }: PropsWithChildren) => {
   const [user, setuser] = useState<User | null>(null);
+  useEffect(() => {
+    if (localStorage.getItem("user")) {
+      const user: User = JSON.parse(localStorage.getItem("user")!);
+      setuser(user);
+      setInterceptor(user.jwt);
+    }
+  }, []);
 
   return (
     <UserContext.Provider

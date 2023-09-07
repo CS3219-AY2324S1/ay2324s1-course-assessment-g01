@@ -1,15 +1,17 @@
-import React, { PropsWithChildren, useContext } from "react";
+import { useContext, useEffect } from "react";
 import { UserContext } from "../contexts/UserContext";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
-const ProtectedRoute = ({ children }: PropsWithChildren) => {
+const ProtectedRoute = () => {
   const { user } = useContext(UserContext);
   const nav = useNavigate();
-  if (!user) {
-    nav("/login");
-  }
+  useEffect(() => {
+    if (!user) {
+      nav("/login");
+    }
+  }, [nav, user]);
 
-  return <>{children}</>;
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
