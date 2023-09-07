@@ -9,6 +9,7 @@ const (
 	PasswordChanged   string = "Password is changed"
 	NameChanged       string = "User name is changed"
 	InvalidEmail      string = "Invalid email address"
+	InvalidId         string = "Invalid id"
 	GetError          string = "Error occured when fetching result"
 	CreateError       string = "Error occured when creating record"
 	UpdateError       string = "Error occured when updating record"
@@ -17,4 +18,5 @@ const (
 	ForbiddenAction   string = "User cannot perform this operation"
 	Success           string = "Operation success"
 	RecordNotFound    string = "No record is found"
+	DuplicateRecord   string = "Record already exists"
 )

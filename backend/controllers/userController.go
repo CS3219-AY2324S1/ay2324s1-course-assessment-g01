@@ -5,6 +5,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -14,19 +15,62 @@ import (
 
 const SecretKey = "secret"
 
-func User(c *fiber.Ctx) error {
-	var data map[string]string
+func UserJwt(c *fiber.Ctx) error {
 
-	if err := c.BodyParser(&data); err != nil {
-		return err
+	// Get the Authorization header from the request
+	authHeader := c.Get("Authorization")
+
+	// Check if the Authorization header is empty
+	if authHeader == "" {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"message": "Unauthorized",
+		})
 	}
-	user, err := utils.GetCurrentUser(c, SecretKey, data["jwt_token"])
+
+	// Split the Authorization header into two parts: "Bearer" and the token
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"message": "Invalid token",
+		})
+	}
+
+	// Get the token from the Authorization header
+	token := parts[1]
+
+	user, err := utils.GetCurrentUser(c, SecretKey, token)
 
 	if err != nil {
 		c.Status(fiber.StatusNotFound)
 		return utils.ErrorResponse(c, utils.UserNotFound)
 	}
 	return utils.GetRequestResponse(c, user)
+}
+
+func GetUserById(c *fiber.Ctx) error {
+	userId := c.Query("id")
+	id, err := strconv.Atoi(userId)
+	if err != nil {
+		return utils.ErrorResponse(c, utils.InvalidId)
+	}
+
+	var user models.User
+
+	if err := database.DB.Where("user_id = ?", id).First(&user).Error; err != nil {
+		c.Status(fiber.StatusNotFound)
+		return utils.ErrorResponse(c, utils.UserNotFound)
+	}
+
+	return utils.GetRequestResponse(c, user)
+}
+
+func GetAllUsers(c *fiber.Ctx) error {
+	var users []models.User
+
+	database.DB.Find(&users)
+	return utils.GetRequestResponse(c, users)
 }
 
 func Register(c *fiber.Ctx) error {
@@ -50,7 +94,7 @@ func Register(c *fiber.Ctx) error {
 	}
 
 	if err := database.DB.Create(&user).Error; err != nil {
-		return utils.ErrorResponse(c, utils.CreateError)
+		return utils.ErrorResponse(c, utils.DuplicateRecord)
 	}
 	return utils.CreateRequestResponse(c, user)
 }
@@ -64,10 +108,10 @@ func Deregister(c *fiber.Ctx) error {
 
 	var user models.User
 
-	// Find user with this email
-	res := database.DB.Where("email = ?", data["email"]).First(&user)
+	// Find user by user_id
+	res := database.DB.Where("user_id = ?", data["user_id"]).First(&user)
 	if res.RowsAffected == 0 {
-		return utils.ErrorResponse(c, utils.InvalidEmail)
+		return utils.ErrorResponse(c, utils.RecordNotFound)
 	}
 
 	database.DB.Delete(&user)
@@ -107,7 +151,7 @@ func Login(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, utils.LogInError)
 	}
 
-	return utils.GetRequestResponse(c, fiber.Map{"jwt_token": token})
+	return utils.GetRequestResponse(c, fiber.Map{"jwt": token})
 }
 
 func ResetPassword(c *fiber.Ctx) error {

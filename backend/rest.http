@@ -1,11 +1,22 @@
-### Insert the jwt_token received from login response
-POST http://localhost:3000/api/user
+### Insert the jwt received from login response as auth bearer token
+POST http://localhost:3000/api/v1/user
+Content-Type: application/json
+
+###
+GET http://localhost:3000/api/v1/user?id=6
+Content-Type: application/json
+
 {
-    "jwt_token": ""
+}
+###
+GET http://localhost:3000/api/v1/user/all
+Content-Type: application/json
+
+{
 }
 ###
 
-POST http://localhost:3000/api/user/register
+POST http://localhost:3000/api/v1/user/register
 Content-Type: application/json
 
 {
@@ -16,22 +27,22 @@ Content-Type: application/json
 }
 ###
 
-POST http://localhost:3000/api/user/deregister
+POST http://localhost:3000/api/v1/user/deregister
 Content-Type: application/json
 
 {
   "email": "test1@example.com"
 }
 ###
-POST http://localhost:3000/api/user/login
+POST http://localhost:3000/api/v1/user/login
 Content-Type: application/json
 
 {
-  "email": "abby@test.com",
-  "password": "abby123456"
+  "email": "test1@example.com",
+  "password": "1234"
 }
 ### password value is the new password
-POST http://localhost:3000/api/user/changepassword
+POST http://localhost:3000/api/v1/user/changepassword
 Content-Type: application/json
 
 {
@@ -39,7 +50,7 @@ Content-Type: application/json
   "password": "654321"
 }
 ### name value is the new name
-POST http://localhost:3000/api/user/changename
+POST http://localhost:3000/api/v1/user/changename
 Content-Type: application/json
 
 {

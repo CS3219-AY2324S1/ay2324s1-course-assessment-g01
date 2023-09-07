@@ -21,14 +21,14 @@ func ParseUint(s string) (uint, error) {
 	return uint(num), err
 }
 
-func GetJwtToken(cookie string, SecretKey string) (*jwt.Token, error) {
+func GetJwt(cookie string, SecretKey string) (*jwt.Token, error) {
 	return jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(SecretKey), nil
 	})
 }
 
-func GetCurrentUser(c *fiber.Ctx, SecretKey string, jwt_token string) (models.User, error) {
-	token, err := GetJwtToken(jwt_token, SecretKey)
+func GetCurrentUser(c *fiber.Ctx, SecretKey string, jwToken string) (models.User, error) {
+	token, err := GetJwt(jwToken, SecretKey)
 
 	var user models.User
 
