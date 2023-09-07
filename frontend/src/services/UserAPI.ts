@@ -27,3 +27,8 @@ export const getUserData = async () => {
   const data = await baseInstance.post<Omit<User, "jwt">>("/user");
   return data.data;
 };
+
+export const logout = () => {
+  baseInstance.interceptors.request.clear();
+  localStorage.removeItem("user");
+};

@@ -1,16 +1,11 @@
-import { AppShell, Header, Text } from "@mantine/core";
+import { AppShell } from "@mantine/core";
 import "./App.css";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import AppHeader from "./components/AppHeader";
 
 function App() {
   return (
-    <AppShell
-      header={
-        <Header p="xs" height={60}>
-          <Text size={24} component={Link} to="/">Home</Text>
-        </Header>
-      }
-    >
+    <AppShell header={<AppHeader />}>
       <Outlet></Outlet>
     </AppShell>
   );

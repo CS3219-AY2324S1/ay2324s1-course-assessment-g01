@@ -6,6 +6,7 @@ import { LoadingOverlay } from "@mantine/core";
 type UserContextProps = {
   user: User | null;
   setUser: (user: User) => void;
+  logout: () => void;
 };
 
 export const UserContext = createContext<UserContextProps>(
@@ -29,6 +30,9 @@ const UserContextProvider = ({ children }: PropsWithChildren) => {
         user,
         setUser(user) {
           setuser(user);
+        },
+        logout() {
+          setuser(null);
         },
       }}
     >
