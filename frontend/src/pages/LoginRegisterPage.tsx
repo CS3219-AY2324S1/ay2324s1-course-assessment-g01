@@ -13,17 +13,17 @@ import {
   Center,
 } from "@mantine/core";
 import { FormEvent, useContext, useEffect, useState } from "react";
-import { getUserData, login, register } from "../services/UserAPI";
+import { login, register } from "../services/UserAPI";
 import { UserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 
 export function LoginPage(props: PaperProps) {
   const [type, toggle] = useToggle(["login", "register"]);
-  const { user, setUser } = useContext(UserContext);
+  const { jwt, setJwt } = useContext(UserContext);
   const [message, setMessage] = useState("");
   const nav = useNavigate();
   useEffect(() => {
-    if (user) nav("/");
+    if (jwt) nav("/");
   });
 
   const form = useForm({
@@ -58,9 +58,8 @@ export function LoginPage(props: PaperProps) {
     } else {
       try {
         const { jwt } = await login(form.values.email, form.values.password);
-        const userData = await getUserData();
-        setUser({ jwt, ...userData });
-        localStorage.setItem("user", JSON.stringify({ jwt, ...userData }));
+        setJwt(jwt);
+        localStorage.setItem("jwt", jwt);
       } catch (e) {
         console.log(e);
 
