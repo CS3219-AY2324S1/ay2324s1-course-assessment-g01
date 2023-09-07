@@ -1,7 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { MantineProvider } from "@mantine/core";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  redirect,
+} from "react-router-dom";
 import App from "./App.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import QuestionPage from "./pages/QuestionPage.tsx";
@@ -25,11 +31,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/" element={<ProtectedRoute />}>
+              <Route element={<ProtectedRoute />}>
                 <Route element={<App />}>
-                  <Route path="/questions" element={<LandingPage />} />
+                  <Route path="/" index element={<LandingPage />} />
                   <Route path="/question/:id" element={<QuestionPage />} />
                   <Route path="/create" element={<CreateQuestionPage />} />
+
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>
               </Route>
             </Routes>

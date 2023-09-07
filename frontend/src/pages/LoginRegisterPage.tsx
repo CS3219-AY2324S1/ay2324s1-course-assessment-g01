@@ -23,7 +23,7 @@ export function LoginPage(props: PaperProps) {
   const [message, setMessage] = useState("");
   const nav = useNavigate();
   useEffect(() => {
-    if (user) nav("/questions");
+    if (user) nav("/");
   });
 
   const form = useForm({
