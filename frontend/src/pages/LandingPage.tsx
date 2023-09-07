@@ -1,4 +1,4 @@
-import { Button, Table, Text } from "@mantine/core";
+import { Button, Center, Loader, Table, Text } from "@mantine/core";
 import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -6,7 +6,11 @@ import { Link } from "react-router-dom";
 const LandingPage = () => {
   const queryClient = useQueryClient();
 
-  const questionsQuery = useQuery({
+  const {
+    data: questions,
+    isLoading,
+    isRefetching,
+  } = useQuery({
     queryKey: ["questions"],
     queryFn: getQuestions,
   });
@@ -34,11 +38,11 @@ const LandingPage = () => {
           </tr>
         </thead>
         <tbody>
-          {questionsQuery.data?.map((question) => (
-            <tr key={question.id}>
-              <td>{question.id}</td>
+          {questions?.map((question) => (
+            <tr key={question._id}>
+              <td>{question._id}</td>
               <td>
-                <Text to={`/question/${question.id}`} component={Link}>
+                <Text to={`/question/${question._id}`} component={Link}>
                   {question.title}
                 </Text>
               </td>
@@ -46,7 +50,8 @@ const LandingPage = () => {
               <td>{question.complexity}</td>
               <td>
                 <Button
-                  onClick={() => deleteQuestionMutation.mutate(question.id)}
+                  onClick={() => deleteQuestionMutation.mutate(question._id)}
+                  loading={deleteQuestionMutation.isLoading}
                 >
                   Delete
                 </Button>
@@ -55,6 +60,11 @@ const LandingPage = () => {
           ))}
         </tbody>
       </Table>
+      {(isLoading || isRefetching) && (
+        <Center>
+          <Loader />
+        </Center>
+      )}
     </section>
   );
 };

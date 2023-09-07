@@ -13,7 +13,6 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addQuestion } from "../services/QuestionsAPI";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
 
 interface FormValues {
   title: string;
@@ -59,6 +58,7 @@ const CreateQuestionPage = () => {
     onError: (error) => {
       form.setErrors({ title: error as string });
     },
+    
   });
 
   return (
@@ -66,11 +66,11 @@ const CreateQuestionPage = () => {
       onSubmit={(e) => {
         e.preventDefault();
         if (!form.validate().hasErrors) {
-          mutation.mutate({ id: uuidv4(), ...form.values });
+          mutation.mutate({ ...form.values });
         }
       }}
     >
-      <Paper mx='auto' maw={"50%"} shadow="xs" p="xl" mb="xs">
+      <Paper mx="auto" maw={"50%"} shadow="xs" p="xl" mb="xs">
         <Title>Add a new question</Title>
 
         <Stack>
@@ -107,7 +107,7 @@ const CreateQuestionPage = () => {
             }
             data={[Complexity.easy, Complexity.medium, Complexity.hard]}
           ></NativeSelect>
-          <Button type="submit">Save</Button>
+          <Button loading={mutation.isLoading} type="submit">Save</Button>
         </Stack>
       </Paper>
     </form>
