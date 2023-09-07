@@ -10,7 +10,7 @@ export default defineConfig({
         target: "http://localhost:8080",
         secure: false,
       },
-      "/api/v1/user": "http://localhost:3001",
+      "/api/v1/user": "http://localhost:3000",
     },
   },
 });
