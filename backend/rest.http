@@ -1,9 +1,9 @@
 ### Insert the jwt received from login response as auth bearer token
 POST http://localhost:3000/api/v1/user
 Content-Type: application/json
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTQwODU5NTcsImlzcyI6IjE2In0.1QgCIH59Xb3GswjRAvUTKgZ1lA4kr_s4YNlLEExojZw
 ###
-GET http://localhost:3000/api/v1/user?id=6
+GET http://localhost:3000/api/v1/user?id=8
 Content-Type: application/json
 
 {
@@ -20,7 +20,7 @@ POST http://localhost:3000/api/v1/user/register
 Content-Type: application/json
 
 {
-  "email": "test2@example.com",
+  "email": "test1@example.com",
   "password": "1234",
   "name": "test1",
   "access_type": "1"
