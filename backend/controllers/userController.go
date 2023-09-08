@@ -100,7 +100,7 @@ func Register(c *fiber.Ctx) error {
 }
 
 func Deregister(c *fiber.Ctx) error {
-	var data map[string]string
+	var data map[string]uint
 
 	if err := c.BodyParser(&data); err != nil {
 		return err

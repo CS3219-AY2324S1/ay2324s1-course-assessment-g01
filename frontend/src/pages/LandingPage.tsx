@@ -2,10 +2,10 @@ import { Button, Center, Loader, Table, Text } from "@mantine/core";
 import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import WelcomeComponent from "../components/WelcomeComponent";
 
 const LandingPage = () => {
   const queryClient = useQueryClient();
-
   const {
     data: questions,
     isLoading,
@@ -24,6 +24,7 @@ const LandingPage = () => {
 
   return (
     <section>
+      <WelcomeComponent />
       <Button component={Link} to="/create">
         Create new question
       </Button>

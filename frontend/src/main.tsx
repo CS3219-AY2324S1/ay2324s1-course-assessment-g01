@@ -6,7 +6,6 @@ import {
   Navigate,
   Route,
   Routes,
-  redirect,
 } from "react-router-dom";
 import App from "./App.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

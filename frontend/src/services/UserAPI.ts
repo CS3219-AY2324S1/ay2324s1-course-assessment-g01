@@ -24,6 +24,26 @@ export const login = async (email: string, password: string) => {
 };
 
 export const getUserData = async () => {
-  const data = await baseInstance.post<Omit<User, "jwt">>("/user");
+  const data = await baseInstance.post<User>("/user");
+  return data.data;
+};
+
+export const logout = () => {
+  baseInstance.interceptors.request.clear();
+  localStorage.removeItem("jwt");
+};
+
+// TODO: should use JWT to determine user
+export const deregister = async (user_id: number) => {
+  const data = await baseInstance.post("/user/deregister", { user_id });
+  return data.data;
+};
+
+// TODO: should use JWT to determine user and change name accordingly
+export const changeName = async (email: string, name: string) => {
+  const data = await baseInstance.post("/user/changename", {
+    email,
+    name,
+  });
   return data.data;
 };
