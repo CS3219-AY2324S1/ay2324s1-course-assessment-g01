@@ -2,8 +2,8 @@ services:
   postgres:
     image: postgres:14-alpine
     ports:
-      - '5000:5432'
+      - "5000:5432"
     user: postgres
     environment:
-      POSTGRES_PASSWORD: '123'
-      POSTGRES_DB: 'dev'
+      POSTGRES_PASSWORD: "123"
+      POSTGRES_DB: "dev"
