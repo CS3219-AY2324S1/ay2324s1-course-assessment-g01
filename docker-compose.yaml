@@ -1,0 +1,36 @@
+services:
+  question-service:
+    build: ./question-service
+    ports:
+      - 8080:8080
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/questions
+    depends_on:
+      - mongo
+      
+  mongo:
+    image: bitnami/mongodb:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongodb/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    depends_on:
+      - mongo
+  
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - "5000:5432"
+    user: postgres
+    environment:
+      POSTGRES_PASSWORD: "123"
+      POSTGRES_DB: "dev"
+
+  user-service:
+    build: ./user-service
