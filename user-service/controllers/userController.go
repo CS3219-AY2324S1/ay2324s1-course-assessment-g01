@@ -5,7 +5,6 @@ import (
 	"backend/models"
 	"backend/utils"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -17,28 +16,11 @@ const SecretKey = "secret"
 
 func UserJwt(c *fiber.Ctx) error {
 
-	// Get the Authorization header from the request
-	authHeader := c.Get("Authorization")
+	token, err := utils.GetAuthBearerToken(c)
 
-	// Check if the Authorization header is empty
-	if authHeader == "" {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"message": "Unauthorized",
-		})
+	if err != nil {
+		return utils.ErrorResponse(c, err.Error())
 	}
-
-	// Split the Authorization header into two parts: "Bearer" and the token
-	parts := strings.Split(authHeader, " ")
-	if len(parts) != 2 || parts[0] != "Bearer" {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"message": "Invalid token",
-		})
-	}
-
-	// Get the token from the Authorization header
-	token := parts[1]
 
 	user, err := utils.GetCurrentUser(c, SecretKey, token)
 
@@ -80,11 +62,14 @@ func Register(c *fiber.Ctx) error {
 		return err
 	}
 
-	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
-	access_type, err := utils.ParseUint(data["access_type"])
-	if err != nil {
-		return err
+	token, authErr := utils.GetAuthBearerToken(c)
+	access_type, parseErr := utils.ParseUint(data["access_type"])
+
+	if parseErr != nil || authErr != nil || token != SecretKey {
+		access_type = 2
 	}
+
+	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
 
 	user := models.User{
 		Email:      data["email"],
