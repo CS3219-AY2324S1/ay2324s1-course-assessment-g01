@@ -66,7 +66,7 @@ func Register(c *fiber.Ctx) error {
 	access_type, parseErr := utils.ParseUint(data["access_type"])
 
 	if parseErr != nil || authErr != nil || token != SecretKey {
-		access_type = 2
+		access_type = 3
 	}
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
