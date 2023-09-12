@@ -47,9 +47,10 @@ services:
 
   front-end:
     build: ./frontend
-    # volumes:
-    #   - type: bind
-    #     source: ./frontend
-    #     target: /app
+    volumes:
+      - type: bind
+        source: ./frontend
+        target: /app
+      - /app/node_modules
     ports:
       - "3001:5173"
