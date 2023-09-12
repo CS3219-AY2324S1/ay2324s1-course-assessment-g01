@@ -3,6 +3,10 @@ services:
     build: ./question-service
     ports:
       - 8080:8080
+    volumes:
+      - type: bind
+        source: ./question-service
+        target: /app
     environment:
       - MONGODB_URL=mongodb://mongo:27017/questions
     depends_on:
@@ -34,8 +38,18 @@ services:
 
   user-service:
     build: ./user-service
+    # volumes:
+    #   - type: bind
+    #     source: ./user-service
+    #     target: /app
+    depends_on:
+      - postgres
 
   front-end:
     build: ./frontend
+    # volumes:
+    #   - type: bind
+    #     source: ./frontend
+    #     target: /app
     ports:
       - "3001:5173"
