@@ -12,5 +12,7 @@ export default defineConfig({
       },
       "/api/v1/user": "http://localhost:3000",
     },
+    host: "0.0.0.0",
+    port: 5173
   },
 });

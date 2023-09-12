@@ -34,3 +34,8 @@ services:
 
   user-service:
     build: ./user-service
+
+  front-end:
+    build: ./frontend
+    ports:
+      - "3001:5173"
