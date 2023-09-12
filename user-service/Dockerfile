@@ -6,6 +6,10 @@ ADD . /app
 
 WORKDIR /app
 
-RUN go build -o main . 
+RUN go build -o main .
 
-CMD ["/app/main"]
+RUN mkdir /build
+
+RUN mv main build
+
+CMD ["/app/build/main"]

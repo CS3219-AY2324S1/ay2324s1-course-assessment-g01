@@ -38,10 +38,11 @@ services:
 
   user-service:
     build: ./user-service
-    # volumes:
-    #   - type: bind
-    #     source: ./user-service
-    #     target: /app
+    volumes:
+      - type: bind
+        source: ./user-service
+        target: /app
+      - /app/build
     depends_on:
       - postgres
 
