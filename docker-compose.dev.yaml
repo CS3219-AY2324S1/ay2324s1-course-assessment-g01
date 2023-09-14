@@ -40,10 +40,10 @@ services:
     build:
       context: ./user-service
       dockerfile: Dockerfile.dev
+    env_file:
+      - ./user-service/.env
     volumes:
-      - type: bind
-        source: ./user-service
-        target: /app
+      - ./user-service:/app
     ports: 
       - "3000:3000"
     depends_on:
@@ -52,8 +52,6 @@ services:
   front-end:
     build: ./frontend
     volumes:
-      - type: bind
-        source: ./frontend/src
-        target: /app/src
+      - "./frontend/src:/app/src"
     ports:
       - "5173:5173"
