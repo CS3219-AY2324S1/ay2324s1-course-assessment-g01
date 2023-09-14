@@ -8,4 +8,7 @@ WORKDIR /app
 
 EXPOSE 3000
 
-CMD ["go", "run", "main.go"]
+RUN go install github.com/mitranim/gow@latest
+
+
+CMD ["gow" ,"run", "."]
