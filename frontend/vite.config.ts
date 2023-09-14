@@ -7,10 +7,12 @@ export default defineConfig({
   server: {
     proxy: {
       "/api/v1/questions": {
-        target: "http://localhost:8080",
+        target: "http://question-service:8080",
         secure: false,
       },
-      "/api/v1/user": "http://localhost:3000",
+      "/api/v1/user": "http://user-service:3000",
     },
+    host: "0.0.0.0",
+    port: 5173
   },
 });
