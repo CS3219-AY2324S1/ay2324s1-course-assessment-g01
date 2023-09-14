@@ -1,6 +1,8 @@
 services:
   question-service:
-    build: ./question-service
+    build:
+      context: ./question-service
+      dockerfile: Dockerfile.dev
     ports:
       - 8080:8080
     volumes:
@@ -11,7 +13,7 @@ services:
       - MONGODB_URL=mongodb://mongo:27017/questions
     depends_on:
       - mongo
-      
+
   mongo:
     image: bitnami/mongodb:latest
     ports:
@@ -26,7 +28,7 @@ services:
       - 8081:8081
     depends_on:
       - mongo
-  
+
   postgres:
     image: postgres:14-alpine
     ports:
