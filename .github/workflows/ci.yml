@@ -22,5 +22,12 @@ jobs:
             - name: Build
               working-directory: ./frontend
               run: 'yarn build'
-          
+    user-service:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+        - name: Build
+          working-directory: ./user-service
+          run: go build
     
