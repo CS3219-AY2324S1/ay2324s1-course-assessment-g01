@@ -1,6 +1,7 @@
 import { useContext, useEffect } from "react";
 import { UserContext } from "../contexts/UserContext";
 import { Outlet, useNavigate } from "react-router-dom";
+import { Loader } from "@mantine/core";
 
 const ProtectedRoute = () => {
   const { jwt } = useContext(UserContext);
@@ -11,6 +12,7 @@ const ProtectedRoute = () => {
     }
   }, [nav, jwt]);
 
+  if (!jwt) return <Loader />;
   return <Outlet />;
 };
 
