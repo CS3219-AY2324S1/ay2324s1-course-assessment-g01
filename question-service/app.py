@@ -1,8 +1,11 @@
 import uvicorn
-from fastapi import FastAPI, Depends
-from fastapi.security import HTTPBearer
-from routers.questions import router as question_router
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from routers.questions import router as question_router, admin_router
 from database.database import init_database
+import requests
+from typing_extensions import Annotated
+
 
 app = FastAPI(
     title="PeerPrep Question Service",
@@ -19,12 +22,25 @@ async def startup_event():
 
 
 # Check bearer token against the user service
-def check_token(token: str = Depends(HTTPBearer())):
-    return True
+def check_token(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())) -> int:
+    res = requests.post(
+        url="http://user-service:3000/api/v1/user",
+        headers={"Authorization": "Bearer {}".format(token.credentials)},
+    )
+
+    if not res.ok:
+        raise HTTPException(status_code=401)
+    return res.json()
 
 
-# Question router
+def is_admin(access_type: Annotated[int, Depends(check_token)]):
+    if access_type != 2:
+        raise HTTPException(status_code=403, detail="Not an admin")
+
+
+# Routers
 app.include_router(question_router, dependencies=[Depends(check_token)])
+app.include_router(admin_router, dependencies=[Depends(is_admin)])
 
 
 if __name__ == "__main__":

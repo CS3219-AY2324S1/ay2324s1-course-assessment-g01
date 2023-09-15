@@ -15,6 +15,15 @@ router = APIRouter(
     },
 )
 
+admin_router = APIRouter(
+    prefix="/api/v1/questions",
+    tags=["Questions"],
+    responses={
+        404: {"description": "Not found"},
+        500: {"description": "Internal Server Error"},
+    },
+)
+
 
 @router.get("/", description="Get all questions")
 async def get_questions() -> List[QuestionWithId]:
@@ -68,7 +77,7 @@ async def get_hard_question() -> QuestionWithId:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/", description="Add a question")
+@admin_router.post("/", description="Add a question")
 async def add_question(question: Question) -> JSONResponse:
     try:
         id: str = await db.add_question(question)
@@ -79,7 +88,7 @@ async def add_question(question: Question) -> JSONResponse:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.put("/", description="Update a question")
+@admin_router.put("/", description="Update a question")
 async def update_question(question: QuestionWithId):
     try:
         id: str = await db.update_question(question)
@@ -90,7 +99,7 @@ async def update_question(question: QuestionWithId):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.delete("/{question_id}", description="Delete a question")
+@admin_router.delete("/{question_id}", description="Delete a question")
 async def delete_question(question_id: str):
     try:
         count: int = await db.delete_question(question_id)
