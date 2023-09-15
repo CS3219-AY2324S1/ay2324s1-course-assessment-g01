@@ -2,7 +2,7 @@ import { Complexity, Question } from "../types/Question";
 
 export const mockQuestions: Question[] = [
   {
-    id: "1",
+    _id: "1",
     categories: ["Strings"],
     title: "Reverse a string",
     complexity: Complexity.easy,
@@ -24,7 +24,7 @@ s[i] is a printable ascii character.
 `,
   },
   {
-    id: "2",
+    _id: "2",
     categories: ["Data Structures", "Algorithms"],
     title: "Linked List Cycle Detection ",
     complexity: Complexity.easy,
