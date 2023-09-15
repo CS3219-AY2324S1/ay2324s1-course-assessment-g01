@@ -2,11 +2,9 @@ FROM node:lts-alpine
 
 WORKDIR /app
 
-COPY package.json .
+COPY . .
 
 RUN yarn 
-
-COPY . .
 
 ## EXPOSE [Port you mentioned in the vite.config file]
 
