@@ -22,7 +22,7 @@ async def startup_event():
 
 
 # Check bearer token against the user service
-def check_token(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())) -> int:
+def check_token(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())) -> str:
     res = requests.post(
         url="http://user-service:3000/api/v1/user",
         headers={"Authorization": "Bearer {}".format(token.credentials)},
@@ -30,7 +30,7 @@ def check_token(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())) -> 
 
     if not res.ok:
         raise HTTPException(status_code=401)
-    return res.json()
+    return res.json()['access_type']
 
 
 def is_admin(access_type: Annotated[int, Depends(check_token)]):
