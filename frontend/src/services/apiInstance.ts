@@ -1,6 +1,4 @@
 import axios, { AxiosError } from "axios";
-import { logout } from "./UserAPI";
-import { redirect } from "react-router-dom";
 
 export const baseInstance = axios.create({
   baseURL: "/api/v1", // TODO: change to env for deployment
