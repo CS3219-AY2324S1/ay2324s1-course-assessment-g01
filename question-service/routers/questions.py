@@ -69,7 +69,7 @@ async def get_hard_question() -> QuestionWithId:
 
 
 @router.post("/", description="Add a question")
-async def add_question(question: Question) -> str:
+async def add_question(question: Question) -> JSONResponse:
     try:
         id: str = await db.add_question(question)
         logging.info(f"Added question with id: {id}")
