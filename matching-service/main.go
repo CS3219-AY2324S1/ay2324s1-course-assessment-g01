@@ -12,7 +12,23 @@ import (
 
 func main() {
 	m := melody.New()
+	setupHTTPHandlers(m)
 
+	rabbitMqConn := handlers.CreateConnection()
+	defer rabbitMqConn.Close()
+
+	rabbitMqChannel := handlers.CreateChannel(rabbitMqConn)
+	defer rabbitMqChannel.Close()
+
+	queues := handlers.CreateQueues(rabbitMqChannel)
+	go handlers.ConsumeMessages(rabbitMqChannel, queues)
+
+	port := config.GetServicePort()
+	log.Println(utils.MatchingServicePortLog + port)
+	http.ListenAndServe(port, nil)
+}
+
+func setupHTTPHandlers(m *melody.Melody) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(utils.HelloMessage))
 	})
@@ -25,8 +41,4 @@ func main() {
 		res := handlers.HandleMessage(msg)
 		s.Write(res)
 	})
-
-	port := config.GetServicePort()
-	log.Println(utils.MatchingServicePortLog + port)
-	http.ListenAndServe(port, nil)
 }

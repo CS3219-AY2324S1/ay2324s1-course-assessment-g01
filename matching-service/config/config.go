@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"matching-service/utils"
 	"os"
@@ -28,4 +29,14 @@ func GoDotEnvVariable(key string) string {
 // return port used by matching-service
 func GetServicePort() string {
 	return ":" + GoDotEnvVariable("MATCHING_SERVICE_PORT")
+}
+
+func GetRabbitMQConnString() string {
+	conn := fmt.Sprint(
+		"amqp://", GoDotEnvVariable("RABBITMQ_USER"),
+		":", GoDotEnvVariable("RABBITMQ_PASS"),
+		"@", GoDotEnvVariable("RABBITMQ_HOST"),
+		":", GoDotEnvVariable("RABBITMQ_PORT"),
+	)
+	return conn
 }

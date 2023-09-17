@@ -6,7 +6,7 @@ import (
 	"matching-service/utils"
 )
 
-// HandleMessage handles a message sent by a client
+// handles messages sent by a client
 func HandleMessage(msg []byte) []byte {
 	// create a Message object
 	var message models.Message
@@ -26,6 +26,7 @@ func HandleMessage(msg []byte) []byte {
 	return []byte(res)
 }
 
+// parses the message type and runs the appropriate handler
 func parseAndRun(messageType models.MessageType, message *[]byte) string {
 	switch messageType {
 	case models.StartMatch:
@@ -37,6 +38,7 @@ func parseAndRun(messageType models.MessageType, message *[]byte) string {
 	}
 }
 
+// handles a start message
 func handleStart(msg *[]byte) string {
 	// unmarshal into UserRequest object
 	var userRequest models.UserRequest
@@ -52,6 +54,7 @@ func handleStart(msg *[]byte) string {
 	return string(userRequest.Difficulty)
 }
 
+// handles a stop message
 func handleStop() string {
 	return "Stop"
 }
