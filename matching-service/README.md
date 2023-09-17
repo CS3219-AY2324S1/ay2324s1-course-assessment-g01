@@ -28,7 +28,7 @@ The following actions can be done:
 {
     "user_id": 1, // uint
     "message": "Start", // Start/Stop
-    "difficulty": "Easy" // Required for "Start", optional for the rest
+    "difficulty": "Easy" // Required for "Start", optional for the rest - Easy/Medium/Hard
 }
 ```
 

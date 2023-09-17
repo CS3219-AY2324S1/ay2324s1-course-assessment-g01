@@ -6,6 +6,7 @@ import (
 	"log"
 	"matching-service/config"
 	"matching-service/models"
+	"matching-service/utils"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -18,7 +19,7 @@ func CreateConnection() *amqp.Connection {
 	// Connect to RabbitMQ
 	conn, err := amqp.Dial(rabbitMQURL)
 	if err != nil {
-		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+		log.Fatalf("%s: %v", utils.RabbitMQConnectionError, err)
 	}
 	return conn
 }
@@ -27,7 +28,7 @@ func CreateChannel(conn *amqp.Connection) *amqp.Channel {
 	// Create a channel
 	ch, err := conn.Channel()
 	if err != nil {
-		log.Fatalf("Failed to open a channel: %v", err)
+		log.Fatalf("%s: %v", utils.RabbitMQChannelError, err)
 	}
 	return ch
 }
@@ -43,7 +44,7 @@ func createQueue(name string, ch *amqp.Channel) *amqp.Queue {
 		nil,   // arguments
 	)
 	if err != nil {
-		log.Fatalf("Failed to declare a queue: %v", err)
+		log.Fatalf("%s: %v", utils.RabbitMQQueueError, err)
 	}
 	return &q
 }
@@ -52,9 +53,9 @@ func CreateQueues(ch *amqp.Channel) map[string]*amqp.Queue {
 	var queues map[string]*amqp.Queue = make(map[string]*amqp.Queue)
 
 	// create queues
-	queues["easy"] = createQueue("easy", ch)
-	queues["medium"] = createQueue("medium", ch)
-	queues["hard"] = createQueue("hard", ch)
+	queues[string(models.Easy)] = createQueue(string(models.Easy), ch)
+	queues[string(models.Medium)] = createQueue(string(models.Medium), ch)
+	queues[string(models.Hard)] = createQueue(string(models.Hard), ch)
 
 	return queues
 }
@@ -72,7 +73,7 @@ func PublishMessage(ch *amqp.Channel, queueName string, msg []byte) {
 			Body:        msg,
 		})
 	if err != nil {
-		log.Fatalf("Failed to publish a message: %v", err)
+		log.Fatalf("%s: %v", utils.RabbitMQPublishError, err)
 	}
 }
 
@@ -87,7 +88,7 @@ func consumeMessage(ch *amqp.Channel, queueName string) *models.UserRequest {
 		nil,   // args
 	)
 	if err != nil {
-		log.Fatalf("Failed to register a consumer: %v", err)
+		log.Fatalf("%s: %v", utils.RabbitMQConsumeError, err)
 	}
 
 	// consume one message at a time
@@ -100,7 +101,7 @@ func consumeMessage(ch *amqp.Channel, queueName string) *models.UserRequest {
 	var userRequest models.UserRequest
 	err = json.Unmarshal(msg.Body, &userRequest)
 	if err != nil {
-		log.Fatalf("Failed to unmarshal message: %v", err)
+		log.Fatalf("%s: %v", utils.UnmarshalError, err)
 	}
 
 	return &userRequest
