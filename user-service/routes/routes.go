@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"backend/controllers"
+	"user-service/controllers"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -11,7 +11,7 @@ func Setup(app *fiber.App) {
 
 	user_api := api.Group("/user")
 	user_api.Get("", controllers.GetUserById)
-	user_api.Post("", controllers.UserJwt)
+	user_api.Post("", controllers.GetUserByJwt)
 	user_api.Get("/all", controllers.GetAllUsers)
 	user_api.Post("/register", controllers.Register)
 	user_api.Post("/deregister", controllers.Deregister)
