@@ -8,7 +8,7 @@ import logging
 
 router = APIRouter(
     prefix="/api/v1/questions",
-    tags=["Questions"],
+    tags=["General"],
     responses={
         404: {"description": "Not found"},
         500: {"description": "Internal Server Error"},
@@ -17,7 +17,7 @@ router = APIRouter(
 
 admin_router = APIRouter(
     prefix="/api/v1/questions",
-    tags=["Questions"],
+    tags=["Admin"],
     responses={
         404: {"description": "Not found"},
         500: {"description": "Internal Server Error"},
