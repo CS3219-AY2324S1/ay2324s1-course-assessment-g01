@@ -36,6 +36,8 @@ services:
     build: ./user-service
     ports: 
       - "3000:3000"
+    env_file:
+      - ./user-service/.env
     depends_on:
       - postgres
 
