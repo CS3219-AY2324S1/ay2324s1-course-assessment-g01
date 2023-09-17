@@ -49,6 +49,29 @@ services:
     depends_on:
       - postgres
 
+  matching-service:
+    build:
+      context: ./matching-service
+      dockerfile: Dockerfile.dev
+    environment:
+      - MATCHING_SERVICE_PORT=8082
+    volumes:
+      - ./matching-service:/app
+    ports:
+      - "8082:8082"
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672" # local development only
+      - "15672:15672"
+
   front-end:
     build: ./frontend
     volumes:
