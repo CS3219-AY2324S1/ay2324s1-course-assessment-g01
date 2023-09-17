@@ -7,7 +7,7 @@ services:
       - MONGODB_URL=mongodb://mongo:27017/questions
     depends_on:
       - mongo
-      
+
   mongo:
     image: bitnami/mongodb:latest
     ports:
@@ -22,7 +22,7 @@ services:
       - 8081:8081
     depends_on:
       - mongo
-  
+
   postgres:
     image: postgres:14-alpine
     ports:
@@ -34,7 +34,7 @@ services:
 
   user-service:
     build: ./user-service
-    ports: 
+    ports:
       - "3000:3000"
     depends_on:
       - postgres
@@ -43,12 +43,16 @@ services:
     build:
       context: ./matching-service
       dockerfile: Dockerfile.dev
-    environment:
-      - MATCHING_SERVICE_PORT=8082
     volumes:
       - ./matching-service:/app
     ports:
       - "8082:8082"
+    environment:
+      - MATCHING_SERVICE_PORT=8082
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=15672
     depends_on:
       - rabbitmq
 
