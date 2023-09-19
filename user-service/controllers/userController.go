@@ -66,7 +66,7 @@ func Register(c *fiber.Ctx) error {
 	access_type, parseErr := utils.ParseUint(data["access_type"])
 
 	if parseErr != nil || authErr != nil || token != SecretKey {
-		access_type = 3
+		access_type = 2
 	}
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
@@ -125,9 +125,13 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	// Create JWT token
-	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    strconv.Itoa(int(user.UserId)),
-		ExpiresAt: time.Now().Add(time.Hour).Unix(), // 1 hour
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"iss":   "Peerprep",
+		"aud":   "User",
+		"iat":   time.Now().Unix(),
+		"sub":   strconv.Itoa(int(user.UserId)),
+		"exp":   time.Now().Add(time.Hour).Unix(), // 1 hour
+		"roles": strconv.Itoa(int(user.AccessType)),
 	})
 
 	token, err := claims.SignedString([]byte(SecretKey))

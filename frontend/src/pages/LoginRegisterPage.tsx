@@ -6,21 +6,45 @@ import {
   Text,
   Paper,
   Group,
-  PaperProps,
   Button,
   Anchor,
   Stack,
   Center,
 } from "@mantine/core";
-import { FormEvent, useContext, useEffect, useState } from "react";
+import { FormEvent, useContext, useEffect } from "react";
 import { login, register } from "../services/UserAPI";
 import { UserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 
-export function LoginPage(props: PaperProps) {
+export function LoginPage() {
   const [type, toggle] = useToggle(["login", "register"]);
   const { jwt, setJwt } = useContext(UserContext);
-  const [message, setMessage] = useState("");
+
+  // Login mutation
+  const { isLoading: loginLoading, mutate: loginMutate } = useMutation({
+    mutationFn: () => login(form.values.email, form.values.password),
+    async onSuccess({ jwt }) {
+      setJwt(jwt);
+      localStorage.setItem("jwt", jwt);
+    },
+    onError() {
+      form.setErrors({ error: "Login failed" });
+    },
+  });
+
+  // Register mutation
+  const { isLoading: registerLoading, mutate: registerMutate } = useMutation({
+    mutationFn: () => register({ ...form.values }),
+    onSuccess() {
+      loginMutate();
+    },
+    onError() {
+      form.setErrors({ error: "Error registering: user already registered" });
+    },
+  });
+
+  // navigate away if already logged in
   const nav = useNavigate();
   useEffect(() => {
     if (jwt) nav("/");
@@ -47,30 +71,15 @@ export function LoginPage(props: PaperProps) {
     e.preventDefault();
     if (form.validate().hasErrors) return;
     if (type == "register") {
-      try {
-        await register({ ...form.values, access_type: "1" });
-        setMessage("Registration successful");
-      } catch {
-        form.setErrors({
-          error: "Registration failed: user already exists",
-        });
-      }
+      registerMutate();
     } else {
-      try {
-        const { jwt } = await login(form.values.email, form.values.password);
-        setJwt(jwt);
-        localStorage.setItem("jwt", jwt);
-      } catch (e) {
-        console.log(e);
-
-        form.setErrors({ error: "Login failed" });
-      }
+      loginMutate();
     }
   };
 
   return (
     <Center h={"100vh"}>
-      <Paper radius="md" p="xl" withBorder {...props}>
+      <Paper radius="md" p="xl" withBorder>
         <Text size="lg" weight={500}>
           Welcome to PeerPrep, {type} with
         </Text>
@@ -126,11 +135,14 @@ export function LoginPage(props: PaperProps) {
                 ? "Already have an account? Login"
                 : "Don't have an account? Register"}
             </Anchor>
-            <Button type="submit" radius="xl">
+            <Button
+              type="submit"
+              radius="xl"
+              loading={loginLoading || registerLoading}
+            >
               {upperFirst(type)}
             </Button>
           </Group>
-          <Text color="green">{message}</Text>
           <Text color="red">{form.errors.error}</Text>
         </form>
       </Paper>

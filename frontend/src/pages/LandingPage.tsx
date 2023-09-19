@@ -3,6 +3,9 @@ import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import WelcomeComponent from "../components/WelcomeComponent";
+import { User } from "../types/User";
+import { isAdmin } from "../utils/userUtils";
+import { getUserData } from "../services/UserAPI";
 
 const LandingPage = () => {
   const queryClient = useQueryClient();
@@ -22,12 +25,20 @@ const LandingPage = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["questions"] }),
   });
 
+  const { data: user } = useQuery<User>({
+    queryKey: ["user"],
+    queryFn: getUserData,
+  });
+
   return (
     <section>
       <WelcomeComponent />
-      <Button component={Link} to="/create">
-        Create new question
-      </Button>
+
+      {user && isAdmin(user) && (
+        <Button component={Link} to="/create">
+          Create new question
+        </Button>
+      )}
       <Table>
         <thead>
           <tr>
@@ -35,7 +46,7 @@ const LandingPage = () => {
             <th>Title</th>
             <th>Category</th>
             <th>Complexity</th>
-            <th>Delete</th>
+            {user && isAdmin(user) && <th>Delete</th>}
           </tr>
         </thead>
         <tbody>
@@ -49,14 +60,16 @@ const LandingPage = () => {
               </td>
               <td>{question.categories.join(",")}</td>
               <td>{question.complexity}</td>
-              <td>
-                <Button
-                  onClick={() => deleteQuestionMutation.mutate(question._id)}
-                  loading={deleteQuestionMutation.isLoading}
-                >
-                  Delete
-                </Button>
-              </td>
+              {user && isAdmin(user) && (
+                <td>
+                  <Button
+                    onClick={() => deleteQuestionMutation.mutate(question._id)}
+                    loading={deleteQuestionMutation.isLoading}
+                  >
+                    Delete
+                  </Button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
