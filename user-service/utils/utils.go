@@ -1,14 +1,14 @@
 package utils
 
 import (
-	"backend/config"
-	"backend/database"
-	"backend/models"
 	"fmt"
 	"math/rand"
 	"net/smtp"
 	"strconv"
 	"strings"
+	"user-service/config"
+	"user-service/database"
+	"user-service/models"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"

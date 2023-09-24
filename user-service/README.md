@@ -25,9 +25,9 @@ username: postgres
 password: 123
 ```
 
-## Instructions to initialize Backend services
+## Instructions to initialize user-service
 
-1. Run below command from the same directory in a terminal to start the backend service.
+1. Run below command from the same directory in a terminal to start the user-service service.
 
 ```bash
 go run main.go
