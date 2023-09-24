@@ -64,7 +64,7 @@ func CreateQueues(ch *amqp.Channel) map[string]*amqp.Queue {
 	return queues
 }
 
-func PublishMessage(ch *amqp.Channel, queueName string, userRequest models.UserRequest) {
+func PublishMessage(ch *amqp.Channel, queueName string, userRequest models.User) {
 	// marshal the message into a JSON object
 	msgJson, _ := json.Marshal(userRequest)
 
@@ -100,8 +100,8 @@ func consumeMessage(ch *amqp.Channel, queueName string) {
 		log.Fatalf("%s: %v", utils.RabbitMQConsumeError, err)
 	}
 
-	var current models.UserRequest
-	current = models.UserRequest{}
+	var current models.User
+	current = models.User{}
 
 	for msg := range msgs {
 		// acknowledge the message
@@ -109,18 +109,18 @@ func consumeMessage(ch *amqp.Channel, queueName string) {
 		msg.Ack(false)
 
 		// marshal the message into a UserRequest object
-		var userRequest models.UserRequest
+		var userRequest models.User
 		err = json.Unmarshal(msg.Body, &userRequest)
 		if err != nil {
 			log.Fatalf("%s: %v", utils.UnmarshalError, err)
 		}
 
-		if current.User.UserId == 0 {
+		if current.UserId == 0 {
 			current = userRequest
 		} else {
 			// TODO replace with logic to match users
-			fmt.Printf("Matched %d and %d\n", current.User.UserId, userRequest.User.UserId)
-			current = models.UserRequest{}
+			fmt.Printf("Matched %d and %d\n", current.UserId, userRequest.UserId)
+			current = models.User{}
 		}
 	}
 }
