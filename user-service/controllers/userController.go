@@ -4,18 +4,22 @@ import (
 	"strconv"
 	"time"
 	"user-service/config"
-	"user-service/database"
 	"user-service/models"
 	"user-service/utils"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 var SecretKey = config.GoDotEnvVariable("SECRET_KEY")
 
-func GetUserByJwt(c *fiber.Ctx) error {
+type UserController struct {
+	DB *gorm.DB
+}
+
+func (controller *UserController) GetUserByJwt(c *fiber.Ctx) error {
 
 	token, err := utils.GetAuthBearerToken(c)
 
@@ -23,7 +27,7 @@ func GetUserByJwt(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, err.Error())
 	}
 
-	user, err := utils.GetCurrentUser(c, SecretKey, token)
+	user, err := utils.GetCurrentUser(controller.DB, c, SecretKey, token)
 
 	if err != nil {
 		c.Status(fiber.StatusNotFound)
@@ -32,7 +36,7 @@ func GetUserByJwt(c *fiber.Ctx) error {
 	return utils.GetRequestResponse(c, user)
 }
 
-func GetUserById(c *fiber.Ctx) error {
+func (controller *UserController) GetUserById(c *fiber.Ctx) error {
 	userId := c.Query("id")
 	id, err := strconv.Atoi(userId)
 	if err != nil {
@@ -41,7 +45,7 @@ func GetUserById(c *fiber.Ctx) error {
 
 	var user models.User
 
-	if err := database.DB.Where("user_id = ?", id).First(&user).Error; err != nil {
+	if err := controller.DB.Where("user_id = ?", id).First(&user).Error; err != nil {
 		c.Status(fiber.StatusNotFound)
 		return utils.ErrorResponse(c, utils.UserNotFound)
 	}
@@ -49,14 +53,14 @@ func GetUserById(c *fiber.Ctx) error {
 	return utils.GetRequestResponse(c, user)
 }
 
-func GetAllUsers(c *fiber.Ctx) error {
+func (controller *UserController) GetAllUsers(c *fiber.Ctx) error {
 	var users []models.User
 
-	database.DB.Find(&users)
+	controller.DB.Find(&users)
 	return utils.GetRequestResponse(c, users)
 }
 
-func Register(c *fiber.Ctx) error {
+func (controller *UserController) Register(c *fiber.Ctx) error {
 	var data map[string]string
 
 	if err := c.BodyParser(&data); err != nil {
@@ -79,13 +83,13 @@ func Register(c *fiber.Ctx) error {
 		AccessType: access_type,
 	}
 
-	if err := database.DB.Create(&user).Error; err != nil {
+	if err := controller.DB.Create(&user).Error; err != nil {
 		return utils.ErrorResponse(c, utils.DuplicateRecord)
 	}
 	return utils.CreateRequestResponse(c, user)
 }
 
-func Deregister(c *fiber.Ctx) error {
+func (controller *UserController) Deregister(c *fiber.Ctx) error {
 	var data map[string]uint
 
 	if err := c.BodyParser(&data); err != nil {
@@ -95,16 +99,16 @@ func Deregister(c *fiber.Ctx) error {
 	var user models.User
 
 	// Find user by user_id
-	res := database.DB.Where("user_id = ?", data["user_id"]).First(&user)
+	res := controller.DB.Where("user_id = ?", data["user_id"]).First(&user)
 	if res.RowsAffected == 0 {
 		return utils.ErrorResponse(c, utils.RecordNotFound)
 	}
 
-	database.DB.Delete(&user)
+	controller.DB.Delete(&user)
 	return utils.DeleteRequestResponse(c, user)
 }
 
-func Login(c *fiber.Ctx) error {
+func (controller *UserController) Login(c *fiber.Ctx) error {
 	var data map[string]string
 
 	if err := c.BodyParser(&data); err != nil {
@@ -113,7 +117,7 @@ func Login(c *fiber.Ctx) error {
 
 	var user models.User
 
-	database.DB.Where("email = ?", data["email"]).First(&user)
+	controller.DB.Where("email = ?", data["email"]).First(&user)
 
 	if user.UserId == 0 {
 		c.Status(fiber.StatusNotFound)
@@ -144,7 +148,7 @@ func Login(c *fiber.Ctx) error {
 	return utils.GetRequestResponse(c, fiber.Map{"jwt": token})
 }
 
-func ResetPassword(c *fiber.Ctx) error {
+func (controller *UserController) ResetPassword(c *fiber.Ctx) error {
 	var data map[string]string
 
 	if err := c.BodyParser(&data); err != nil {
@@ -163,13 +167,13 @@ func ResetPassword(c *fiber.Ctx) error {
 	emailTo := data["email"]
 
 	// Find user with this email
-	res := database.DB.Where("email = ?", emailTo).First(&user)
+	res := controller.DB.Where("email = ?", emailTo).First(&user)
 	if res.RowsAffected == 0 {
 		return utils.ErrorResponse(c, utils.InvalidEmail)
 	}
 
 	// Update password of this user
-	database.DB.Model(&user).Update("password", hashedNewPw)
+	controller.DB.Model(&user).Update("password", hashedNewPw)
 
 	// Send an email to the user to give them the new password
 	utils.SendEmail(newPw, emailTo)
@@ -177,7 +181,7 @@ func ResetPassword(c *fiber.Ctx) error {
 	return utils.ResponseBody(c, newPw)
 }
 
-func ChangePassword(c *fiber.Ctx) error {
+func (controller *UserController) ChangePassword(c *fiber.Ctx) error {
 	var data map[string]string
 
 	if err := c.BodyParser(&data); err != nil {
@@ -188,18 +192,18 @@ func ChangePassword(c *fiber.Ctx) error {
 	hashedNewPw, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
 
 	// Find user with this email
-	res := database.DB.Where("email = ?", data["email"]).First(&user)
+	res := controller.DB.Where("email = ?", data["email"]).First(&user)
 	if res.RowsAffected == 0 {
 		return utils.ErrorResponse(c, utils.InvalidEmail)
 	}
 
 	// Update password of this user
-	database.DB.Model(&user).Update("password", hashedNewPw)
+	controller.DB.Model(&user).Update("password", hashedNewPw)
 
 	return utils.ResponseBody(c, utils.PasswordChanged)
 }
 
-func ChangeName(c *fiber.Ctx) error {
+func (controller *UserController) ChangeName(c *fiber.Ctx) error {
 	var data map[string]string
 
 	if err := c.BodyParser(&data); err != nil {
@@ -209,13 +213,13 @@ func ChangeName(c *fiber.Ctx) error {
 	var user models.User
 
 	// Find user with this email
-	res := database.DB.Where("email = ?", data["email"]).First(&user)
+	res := controller.DB.Where("email = ?", data["email"]).First(&user)
 	if res.RowsAffected == 0 {
 		return utils.ErrorResponse(c, utils.InvalidEmail)
 	}
 
 	// Update name of this user
-	database.DB.Model(&user).Update("name", data["name"])
+	controller.DB.Model(&user).Update("name", data["name"])
 
 	return utils.ResponseBody(c, utils.NameChanged)
 }
