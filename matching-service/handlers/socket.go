@@ -18,7 +18,7 @@ func HandleMessage(msg []byte, ch *amqp091.Channel, store *utils.SocketStore, s 
 	// unmarshal the message into the Message object
 	err := json.Unmarshal(msg, &user)
 
-	// if there is an error, return an error message
+	// unmarshal error check
 	if err != nil {
 		return []byte(utils.UnmarshalError)
 	}
@@ -27,17 +27,17 @@ func HandleMessage(msg []byte, ch *amqp091.Channel, store *utils.SocketStore, s 
 	store.SetSocket(user.UserId, s)
 
 	// handle type of message accordingly
-	res := parseAndRun(user, &msg, ch, store)
+	res := parseAndRun(user, ch, store)
 
 	// return the message
 	return []byte(res)
 }
 
 // parses the message type and runs the appropriate handler
-func parseAndRun(user models.User, request *[]byte, ch *amqp091.Channel, store *utils.SocketStore) string {
+func parseAndRun(user models.User, ch *amqp091.Channel, store *utils.SocketStore) string {
 	switch user.Message {
 	case models.StartMatch:
-		return handleStart(request, ch)
+		return handleStart(user, ch)
 	case models.StopMatch:
 		return handleStop(user, store)
 	default:
@@ -46,15 +46,8 @@ func parseAndRun(user models.User, request *[]byte, ch *amqp091.Channel, store *
 }
 
 // handles a start message
-func handleStart(msg *[]byte, ch *amqp091.Channel) string {
-	// unmarshal into UserRequest object
-	var user models.User
-	err := json.Unmarshal(*msg, &user)
-
-	if err != nil {
-		// unmarshal error check
-		return utils.InvalidMessageTypeError
-	} else if user.Difficulty == "" {
+func handleStart(user models.User, ch *amqp091.Channel) string {
+	if user.Difficulty == "" {
 		// difficulty presence check
 		return utils.DifficultyUnspecifiedError
 	}
