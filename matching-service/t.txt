@@ -1,6 +1,0 @@
-{
-    "user_id": 1,
-    "message": "Start",
-    "difficulty": "Easy",
-	"jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJVc2VyIiwiZXhwIjoxNjk1NTYzNzQ4LCJpYXQiOjE2OTU1NjAxNDgsImlzcyI6IlBlZXJwcmVwIiwicm9sZXMiOiIyIiwic3ViIjoiMSJ9.6RvseV_mJQuHBqdEEgA8JTnQY_tgEzWLo_IUCQIiMMQ"
-}
