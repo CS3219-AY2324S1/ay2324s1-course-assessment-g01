@@ -39,6 +39,21 @@ services:
     depends_on:
       - postgres
 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"   # amqp
+      - "15672:15672" # management
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
+
   matching-service:
     build:
       context: ./matching-service
@@ -52,18 +67,10 @@ services:
       - RABBITMQ_USER=guest
       - RABBITMQ_PASS=guest
       - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=15672
+      - RABBITMQ_PORT=5672
+    restart: on-failure
     depends_on:
       - rabbitmq
-
-  rabbitmq:
-    image: rabbitmq:management
-    container_name: rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-    ports:
-      - "15672:15672"
 
   front-end:
     build: ./frontend

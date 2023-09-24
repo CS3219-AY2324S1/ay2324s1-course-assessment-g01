@@ -8,20 +8,20 @@ import (
 	"github.com/olahol/melody"
 )
 
-// SocketStore is a custom type that includes the socket map
+// SocketStore is a custom data structure that includes the socket map
 type SocketStore struct {
-	SocketMap map[string]*melody.Session
+	SocketMap map[uint]*melody.Session
 }
 
 // NewSocketStore creates a new SocketStore instance
 func NewSocketStore() *SocketStore {
 	return &SocketStore{
-		SocketMap: make(map[string]*melody.Session),
+		SocketMap: make(map[uint]*melody.Session),
 	}
 }
 
 // GetSocket gets a socket from the map
-func (s *SocketStore) GetSocket(key string) (*melody.Session, error) {
+func (s *SocketStore) GetSocket(key uint) (*melody.Session, error) {
 	// Check if the key exists
 	if val, ok := s.SocketMap[key]; ok {
 		return val, nil
@@ -30,15 +30,22 @@ func (s *SocketStore) GetSocket(key string) (*melody.Session, error) {
 }
 
 // SetSocket sets a socket in the map
-func (s *SocketStore) SetSocket(key string, value *melody.Session) {
+func (s *SocketStore) SetSocket(key uint, value *melody.Session) {
 	s.SocketMap[key] = value
 
 	// set a timer to delete the value in 5 minutes
 	_, cancel := context.WithCancel(context.Background())
 	time.AfterFunc(5*time.Minute, func() {
-		// delete the value
-		delete(s.SocketMap, key)
+		// delete the value if it exists
+		if _, ok := s.SocketMap[key]; ok {
+			delete(s.SocketMap, key)
+		}
 		// cancel the timer
 		cancel()
 	})
+}
+
+// DeleteSocket deletes a socket from the map
+func (s *SocketStore) DeleteSocket(key uint) {
+	delete(s.SocketMap, key)
 }

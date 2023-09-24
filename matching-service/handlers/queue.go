@@ -8,6 +8,7 @@ import (
 	"matching-service/config"
 	"matching-service/models"
 	"matching-service/utils"
+	"strconv"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -86,7 +87,7 @@ func PublishMessage(ch *amqp.Channel, queueName string, userRequest models.User)
 	}
 }
 
-func consumeMessage(ch *amqp.Channel, queueName string) {
+func consumeMessage(ch *amqp.Channel, queueName string, s *utils.SocketStore) {
 	msgs, err := ch.Consume(
 		queueName,
 		"",    // consumer/leave empty for auto-generated
@@ -108,25 +109,46 @@ func consumeMessage(ch *amqp.Channel, queueName string) {
 		fmt.Printf("Received a message: %s\n", msg.Body)
 		msg.Ack(false)
 
-		// marshal the message into a UserRequest object
+		// marshal the message into a User object
 		var userRequest models.User
 		err = json.Unmarshal(msg.Body, &userRequest)
 		if err != nil {
 			log.Fatalf("%s: %v", utils.UnmarshalError, err)
 		}
 
-		if current.UserId == 0 {
+		// check if current is empty or if the user ids match
+		if current.UserId == 0 || current.UserId == userRequest.UserId {
 			current = userRequest
 		} else {
-			// TODO replace with logic to match users
+			// check if current exists in socket store and is open
+			currentUserSocket, err := s.GetSocket(current.UserId)
+			if err != nil || currentUserSocket.IsClosed() {
+				current = userRequest
+				continue
+			}
+
+			// check if userRequest exists in socket store and is open
+			userRequestSocket, err := s.GetSocket(userRequest.UserId)
+
+			if err != nil || userRequestSocket.IsClosed() {
+				continue
+			}
+
+			// TODO create room using collaboration service
 			fmt.Printf("Matched %d and %d\n", current.UserId, userRequest.UserId)
+
+			// send message to both sockets
+			currentUserSocket.Write([]byte("Matched with " + strconv.FormatUint(uint64(userRequest.UserId), 10) + "\n"))
+			userRequestSocket.Write([]byte("Matched with " + strconv.FormatUint(uint64(current.UserId), 10) + "\n"))
+
+			// reset current
 			current = models.User{}
 		}
 	}
 }
 
-func ConsumeMessages(ch *amqp.Channel, queues map[string]*amqp.Queue) {
+func ConsumeMessages(ch *amqp.Channel, queues map[string]*amqp.Queue, s *utils.SocketStore) {
 	for queueName := range queues {
-		go consumeMessage(ch, queueName)
+		go consumeMessage(ch, queueName, s)
 	}
 }
