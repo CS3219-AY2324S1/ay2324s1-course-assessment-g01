@@ -37,9 +37,7 @@ func (s *SocketStore) SetSocket(key uint, value *melody.Session) {
 	_, cancel := context.WithCancel(context.Background())
 	time.AfterFunc(5*time.Minute, func() {
 		// delete the value if it exists
-		if _, ok := s.SocketMap[key]; ok {
-			delete(s.SocketMap, key)
-		}
+		delete(s.SocketMap, key)
 		// cancel the timer
 		cancel()
 	})
@@ -47,8 +45,5 @@ func (s *SocketStore) SetSocket(key uint, value *melody.Session) {
 
 // DeleteSocket deletes a socket from the map
 func (s *SocketStore) DeleteSocket(key uint) {
-	// check if key exists
-	if _, ok := s.SocketMap[key]; ok {
-		delete(s.SocketMap, key)
-	}
+	delete(s.SocketMap, key)
 }
