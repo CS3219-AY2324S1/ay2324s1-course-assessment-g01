@@ -141,6 +141,10 @@ func consumeMessage(ch *amqp.Channel, queueName string, s *utils.SocketStore) {
 			currentUserSocket.Write([]byte("Matched with " + strconv.FormatUint(uint64(userRequest.UserId), 10) + "\n"))
 			userRequestSocket.Write([]byte("Matched with " + strconv.FormatUint(uint64(current.UserId), 10) + "\n"))
 
+			// delete both sockets from the store
+			s.DeleteSocket(current.UserId)
+			s.DeleteSocket(userRequest.UserId)
+
 			// reset current
 			current = models.User{}
 		}
