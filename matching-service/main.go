@@ -8,11 +8,10 @@ import (
 	"net/http"
 
 	"github.com/olahol/melody"
+	"github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
-	m := melody.New()
-	setupHTTPHandlers(m)
 
 	rabbitMqConn := handlers.CreateConnection()
 	defer rabbitMqConn.Close()
@@ -23,12 +22,15 @@ func main() {
 	queues := handlers.CreateQueues(rabbitMqChannel)
 	go handlers.ConsumeMessages(rabbitMqChannel, queues)
 
+	m := melody.New()
+	setupHTTPHandlers(m, rabbitMqChannel)
+
 	port := config.GetServicePort()
 	log.Println(utils.MatchingServicePortLog + port)
 	http.ListenAndServe(port, nil)
 }
 
-func setupHTTPHandlers(m *melody.Melody) {
+func setupHTTPHandlers(m *melody.Melody, ch *amqp091.Channel) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(utils.HelloMessage))
 	})
@@ -38,7 +40,7 @@ func setupHTTPHandlers(m *melody.Melody) {
 	})
 
 	m.HandleMessage(func(s *melody.Session, msg []byte) {
-		res := handlers.HandleMessage(msg)
+		res := handlers.HandleMessage(msg, ch)
 		s.Write(res)
 	})
 }

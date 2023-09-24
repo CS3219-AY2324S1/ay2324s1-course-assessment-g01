@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"matching-service/models"
 	"matching-service/utils"
+
+	"github.com/rabbitmq/amqp091-go"
 )
 
 // handles messages sent by a client
-func HandleMessage(msg []byte) []byte {
+func HandleMessage(msg []byte, ch *amqp091.Channel) []byte {
 	// create a Message object
 	var message models.Message
 
@@ -20,17 +22,17 @@ func HandleMessage(msg []byte) []byte {
 	}
 
 	// handle type of message accordingly
-	res := parseAndRun(message.Message, &msg)
+	res := parseAndRun(message.Message, &msg, ch)
 
 	// return the message
 	return []byte(res)
 }
 
 // parses the message type and runs the appropriate handler
-func parseAndRun(messageType models.MessageType, message *[]byte) string {
+func parseAndRun(messageType models.MessageType, message *[]byte, ch *amqp091.Channel) string {
 	switch messageType {
 	case models.StartMatch:
-		return handleStart(message)
+		return handleStart(message, ch)
 	case models.StopMatch:
 		return handleStop()
 	default:
@@ -39,7 +41,7 @@ func parseAndRun(messageType models.MessageType, message *[]byte) string {
 }
 
 // handles a start message
-func handleStart(msg *[]byte) string {
+func handleStart(msg *[]byte, ch *amqp091.Channel) string {
 	// unmarshal into UserRequest object
 	var userRequest models.UserRequest
 	err := json.Unmarshal(*msg, &userRequest)
@@ -51,6 +53,7 @@ func handleStart(msg *[]byte) string {
 		// difficulty presence check
 		return utils.DifficultyUnspecifiedError
 	}
+	PublishMessage(ch, string(userRequest.Difficulty), userRequest)
 	return string(userRequest.Difficulty)
 }
 

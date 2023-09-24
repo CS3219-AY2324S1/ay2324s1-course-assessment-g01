@@ -3,10 +3,12 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"matching-service/config"
 	"matching-service/models"
 	"matching-service/utils"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -19,6 +21,8 @@ func CreateConnection() *amqp.Connection {
 	// Connect to RabbitMQ
 	conn, err := amqp.Dial(rabbitMQURL)
 	if err != nil {
+		// Sleep 10 seconds and try again
+		time.Sleep(10 * time.Second)
 		log.Fatalf("%s: %v", utils.RabbitMQConnectionError, err)
 	}
 	return conn
@@ -60,7 +64,10 @@ func CreateQueues(ch *amqp.Channel) map[string]*amqp.Queue {
 	return queues
 }
 
-func PublishMessage(ch *amqp.Channel, queueName string, msg []byte) {
+func PublishMessage(ch *amqp.Channel, queueName string, userRequest models.UserRequest) {
+	// marshal the message into a JSON object
+	msgJson, _ := json.Marshal(userRequest)
+
 	// Publish a message
 	err := ch.PublishWithContext(
 		context.TODO(),
@@ -69,15 +76,17 @@ func PublishMessage(ch *amqp.Channel, queueName string, msg []byte) {
 		false,     // mandatory
 		false,     // immediate
 		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        msg,
+			ContentType: "application/json",
+			Body:        msgJson,
 		})
 	if err != nil {
 		log.Fatalf("%s: %v", utils.RabbitMQPublishError, err)
+	} else {
+		fmt.Printf("Sent %s message to queue %s\n", msgJson, queueName)
 	}
 }
 
-func consumeMessage(ch *amqp.Channel, queueName string) *models.UserRequest {
+func consumeMessage(ch *amqp.Channel, queueName string) {
 	msgs, err := ch.Consume(
 		queueName,
 		"",    // consumer/leave empty for auto-generated
@@ -91,35 +100,33 @@ func consumeMessage(ch *amqp.Channel, queueName string) *models.UserRequest {
 		log.Fatalf("%s: %v", utils.RabbitMQConsumeError, err)
 	}
 
-	// consume one message at a time
-	msg := <-msgs
+	var current models.UserRequest
+	current = models.UserRequest{}
 
-	// acknowledge the message
-	msg.Ack(false)
+	for msg := range msgs {
+		// acknowledge the message
+		fmt.Printf("Received a message: %s\n", msg.Body)
+		msg.Ack(false)
 
-	// marshal the message into a UserRequest object
-	var userRequest models.UserRequest
-	err = json.Unmarshal(msg.Body, &userRequest)
-	if err != nil {
-		log.Fatalf("%s: %v", utils.UnmarshalError, err)
+		// marshal the message into a UserRequest object
+		var userRequest models.UserRequest
+		err = json.Unmarshal(msg.Body, &userRequest)
+		if err != nil {
+			log.Fatalf("%s: %v", utils.UnmarshalError, err)
+		}
+
+		if current.User.UserId == 0 {
+			current = userRequest
+		} else {
+			// TODO replace with logic to match users
+			fmt.Printf("Matched %d and %d\n", current.User.UserId, userRequest.User.UserId)
+			current = models.UserRequest{}
+		}
 	}
-
-	return &userRequest
 }
 
 func ConsumeMessages(ch *amqp.Channel, queues map[string]*amqp.Queue) {
-	// check for messages in each queue
-	var messages map[string]*models.UserRequest = make(map[string]*models.UserRequest)
-
 	for queueName := range queues {
-		message := consumeMessage(ch, queueName)
-		if messages[string(message.Difficulty)] != nil {
-			// TODO replace with logic to match users
-			messages[string(message.Difficulty)] = message
-		}
+		go consumeMessage(ch, queueName)
 	}
-
-	// run infinitely
-	loop := make(chan bool)
-	<-loop
 }
