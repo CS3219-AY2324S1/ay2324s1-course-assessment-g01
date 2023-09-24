@@ -8,7 +8,7 @@ import (
 	"github.com/olahol/melody"
 )
 
-// SocketStore is a custom data structure that includes the socket map
+// SocketStore is an abstract data structure that stores sockets
 type SocketStore struct {
 	SocketMap map[uint]*melody.Session
 }

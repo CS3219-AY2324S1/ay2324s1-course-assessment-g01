@@ -153,6 +153,7 @@ func consumeMessage(ch *amqp.Channel, queueName string, s *utils.SocketStore) {
 
 func ConsumeMessages(ch *amqp.Channel, queues map[string]*amqp.Queue, s *utils.SocketStore) {
 	for queueName := range queues {
+		// create a goroutine for each queue
 		go consumeMessage(ch, queueName, s)
 	}
 }
