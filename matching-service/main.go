@@ -33,7 +33,7 @@ func main() {
 	setupHTTPHandlers(m, rabbitMqChannel, socketStore)
 
 	// start the server
-	port := config.GetServicePort()
+	port := config.GetMatchingServicePort()
 	log.Println(utils.MatchingServicePortLog + port)
 	http.ListenAndServe(port, nil)
 }

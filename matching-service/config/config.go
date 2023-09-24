@@ -27,8 +27,17 @@ func GoDotEnvVariable(key string) string {
 }
 
 // return port used by matching-service
-func GetServicePort() string {
+func GetMatchingServicePort() string {
 	return ":" + GoDotEnvVariable("MATCHING_SERVICE_PORT")
+}
+
+// return port used by user-service
+func GetUserServicePort() string {
+	return ":" + GoDotEnvVariable("USER_SERVICE_PORT")
+}
+
+func GetUserServiceURL() string {
+	return "http://user-service" + GetUserServicePort() + "/api/v1/user"
 }
 
 func GetRabbitMQConnString() string {

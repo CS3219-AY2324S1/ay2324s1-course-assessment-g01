@@ -4,6 +4,7 @@ type User struct {
 	UserId     uint        `json:"user_id"`
 	Difficulty Difficulty  `json:"difficulty"`
 	Message    MessageType `json:"message"`
+	JWT        string      `json:"jwt"`
 }
 
 // enum for difficulty

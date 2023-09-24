@@ -1,6 +1,9 @@
 package utils
 
 const (
+	// Auth Errors
+	UserAuthError = "Error: User authentication failed"
+
 	// Go Errors
 	UnmarshalError             = "Error: Invalid message format"
 	InvalidMessageTypeError    = "Error: Invalid message type"

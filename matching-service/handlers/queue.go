@@ -7,6 +7,7 @@ import (
 	"log"
 	"matching-service/config"
 	"matching-service/models"
+	"matching-service/services"
 	"matching-service/utils"
 	"strconv"
 	"time"
@@ -68,6 +69,13 @@ func CreateQueues(ch *amqp.Channel) map[string]*amqp.Queue {
 func PublishMessage(ch *amqp.Channel, queueName string, userRequest models.User) {
 	// marshal the message into a JSON object
 	msgJson, _ := json.Marshal(userRequest)
+
+	// Authenticate the request
+	isAuthentic, auth_err := services.IsRequestAuthentic(userRequest)
+	if auth_err != nil || !isAuthentic {
+		fmt.Printf("%s: %v\n", utils.UserAuthError, auth_err)
+		return
+	}
 
 	// Publish a message
 	err := ch.PublishWithContext(
