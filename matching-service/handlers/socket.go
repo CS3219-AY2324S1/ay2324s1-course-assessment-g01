@@ -12,11 +12,11 @@ import (
 
 // handles messages sent by a client
 func HandleMessage(msg []byte, ch *amqp091.Channel, store *utils.SocketStore, s *melody.Session) []byte {
-	// create a Message object
-	var message models.Message
+	// create a User object
+	var user models.User
 
 	// unmarshal the message into the Message object
-	err := json.Unmarshal(msg, &message)
+	err := json.Unmarshal(msg, &user)
 
 	// if there is an error, return an error message
 	if err != nil {
@@ -24,22 +24,22 @@ func HandleMessage(msg []byte, ch *amqp091.Channel, store *utils.SocketStore, s 
 	}
 
 	// set the socket in the store
-	store.SetSocket(message.UserId, s)
+	store.SetSocket(user.UserId, s)
 
 	// handle type of message accordingly
-	res := parseAndRun(message, &msg, ch, store)
+	res := parseAndRun(user, &msg, ch, store)
 
 	// return the message
 	return []byte(res)
 }
 
 // parses the message type and runs the appropriate handler
-func parseAndRun(message models.Message, request *[]byte, ch *amqp091.Channel, store *utils.SocketStore) string {
-	switch message.Message {
+func parseAndRun(user models.User, request *[]byte, ch *amqp091.Channel, store *utils.SocketStore) string {
+	switch user.Message {
 	case models.StartMatch:
 		return handleStart(request, ch)
 	case models.StopMatch:
-		return handleStop(message, store)
+		return handleStop(user, store)
 	default:
 		return utils.InvalidMessageTypeError
 	}
@@ -63,8 +63,8 @@ func handleStart(msg *[]byte, ch *amqp091.Channel) string {
 }
 
 // handles a stop message
-func handleStop(m models.Message, s *utils.SocketStore) string {
+func handleStop(u models.User, s *utils.SocketStore) string {
 	// delete the socket from the store
-	s.DeleteSocket(m.UserId)
-	return "User " + strconv.FormatUint(uint64(m.UserId), 10) + " stopped matching"
+	s.DeleteSocket(u.UserId)
+	return "User " + strconv.FormatUint(uint64(u.UserId), 10) + " stopped matching"
 }
