@@ -47,5 +47,8 @@ func (s *SocketStore) SetSocket(key uint, value *melody.Session) {
 
 // DeleteSocket deletes a socket from the map
 func (s *SocketStore) DeleteSocket(key uint) {
-	delete(s.SocketMap, key)
+	// check if key exists
+	if _, ok := s.SocketMap[key]; ok {
+		delete(s.SocketMap, key)
+	}
 }
