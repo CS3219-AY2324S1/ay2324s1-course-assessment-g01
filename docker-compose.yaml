@@ -31,6 +31,11 @@ services:
     environment:
       POSTGRES_PASSWORD: "123"
       POSTGRES_DB: "dev"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   user-service:
     build: ./user-service
@@ -39,22 +44,24 @@ services:
     env_file:
       - ./user-service/.env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
+    restart: on-failure
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     ports:
-      - "5672:5672"   # amqp
+      - "5672:5672" # amqp
       - "15672:15672" # management
     healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
-      interval: 5s
-      timeout: 15s
-      retries: 1
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 1s
+      timeout: 3s
+      retries: 30
 
   matching-service:
     build:
@@ -73,7 +80,8 @@ services:
       - RABBITMQ_PORT=5672
     restart: on-failure
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
 
   front-end:
     build: ./frontend
