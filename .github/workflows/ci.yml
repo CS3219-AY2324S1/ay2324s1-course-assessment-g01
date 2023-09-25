@@ -28,6 +28,7 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v3
         - name: Test
+          working-directory: ./user-service
           run: go test ./...
         - name: Build
           working-directory: ./user-service
