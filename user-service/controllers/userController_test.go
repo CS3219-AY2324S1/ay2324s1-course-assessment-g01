@@ -74,7 +74,10 @@ func TestRegister(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/register", testUser)
 	req.Header.Set("Content-Type", "application/json")
 
-	res, _ := app.Test(req)
+	res, err := app.Test(req)
+	if err != nil {
+		t.Error(err)
+	}
 	if res.StatusCode != http.StatusCreated {
 		body, _ := io.ReadAll(res.Body)
 
