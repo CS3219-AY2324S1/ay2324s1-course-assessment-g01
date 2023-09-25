@@ -4,6 +4,9 @@ const (
 	// Auth Errors
 	UserAuthError = "Error: User authentication failed"
 
+	// Room Errors
+	RoomCreationError = "Error: Room creation failed"
+
 	// Go Errors
 	UnmarshalError             = "Error: Invalid message format"
 	InvalidMessageTypeError    = "Error: Invalid message type"

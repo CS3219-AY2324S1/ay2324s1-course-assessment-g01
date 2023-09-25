@@ -9,7 +9,6 @@ import (
 	"matching-service/models"
 	"matching-service/services"
 	"matching-service/utils"
-	"strconv"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -142,12 +141,22 @@ func consumeMessage(ch *amqp.Channel, queueName string, s *utils.SocketStore) {
 				continue
 			}
 
-			// TODO create room using collaboration service
-			fmt.Printf("Matched %d and %d\n", current.UserId, userRequest.UserId)
+			// create room using collaboration service
+			room, err := services.CreateRoom(current.UserId, userRequest.UserId)
+			if err != nil {
+				fmt.Printf("%s: %v\n", utils.RoomCreationError, err)
+				return
+			}
+			currentUserId := utils.ConvertToString(current.UserId)
+			userRequestUserId := utils.ConvertToString(userRequest.UserId)
+			roomId := utils.ConvertToString(room.RoomId)
+
+			fmt.Printf("Matched %s and %s\n", currentUserId, userRequestUserId)
+			fmt.Printf("Room created with id %s\n", roomId)
 
 			// send message to both sockets
-			currentUserSocket.Write([]byte("Matched with " + strconv.FormatUint(uint64(userRequest.UserId), 10) + "\n"))
-			userRequestSocket.Write([]byte("Matched with " + strconv.FormatUint(uint64(current.UserId), 10) + "\n"))
+			currentUserSocket.Write([]byte("matched_user:" + userRequestUserId + "," + "room_id:" + roomId + "\n"))
+			userRequestSocket.Write([]byte("matched_user:" + currentUserId + "," + "room_id:" + roomId + "\n"))
 
 			// delete both sockets from the store
 			s.DeleteSocket(current.UserId)

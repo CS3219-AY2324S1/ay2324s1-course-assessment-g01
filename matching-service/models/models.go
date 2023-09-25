@@ -23,3 +23,9 @@ const (
 	StartMatch MessageType = "Start"
 	StopMatch  MessageType = "Stop"
 )
+
+type Room struct {
+	RoomId  uint `json:"room_id"`
+	UserAId uint `json:"user_a_id"`
+	UserBId uint `json:"user_b_id"`
+}
