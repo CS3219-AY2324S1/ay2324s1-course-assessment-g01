@@ -3,7 +3,6 @@ package controllers
 import (
 	"strconv"
 	"time"
-	"user-service/config"
 	"user-service/models"
 	"user-service/utils"
 
@@ -13,10 +12,9 @@ import (
 	"gorm.io/gorm"
 )
 
-var SecretKey = config.GoDotEnvVariable("SECRET_KEY")
-
 type UserController struct {
-	DB *gorm.DB
+	DB        *gorm.DB
+	SecretKey string
 }
 
 func (controller *UserController) GetUserByJwt(c *fiber.Ctx) error {
@@ -27,7 +25,7 @@ func (controller *UserController) GetUserByJwt(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, err.Error())
 	}
 
-	user, err := utils.GetCurrentUser(controller.DB, c, SecretKey, token)
+	user, err := utils.GetCurrentUser(controller.DB, c, controller.SecretKey, token)
 
 	if err != nil {
 		c.Status(fiber.StatusNotFound)
@@ -70,7 +68,7 @@ func (controller *UserController) Register(c *fiber.Ctx) error {
 	token, authErr := utils.GetAuthBearerToken(c)
 	access_type, parseErr := utils.ParseUint(data["access_type"])
 
-	if parseErr != nil || authErr != nil || token != SecretKey {
+	if parseErr != nil || authErr != nil || token != controller.SecretKey {
 		access_type = 2
 	}
 
@@ -139,7 +137,7 @@ func (controller *UserController) Login(c *fiber.Ctx) error {
 		"roles": strconv.Itoa(int(user.AccessType)),
 	})
 
-	token, err := claims.SignedString([]byte(SecretKey))
+	token, err := claims.SignedString([]byte(controller.SecretKey))
 
 	if err != nil {
 		return utils.ErrorResponse(c, utils.LogInError)

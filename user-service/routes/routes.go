@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"user-service/config"
 	"user-service/controllers"
 
 	"github.com/gofiber/fiber/v2"
@@ -9,9 +10,9 @@ import (
 
 func Setup(app *fiber.App, db *gorm.DB) {
 	api := app.Group("/api/v1")
-
+	secretKey := config.GoDotEnvVariable("SECRET_KEY")
 	user_api := api.Group("/user")
-	user_controller := controllers.UserController{DB: db}
+	user_controller := controllers.UserController{DB: db, SecretKey: secretKey}
 
 	user_api.Get("", user_controller.GetUserById)
 	user_api.Post("", user_controller.GetUserByJwt)
