@@ -48,9 +48,11 @@ services:
         condition: service_healthy
 
   rabbitmq:
+    user: rabbitmq
     image: rabbitmq:management
     container_name: rabbitmq
     restart: on-failure
+    hostname: 'prod-rabbitmq'
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
