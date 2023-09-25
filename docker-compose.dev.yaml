@@ -82,6 +82,21 @@ services:
     restart: on-failure
     depends_on:
       - rabbitmq
+      - collaboration-service
+
+  collaboration-service:
+    build:
+      context: ./collaboration-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./collaboration-service:/app
+    ports:
+      - "3005:3005"
+    env_file:
+      - ./collaboration-service/.env
+    restart: on-failure
+    depends_on:
+      - postgres
 
   front-end:
     build: ./frontend
