@@ -1,8 +1,8 @@
 package database
 
 import (
-	"backend/config"
-	"backend/models"
+	"user-service/config"
+	"user-service/models"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"

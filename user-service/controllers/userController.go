@@ -1,20 +1,21 @@
 package controllers
 
 import (
-	"backend/database"
-	"backend/models"
-	"backend/utils"
 	"strconv"
 	"time"
+	"user-service/config"
+	"user-service/database"
+	"user-service/models"
+	"user-service/utils"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 )
 
-const SecretKey = "secret"
+var SecretKey = config.GoDotEnvVariable("SECRET_KEY")
 
-func UserJwt(c *fiber.Ctx) error {
+func GetUserByJwt(c *fiber.Ctx) error {
 
 	token, err := utils.GetAuthBearerToken(c)
 
