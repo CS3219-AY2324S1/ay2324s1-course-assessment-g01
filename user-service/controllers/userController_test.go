@@ -74,7 +74,7 @@ func TestRegister(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/register", testUser)
 	req.Header.Set("Content-Type", "application/json")
 
-	res, err := app.Test(req)
+	res, err := app.Test(req, 3000)
 	if err != nil {
 		t.Error(err)
 	}
@@ -98,8 +98,8 @@ func TestRegisterTwice_Fail(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/register", testUser)
 	req.Header.Set("Content-Type", "application/json")
 
-	app.Test(req)
-	res, _ := app.Test(req)
+	app.Test(req, -1)
+	res, _ := app.Test(req, -1)
 	if res.StatusCode != 404 {
 		body, _ := io.ReadAll(res.Body)
 		t.Error("Error: ", res.StatusCode, string(body))
@@ -117,7 +117,7 @@ func TestLogin(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/login", testUser)
 	req.Header.Set("Content-Type", "application/json")
 
-	res, _ := app.Test(req)
+	res, _ := app.Test(req, -1)
 	if res.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(res.Body)
 		t.Error("Error: ", res.StatusCode, string(body))
@@ -135,7 +135,7 @@ func TestLogin_NonExistent(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/login", testUser)
 	req.Header.Set("Content-Type", "application/json")
 
-	res, _ := app.Test(req)
+	res, _ := app.Test(req, -1)
 	if res.StatusCode != http.StatusNotFound {
 		body, _ := io.ReadAll(res.Body)
 		t.Error("Error: ", res.StatusCode, string(body))
