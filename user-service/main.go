@@ -1,10 +1,10 @@
 package main
 
 import (
-	"backend/config"
-	"backend/database"
-	"backend/routes"
 	"fmt"
+	"user-service/config"
+	"user-service/database"
+	"user-service/routes"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
