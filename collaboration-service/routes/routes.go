@@ -7,6 +7,10 @@ import (
 )
 
 func Setup(app *fiber.App) {
+	app.Get("/", func(c *fiber.Ctx) error {
+		c.Status(200).JSON("Hello World!")
+		return nil
+	})
 	api := app.Group("/api/v1")
 
 	room_api := api.Group("/room")
