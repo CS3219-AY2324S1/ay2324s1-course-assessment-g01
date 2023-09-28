@@ -16,5 +16,6 @@ func Setup(app *fiber.App) {
 	room_api := api.Group("/room")
 	room_api.Get("", controllers.GetRoomById)
 	room_api.Post("/create", controllers.CreateRoom)
+	room_api.Post("/close", controllers.CloseRoom)
 	room_api.Post("/delete", controllers.DeleteRoomById)
 }

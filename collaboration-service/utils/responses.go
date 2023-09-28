@@ -29,3 +29,7 @@ func CreateRequestResponse(c *fiber.Ctx, data interface{}) error {
 func DeleteRequestResponse(c *fiber.Ctx, data interface{}) error {
 	return c.Status(http.StatusAccepted).JSON(data)
 }
+
+func UpdateRequestResponse(c *fiber.Ctx, data interface{}) error {
+	return c.Status(http.StatusAccepted).JSON(data)
+}

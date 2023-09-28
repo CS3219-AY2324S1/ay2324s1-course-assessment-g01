@@ -32,6 +32,16 @@ docker compose up -d
 }
 ```
 
+## Close Room By Id
+
+**Post <http://localhost:3005/api/v1/room/close>**
+
+```json
+{
+ "id": 1,
+}
+```
+
 ## Delete Room By Id
 
 **Post <http://localhost:3005/api/v1/room/delete>**
@@ -40,15 +50,4 @@ docker compose up -d
 {
  "id": 1,
 }
-```
-
-## Environment variables
-
-- The connection details are as follows - these configs can be set in `docker-compose.yaml`
-
-```env
-RABBITMQ_USER=guest
-RABBITMQ_PASS=guest
-RABBITMQ_HOST=rabbitmq
-RABBITMQ_PORT=15672 // (5672 for development)
 ```
