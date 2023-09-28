@@ -91,8 +91,10 @@ services:
       - RABBITMQ_PORT=5672
     restart: on-failure
     depends_on:
-      - rabbitmq
-      - collaboration-service
+      rabbitmq:
+        condition: service_healthy
+      collaboration-service:
+        condition: service_healthy
 
   collaboration-service:
     build:
