@@ -106,7 +106,13 @@ services:
       - ./collaboration-service/.env
     restart: on-failure
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: wget --spider --no-verbose --tries=1 localhost:3005/ || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   front-end:
     build: ./frontend
