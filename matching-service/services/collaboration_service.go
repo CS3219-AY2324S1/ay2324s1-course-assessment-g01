@@ -26,3 +26,15 @@ func CreateRoom(userAId uint, userBId uint) (models.Room, error) {
 
 	return room, nil
 }
+
+func CloseRoom(roomId uint) error {
+	resp, err := MakePostRequest(config.GetCollaborationRoomServiceURL()+"/close",
+		models.Room{RoomId: roomId}, "")
+
+	if err != nil || resp.StatusCode != http.StatusOK {
+		fmt.Println("Error closing room")
+		return err
+	}
+
+	return nil
+}

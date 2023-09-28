@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"matching-service/models"
 	"matching-service/utils"
-	"strconv"
 
 	"github.com/olahol/melody"
 	"github.com/rabbitmq/amqp091-go"
@@ -35,11 +34,11 @@ func HandleMessage(msg []byte, ch *amqp091.Channel, store *utils.SocketStore, s 
 
 // parses the message type and runs the appropriate handler
 func parseAndRun(user models.User, ch *amqp091.Channel, store *utils.SocketStore) string {
-	switch user.Message {
+	switch user.Action {
 	case models.StartMatch:
 		return handleStart(user, ch)
 	case models.StopMatch:
-		return handleStop(user, store)
+		return handleStop(user, ch)
 	default:
 		return utils.InvalidMessageTypeError
 	}
@@ -51,13 +50,17 @@ func handleStart(user models.User, ch *amqp091.Channel) string {
 		// difficulty presence check
 		return utils.DifficultyUnspecifiedError
 	}
-	PublishMessage(ch, string(user.Difficulty), user)
-	return string(user.Difficulty)
+	difficulty := string(user.Difficulty)
+	PublishMessage(ch, difficulty, user)
+	return difficulty
 }
 
 // handles a stop message
-func handleStop(u models.User, s *utils.SocketStore) string {
-	// delete the socket from the store
-	s.DeleteSocket(u.UserId)
-	return "User " + strconv.FormatUint(uint64(u.UserId), 10) + " stopped matching"
+func handleStop(user models.User, ch *amqp091.Channel) string {
+	if user.Action == "" {
+		// action presence check
+		return utils.ActionUnspecifiedError
+	}
+	PublishMessage(ch, string(user.Action), user)
+	return string(user.Action)
 }

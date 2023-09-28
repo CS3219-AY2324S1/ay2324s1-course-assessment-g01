@@ -24,9 +24,15 @@ func main() {
 	// create map of sockets
 	socketStore := utils.NewSocketStore()
 
-	// create queues for each difficulty
-	queues := handlers.CreateQueues(rabbitMqChannel)
-	go handlers.ConsumeMessages(rabbitMqChannel, queues, socketStore)
+	// create difficultyQueues for each difficulty
+	difficultyQueues := handlers.CreateDifficultyQueues(rabbitMqChannel)
+
+	// create roomQueues for each room
+	roomQueues := handlers.CreateRoomQueues(rabbitMqChannel)
+
+	// consume messages from queues
+	go handlers.ConsumeMessages(rabbitMqChannel, difficultyQueues, socketStore)
+	go handlers.ConsumeMessages(rabbitMqChannel, roomQueues, socketStore)
 
 	// create a melody instance
 	m := melody.New()

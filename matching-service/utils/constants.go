@@ -11,6 +11,7 @@ const (
 	UnmarshalError             = "Error: Invalid message format"
 	InvalidMessageTypeError    = "Error: Invalid message type"
 	DifficultyUnspecifiedError = "Error: Difficulty not specified"
+	ActionUnspecifiedError     = "Error: Action not specified"
 	EnvironmentFileError       = "Error: Environment file load failed"
 
 	// RabbitMQ Errors

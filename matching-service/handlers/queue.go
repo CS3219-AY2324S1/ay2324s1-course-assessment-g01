@@ -54,7 +54,7 @@ func createQueue(name string, ch *amqp.Channel) *amqp.Queue {
 	return &q
 }
 
-func CreateQueues(ch *amqp.Channel) map[string]*amqp.Queue {
+func CreateDifficultyQueues(ch *amqp.Channel) map[string]*amqp.Queue {
 	var queues map[string]*amqp.Queue = make(map[string]*amqp.Queue)
 
 	// create queues
@@ -65,16 +65,38 @@ func CreateQueues(ch *amqp.Channel) map[string]*amqp.Queue {
 	return queues
 }
 
+// func CreateRoomQueues(ch *amqp.Channel) map[string]*amqp.Queue {
+// 	var queues map[string]*amqp.Queue = make(map[string]*amqp.Queue)
+
+// 	// create queues
+// 	MAX_ROOMS := uint(1000)
+// 	for i := uint(1); i <= MAX_ROOMS; i++ {
+// 		str_i := utils.ConvertToString(i)
+// 		queues[str_i] = createQueue(str_i, ch)
+// 	}
+
+// 	return queues
+// }
+
+func CreateRoomQueues(ch *amqp.Channel) map[string]*amqp.Queue {
+	var queues map[string]*amqp.Queue = make(map[string]*amqp.Queue)
+
+	// create queues
+	queues[string(models.StopMatch)] = createQueue(string(models.StopMatch), ch)
+
+	return queues
+}
+
 func PublishMessage(ch *amqp.Channel, queueName string, userRequest models.User) {
 	// marshal the message into a JSON object
 	msgJson, _ := json.Marshal(userRequest)
 
 	// Authenticate the request
-	isAuthentic, auth_err := services.IsRequestAuthentic(userRequest)
-	if auth_err != nil || !isAuthentic {
-		fmt.Printf("%s: %v\n", utils.UserAuthError, auth_err)
-		return
-	}
+	// isAuthentic, auth_err := services.IsRequestAuthentic(userRequest)
+	// if auth_err != nil || !isAuthentic {
+	// 	fmt.Printf("%s: %v\n", utils.UserAuthError, auth_err)
+	// 	return
+	// }
 
 	// Publish a message
 	err := ch.PublishWithContext(
@@ -94,7 +116,7 @@ func PublishMessage(ch *amqp.Channel, queueName string, userRequest models.User)
 	}
 }
 
-func consumeMessage(ch *amqp.Channel, queueName string, s *utils.SocketStore) {
+func ConsumeMessage(ch *amqp.Channel, queueName string, s *utils.SocketStore) {
 	msgs, err := ch.Consume(
 		queueName,
 		"",    // consumer/leave empty for auto-generated
@@ -108,8 +130,8 @@ func consumeMessage(ch *amqp.Channel, queueName string, s *utils.SocketStore) {
 		log.Fatalf("%s: %v", utils.RabbitMQConsumeError, err)
 	}
 
-	var current models.User
-	current = models.User{}
+	var curStartUser models.User = models.User{}
+	var roomsToUser map[uint]uint = make(map[uint]uint)
 
 	for msg := range msgs {
 		// acknowledge the message
@@ -123,54 +145,121 @@ func consumeMessage(ch *amqp.Channel, queueName string, s *utils.SocketStore) {
 			log.Fatalf("%s: %v", utils.UnmarshalError, err)
 		}
 
-		// check if current is empty or if the user ids match
-		if current.UserId == 0 || current.UserId == userRequest.UserId {
-			current = userRequest
-		} else {
-			// check if current exists in socket store and is open
-			currentUserSocket, err := s.GetSocket(current.UserId)
-			if err != nil || currentUserSocket.IsClosed() {
-				current = userRequest
-				continue
-			}
-
-			// check if userRequest exists in socket store and is open
-			userRequestSocket, err := s.GetSocket(userRequest.UserId)
-
-			if err != nil || userRequestSocket.IsClosed() {
-				continue
-			}
-
-			// create room using collaboration service
-			room, err := services.CreateRoom(current.UserId, userRequest.UserId)
-			if err != nil {
-				fmt.Printf("%s: %v\n", utils.RoomCreationError, err)
-				return
-			}
-			currentUserId := utils.ConvertToString(current.UserId)
-			userRequestUserId := utils.ConvertToString(userRequest.UserId)
-			roomId := utils.ConvertToString(room.RoomId)
-
-			fmt.Printf("Matched %s and %s\n", currentUserId, userRequestUserId)
-			fmt.Printf("Room created with id %s\n", roomId)
-
-			// send message to both sockets
-			currentUserSocket.Write([]byte("matched_user:" + userRequestUserId + "," + "room_id:" + roomId + "\n"))
-			userRequestSocket.Write([]byte("matched_user:" + currentUserId + "," + "room_id:" + roomId + "\n"))
-
-			// delete both sockets from the store
-			s.DeleteSocket(current.UserId)
-			s.DeleteSocket(userRequest.UserId)
-
-			// reset current
-			current = models.User{}
+		if userRequest.Action == models.StartMatch {
+			handleMatchings(&curStartUser, userRequest, s)
 		}
+
+		if userRequest.Action == models.StopMatch {
+			handleUnmatchings(&roomsToUser,
+				userRequest, s)
+		}
+
 	}
 }
 
+func handleMatchings(
+	curUser *models.User,
+	parsedUser models.User,
+	s *utils.SocketStore,
+) {
+
+	// check if current is empty or if the user ids match
+	if curUser.UserId == 0 || curUser.UserId == parsedUser.UserId {
+		*curUser = parsedUser
+	} else {
+		// check if current exists in socket store and is open
+		currentUserSocket, err := s.GetSocket(curUser.UserId)
+		if err != nil || currentUserSocket.IsClosed() {
+			*curUser = parsedUser
+			return
+		}
+
+		// check if parsedUser exists in socket store and is open
+		parsedUserSocket, err := s.GetSocket(parsedUser.UserId)
+
+		if err != nil || parsedUserSocket.IsClosed() {
+			return
+		}
+
+		// create room using collaboration service
+		room, err := services.CreateRoom(curUser.UserId, parsedUser.UserId)
+		if err != nil {
+			fmt.Printf("%s: %v\n", utils.RoomCreationError, err)
+			return
+		}
+		currentUserId := utils.ConvertToString(curUser.UserId)
+		parsedUserId := utils.ConvertToString(parsedUser.UserId)
+		roomId := utils.ConvertToString(room.RoomId)
+
+		fmt.Printf("Matched %s and %s\n", currentUserId, parsedUserId)
+		fmt.Printf("Room created with id %s\n", roomId)
+
+		// send message to both sockets
+		currentUserSocket.Write([]byte("matched_user:" + parsedUserId + "," + "room_id:" + roomId + "\n"))
+		parsedUserSocket.Write([]byte("matched_user:" + currentUserId + "," + "room_id:" + roomId + "\n"))
+
+		// delete both sockets from the store
+		s.DeleteSocket(curUser.UserId)
+		s.DeleteSocket(parsedUser.UserId)
+
+		// reset current user
+		*curUser = models.User{}
+	}
+}
+
+func handleUnmatchings(
+	roomsToUser *map[uint]uint,
+	curUser models.User,
+	s *utils.SocketStore,
+) {
+	hasRoom := (*roomsToUser)[curUser.RoomId] != 0
+
+	if hasRoom { // has another user who wants to stop matching
+		otherUserId := (*roomsToUser)[curUser.RoomId]
+
+		// check if other user exists in socket store and is open
+		otherUserSocket, err := s.GetSocket(otherUserId)
+		if err != nil || otherUserSocket.IsClosed() {
+			return
+		}
+
+		// check if current user exists in socket store and is open
+		currentUserSocket, err := s.GetSocket(curUser.UserId)
+		if err != nil || currentUserSocket.IsClosed() {
+			return
+		}
+
+		// update room as closed using collaboration service
+		// room, err := services.CloseRoom(curUser.UserId, parsedUser.UserId)
+		// if err != nil {
+		// 	fmt.Printf("%s: %v\n", utils.RoomCreationError, err)
+		// 	return
+		// }
+		currentUserIdStr := utils.ConvertToString(curUser.UserId)
+		otherUserIdStr := utils.ConvertToString(otherUserId)
+
+		fmt.Printf("Room %d closed for %s and %s\n", curUser.RoomId, currentUserIdStr, otherUserIdStr)
+
+		// send message to both sockets
+		currentUserSocket.Write([]byte("unmatched_user:" + otherUserIdStr + "\n"))
+		otherUserSocket.Write([]byte("unmatched_user:" + currentUserIdStr + "\n"))
+
+		// delete both sockets from the store
+		s.DeleteSocket(curUser.UserId)
+		s.DeleteSocket(otherUserId)
+
+		// delete room from map
+		delete(*roomsToUser, curUser.RoomId)
+
+	} else {
+		// add current user to room
+		(*roomsToUser)[curUser.RoomId] = curUser.UserId
+	}
+
+}
 func ConsumeMessages(ch *amqp.Channel, queues map[string]*amqp.Queue, s *utils.SocketStore) {
 	for queueName := range queues {
 		// create a goroutine for each queue
-		go consumeMessage(ch, queueName, s)
+		go ConsumeMessage(ch, queueName, s)
 	}
 }
