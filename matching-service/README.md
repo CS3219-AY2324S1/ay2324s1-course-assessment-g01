@@ -22,14 +22,26 @@ The following actions can be done:
 
 - GET request to <http://localhost:8082> - to check if the service is running.
 - Websocket connections to ws://localhost:8082/ws
-  - The websocket accepts JSON data in the following format:
+- The websocket accepts JSON data in the following format:
+
+### Start collaboration
 
 ```json
 {
     "user_id": 1, // uint
-    "message": "Start", // Start/Stop
+    "message": "Start",
     "difficulty": "Easy", // Required for "Start", optional for the rest - Easy/Medium/Hard
     "jwt": "" // Required for the session of the user_id passed in body
+}
+```
+
+### Stop collaboration
+
+```json
+{
+    "room_id": 1, // uint
+    "user_id": 2, // uint
+    "message": "Stop",
 }
 ```
 
