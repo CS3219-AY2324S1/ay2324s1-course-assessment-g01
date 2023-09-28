@@ -29,7 +29,7 @@ The following actions can be done:
 ```json
 {
     "user_id": 1, // uint
-    "message": "Start",
+    "action": "Start",
     "difficulty": "Easy", // Required for "Start", optional for the rest - Easy/Medium/Hard
     "jwt": "" // Required for the session of the user_id passed in body
 }
@@ -41,7 +41,7 @@ The following actions can be done:
 {
     "room_id": 1, // uint
     "user_id": 2, // uint
-    "message": "Stop",
+    "action": "Stop",
 }
 ```
 

@@ -1,10 +1,11 @@
 package models
 
 type User struct {
-	UserId     uint        `json:"user_id"`
-	Difficulty Difficulty  `json:"difficulty"`
-	Message    MessageType `json:"message"`
-	JWT        string      `json:"jwt"`
+	UserId     uint       `json:"user_id"`
+	RoomId     uint       `json:"room_id"`
+	Difficulty Difficulty `json:"difficulty"`
+	Action     ActionType `json:"action"`
+	JWT        string     `json:"jwt"`
 }
 
 // enum for difficulty
@@ -16,12 +17,12 @@ const (
 	Hard   Difficulty = "Hard"
 )
 
-// enum for message type
-type MessageType string
+// enum for action type
+type ActionType string
 
 const (
-	StartMatch MessageType = "Start"
-	StopMatch  MessageType = "Stop"
+	StartMatch ActionType = "Start"
+	StopMatch  ActionType = "Stop"
 )
 
 type Room struct {
