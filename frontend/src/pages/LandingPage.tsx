@@ -1,4 +1,4 @@
-import { Button, Center, Loader, Table, Text } from "@mantine/core";
+import { Button, Center, Loader, Table, Text, Flex } from "@mantine/core";
 import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -33,12 +33,16 @@ const LandingPage = () => {
   return (
     <section>
       <WelcomeComponent />
-
-      {user && isAdmin(user) && (
-        <Button component={Link} to="/create">
-          Create new question
+      <Flex justify="space-between">
+        {user && isAdmin(user) && (
+          <Button component={Link} to="/create">
+            Create new question
+          </Button>
+        )}
+        <Button component={Link} to="collab/Easy">
+          Testing
         </Button>
-      )}
+      </Flex>
       <Table>
         <thead>
           <tr>
