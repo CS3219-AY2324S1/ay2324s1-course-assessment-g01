@@ -57,7 +57,6 @@ func createQueue(name string, ch *amqp.Channel) *amqp.Queue {
 func CreateDifficultyQueues(ch *amqp.Channel) map[string]*amqp.Queue {
 	var queues map[string]*amqp.Queue = make(map[string]*amqp.Queue)
 
-	// create queues
 	queues[string(models.Easy)] = createQueue(string(models.Easy), ch)
 	queues[string(models.Medium)] = createQueue(string(models.Medium), ch)
 	queues[string(models.Hard)] = createQueue(string(models.Hard), ch)
@@ -65,23 +64,9 @@ func CreateDifficultyQueues(ch *amqp.Channel) map[string]*amqp.Queue {
 	return queues
 }
 
-// func CreateRoomQueues(ch *amqp.Channel) map[string]*amqp.Queue {
-// 	var queues map[string]*amqp.Queue = make(map[string]*amqp.Queue)
-
-// 	// create queues
-// 	MAX_ROOMS := uint(1000)
-// 	for i := uint(1); i <= MAX_ROOMS; i++ {
-// 		str_i := utils.ConvertToString(i)
-// 		queues[str_i] = createQueue(str_i, ch)
-// 	}
-
-// 	return queues
-// }
-
-func CreateRoomQueues(ch *amqp.Channel) map[string]*amqp.Queue {
+func CreateStopMatchQueue(ch *amqp.Channel) map[string]*amqp.Queue {
 	var queues map[string]*amqp.Queue = make(map[string]*amqp.Queue)
 
-	// create queues
 	queues[string(models.StopMatch)] = createQueue(string(models.StopMatch), ch)
 
 	return queues
@@ -92,11 +77,11 @@ func PublishMessage(ch *amqp.Channel, queueName string, userRequest models.User)
 	msgJson, _ := json.Marshal(userRequest)
 
 	// Authenticate the request
-	// isAuthentic, auth_err := services.IsRequestAuthentic(userRequest)
-	// if auth_err != nil || !isAuthentic {
-	// 	fmt.Printf("%s: %v\n", utils.UserAuthError, auth_err)
-	// 	return
-	// }
+	isAuthentic, auth_err := services.IsRequestAuthentic(userRequest)
+	if auth_err != nil || !isAuthentic {
+		fmt.Printf("%s: %v\n", utils.UserAuthError, auth_err)
+		return
+	}
 
 	// Publish a message
 	err := ch.PublishWithContext(
@@ -212,9 +197,9 @@ func handleUnmatchings(
 	curUser models.User,
 	s *utils.SocketStore,
 ) {
-	hasRoom := (*roomsToUser)[curUser.RoomId] != 0
+	hasAnotherUserInRoom := (*roomsToUser)[curUser.RoomId] != 0 && (*roomsToUser)[curUser.RoomId] != curUser.UserId
 
-	if hasRoom { // has another user who wants to stop matching
+	if hasAnotherUserInRoom { // has another user who wants to stop matching
 		otherUserId := (*roomsToUser)[curUser.RoomId]
 
 		// check if other user exists in socket store and is open
@@ -230,11 +215,11 @@ func handleUnmatchings(
 		}
 
 		// update room as closed using collaboration service
-		// room, err := services.CloseRoom(curUser.UserId, parsedUser.UserId)
-		// if err != nil {
-		// 	fmt.Printf("%s: %v\n", utils.RoomCreationError, err)
-		// 	return
-		// }
+		if services.CloseRoom(curUser.RoomId); err != nil {
+			fmt.Printf("%s: %v\n", utils.RoomCloseError, err)
+			return
+		}
+
 		currentUserIdStr := utils.ConvertToString(curUser.UserId)
 		otherUserIdStr := utils.ConvertToString(otherUserId)
 

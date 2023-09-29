@@ -41,7 +41,7 @@ The following actions can be done:
 {
     "room_id": 1, // uint
     "user_id": 2, // uint
-    "action": "Stop",
+    "action": "Stop"
 }
 ```
 

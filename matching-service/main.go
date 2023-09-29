@@ -28,7 +28,7 @@ func main() {
 	difficultyQueues := handlers.CreateDifficultyQueues(rabbitMqChannel)
 
 	// create roomQueues for each room
-	roomQueues := handlers.CreateRoomQueues(rabbitMqChannel)
+	roomQueues := handlers.CreateStopMatchQueue(rabbitMqChannel)
 
 	// consume messages from queues
 	go handlers.ConsumeMessages(rabbitMqChannel, difficultyQueues, socketStore)

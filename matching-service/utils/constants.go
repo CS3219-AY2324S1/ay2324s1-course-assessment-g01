@@ -6,6 +6,7 @@ const (
 
 	// Room Errors
 	RoomCreationError = "Error: Room creation failed"
+	RoomCloseError    = "Error: Room close failed"
 
 	// Go Errors
 	UnmarshalError             = "Error: Invalid message format"
