@@ -28,7 +28,7 @@ docker compose up -d
 ```json
 {
  "user_a_id": 1,
- "user_b_id": 2,
+ "user_b_id": 2
 }
 ```
 
@@ -38,7 +38,7 @@ docker compose up -d
 
 ```json
 {
- "id": 1,
+ "room_id": 1
 }
 ```
 
@@ -48,6 +48,6 @@ docker compose up -d
 
 ```json
 {
- "id": 1,
+ "room_id": 1
 }
 ```

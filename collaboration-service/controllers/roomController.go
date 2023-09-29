@@ -60,7 +60,7 @@ func CloseRoom(c *fiber.Ctx) error {
 	var room models.Room
 
 	// Find room by id
-	res := database.DB.Where("room_id = ?", data["id"]).First(&room)
+	res := database.DB.Where("room_id = ?", data["room_id"]).First(&room)
 	if res.RowsAffected == 0 {
 		return utils.ErrorResponse(c, utils.RecordNotFound)
 	}
@@ -81,7 +81,7 @@ func DeleteRoomById(c *fiber.Ctx) error {
 	var room models.Room
 
 	// Find room by id
-	res := database.DB.Where("room_id = ?", data["id"]).First(&room)
+	res := database.DB.Where("room_id = ?", data["room_id"]).First(&room)
 	if res.RowsAffected == 0 {
 		return utils.ErrorResponse(c, utils.RecordNotFound)
 	}
