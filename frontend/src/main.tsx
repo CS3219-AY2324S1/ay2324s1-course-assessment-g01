@@ -35,7 +35,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   </Route>
                   <Route path="/" index element={<LandingPage />} />
                   <Route path="/question/:id" element={<QuestionPage />} />
-                  <Route path="/collab/:diff" element={<CollabRoomPage />} />
+                  <Route path="/collab/:id" element={<CollabRoomPage />} />
                   <Route path="/logout" element={<Logout />} />
 
                   <Route path="*" element={<Navigate to="/" replace />} />
