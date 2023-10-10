@@ -1,6 +1,6 @@
 import { Button, Dialog, Flex, Loader, Popover, Text } from "@mantine/core";
 import { useDisclosure, useInterval, useTimeout } from "@mantine/hooks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { matchingServiceURL } from "../services/MatchingAPI";
 import { User } from "../types/User";
@@ -50,6 +50,12 @@ const MatchingComponent = ({user, jwt} : Props) => {
       soc.close();
     };
   }
+
+  useEffect(() => {
+    return () => {
+      webSocket?.close();
+    }
+  }, [webSocket]);
   
   const matchTimeout = () => {
     console.log("Timeout");
