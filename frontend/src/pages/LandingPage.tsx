@@ -1,4 +1,4 @@
-import { Button, Center, Loader, Table, Text, Flex, Popover } from "@mantine/core";
+import { Button, Center, Loader, Table, Text, Flex, Popover, Dialog } from "@mantine/core";
 import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -7,14 +7,16 @@ import { User } from "../types/User";
 import { isAdmin } from "../utils/userUtils";
 import { getUserData } from "../services/UserAPI";
 import { matchingServiceURL } from "../services/MatchingAPI";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { UserContext } from "../contexts/UserContext";
 import { useNavigate } from 'react-router-dom';
+import { useDisclosure, useInterval, useTimeout } from "@mantine/hooks";
 
 const LandingPage = () => {
   const { jwt } = useContext(UserContext);
   const [ webSocket, setWebSocket ] = useState<WebSocket | undefined>(undefined);
-  const [ difficulty, setDifficulty ] = useState<string | undefined>(undefined);
+  const [opened, {toggle, close}] = useDisclosure(false);
+  const [ timer, setTimer ] = useState(0);
   const nav = useNavigate();
   const queryClient = useQueryClient();
   const {
@@ -38,17 +40,16 @@ const LandingPage = () => {
     queryFn: getUserData,
   });
 
-  useEffect(() => {
-    if (!difficulty) return;
-
+  const matchMaking = (diff : string) => {
     const soc = new WebSocket(matchingServiceURL);
+    if (webSocket) webSocket!.close();
     setWebSocket(soc);
-
+    if (!opened) toggle();
     soc.addEventListener("open", () => {
       soc.send(JSON.stringify({
         "user_id": user?.user_id,
         "action": "Start",
-        "difficulty": difficulty,
+        "difficulty": diff,
         "jwt": jwt
       }));
     })
@@ -66,13 +67,23 @@ const LandingPage = () => {
     })
 
     soc.addEventListener("error", (event) => {
-      console.log(event);
+      console.log(`error: ${event}`);
     })
 
     return () => {
       soc.close();
     };
-  }, [difficulty])
+  }
+
+  const matchTimeout = () => {
+    console.log("Timeout");
+    webSocket?.close();
+    close();
+  }
+
+  const interval = useInterval(() => setTimer(t => t + 1), 1000);
+  const { start, clear } = useTimeout(matchTimeout, 30.5 * 1000);
+  const difficulties = ["Easy", "Medium", "Hard"];
 
   return (
     <section>
@@ -89,21 +100,19 @@ const LandingPage = () => {
           </Popover.Target>
           <Popover.Dropdown>
             <Flex direction="column">
-              <Button onClick={() => {
-                setDifficulty("Easy");
-              }}>
-                Easy
-              </Button>
-              <Button onClick={() => {
-                setDifficulty("Medium");
-              }}>
-                Medium
-              </Button>
-              <Button onClick={() => {
-                setDifficulty("Hard");
-              }}>
-                Hard
-              </Button>
+              {
+                difficulties.map((diff) => (
+                  <Button key={diff}
+                    onClick={() => {
+                      matchMaking(diff);
+                      setTimer(0);
+                      start();
+                      interval.start();
+                    }}>
+                    {diff}
+                  </Button>
+                ))
+              }
             </Flex>
           </Popover.Dropdown>
         </Popover>
@@ -143,6 +152,17 @@ const LandingPage = () => {
           ))}
         </tbody>
       </Table>
+      <Dialog opened={opened} onClose={close} size="lg" radius="md">
+        <Flex direction={"row"} justify="space-between">
+          <Text size="sm" mb="xs" weight={500}>
+            {`Matching you with another user...   ${timer}s`}
+          </Text>
+          <Loader/>
+        </Flex>
+        <Button>
+          Cancel matchmaking
+        </Button>
+      </Dialog>
       {(isLoading || isRefetching) && (
         <Center>
           <Loader />
