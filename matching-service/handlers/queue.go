@@ -197,6 +197,12 @@ func handleUnmatchings(
 	curUser models.User,
 	s *utils.SocketStore,
 ) {
+	// room has not been created yet
+	if curUser.RoomId == 0 {
+		s.DeleteSocket(curUser.UserId)
+		return
+	}
+
 	hasAnotherUserInRoom := (*roomsToUser)[curUser.RoomId] != 0 && (*roomsToUser)[curUser.RoomId] != curUser.UserId
 
 	if hasAnotherUserInRoom { // has another user who wants to stop matching
