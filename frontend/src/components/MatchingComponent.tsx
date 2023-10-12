@@ -32,6 +32,7 @@ const MatchingComponent = ({user, jwt} : Props) => {
 
   const matchTimeout = () => {
     console.log("Timeout");
+    interval.stop();
     closeMatching();
     setIsTimeOut(true);
   }
@@ -74,6 +75,7 @@ const MatchingComponent = ({user, jwt} : Props) => {
       console.log(`error: ${event}`);
     })
 
+    // Initialise states for matching and start timer
     setIsTimeOut(false);
     setTimer(0);
     interval.start();
@@ -83,6 +85,7 @@ const MatchingComponent = ({user, jwt} : Props) => {
     };
   }
 
+  // For clean up purposes
   useEffect(() => {
     return () => {
       closeMatching();
@@ -91,6 +94,7 @@ const MatchingComponent = ({user, jwt} : Props) => {
 
   return (
     <section>
+      {/* This is the buttons to start matching service */}
       <Popover position="bottom" shadow="md">
       <Popover.Target>
         <Button>Collaborate</Button>
@@ -108,6 +112,7 @@ const MatchingComponent = ({user, jwt} : Props) => {
         </Flex>
       </Popover.Dropdown>
       </Popover>
+      {/* This is the dialog that will appear at the bottom with the matching status */}
       <Dialog opened={opened} onClose={close} size="lg" radius="md">
         <Flex direction={"row"} justify="space-between">
         <Text size="sm" mb="xs" weight={500}>
@@ -116,14 +121,13 @@ const MatchingComponent = ({user, jwt} : Props) => {
         {!isTimeOut && (<Loader/>)}
         </Flex>
         <Flex direction={"row"} justify="space-between">
-          
           <Button onClick={() => {closeMatching(); close()}}>
             Cancel
           </Button>
           {isTimeOut && (
-              <Button onClick={() => matchMaking(difficulty)}>
-                Retry
-              </Button>
+            <Button onClick={() => matchMaking(difficulty)}>
+              Retry
+            </Button>
           )}
         </Flex>
       </Dialog>
