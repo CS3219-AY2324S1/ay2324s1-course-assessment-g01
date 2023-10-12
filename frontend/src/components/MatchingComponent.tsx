@@ -1,6 +1,6 @@
 import { Button, Dialog, Flex, Loader, Popover, Text } from "@mantine/core";
-import { useDisclosure, useInterval, useTimeout } from "@mantine/hooks";
-import { useEffect, useState } from "react";
+import { useDisclosure, useInterval } from "@mantine/hooks";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { matchingServiceURL } from "../services/MatchingAPI";
 import { User } from "../types/User";
@@ -11,15 +11,44 @@ interface Props {
 }
 
 const MatchingComponent = ({user, jwt} : Props) => {
-  const [ webSocket, setWebSocket ] = useState<WebSocket | undefined>(undefined);
-  const [opened, {toggle, close}] = useDisclosure(false);
+  const TIME_OUT_DURATION = 30;
+  const DIFFICULTIES = ["Easy", "Medium", "Hard"];
+
   const [ timer, setTimer ] = useState(0);
+  const [ difficulty, setDifficulty ] = useState<string>("");
+  const [ isTimeOut, setIsTimeOut ] = useState(false);
+  const webSocketRef = useRef<WebSocket | undefined>(undefined);
+  const [ opened, {toggle, close} ] = useDisclosure(false);
   const nav = useNavigate();
+
+  const closeMatching = () => {
+    webSocketRef.current?.send(JSON.stringify({
+      "user_id": user?.user_id,
+      "action": "Stop",
+      "jwt": jwt
+    }));
+    webSocketRef.current?.close();
+  }
+
+  const matchTimeout = () => {
+    console.log("Timeout");
+    closeMatching();
+    setIsTimeOut(true);
+  }
+
+  const interval = useInterval(() => {
+    setTimer(t => {
+      if (t >= TIME_OUT_DURATION) matchTimeout();
+      return t + 1
+    })
+  }, 1000);
+  
 
   const matchMaking = (diff : string) => {
     const soc = new WebSocket(matchingServiceURL);
-    if (webSocket) webSocket!.close();
-    setWebSocket(soc);
+    if (webSocketRef.current) webSocketRef.current?.close();
+    webSocketRef.current = soc;
+    setDifficulty(diff);
     if (!opened) toggle();
     soc.addEventListener("open", () => {
       soc.send(JSON.stringify({
@@ -37,7 +66,6 @@ const MatchingComponent = ({user, jwt} : Props) => {
       let parsedData = event.data.split(',');
       if (parsedData.length > 1) {
         parsedData = parsedData.map((x : string) => x.split(':'));
-        console.log(parsedData);
         nav(`/collab/${parsedData[1][1]}`);
       }
     })
@@ -46,6 +74,10 @@ const MatchingComponent = ({user, jwt} : Props) => {
       console.log(`error: ${event}`);
     })
 
+    setIsTimeOut(false);
+    setTimer(0);
+    interval.start();
+
     return () => {
       soc.close();
     };
@@ -53,19 +85,9 @@ const MatchingComponent = ({user, jwt} : Props) => {
 
   useEffect(() => {
     return () => {
-      webSocket?.close();
+      closeMatching();
     }
-  }, [webSocket]);
-  
-  const matchTimeout = () => {
-    console.log("Timeout");
-    webSocket?.close();
-    close();
-  }
-  
-  const interval = useInterval(() => setTimer(t => t + 1), 1000);
-  const { start, clear } = useTimeout(matchTimeout, 30.5 * 1000);
-  const difficulties = ["Easy", "Medium", "Hard"];
+  }, [user]);
 
   return (
     <section>
@@ -76,14 +98,9 @@ const MatchingComponent = ({user, jwt} : Props) => {
       <Popover.Dropdown>
         <Flex direction="column">
         {
-          difficulties.map((diff) => (
+          DIFFICULTIES.map((diff) => (
           <Button key={diff}
-            onClick={() => {
-            matchMaking(diff);
-            setTimer(0);
-            start();
-            interval.start();
-            }}>
+            onClick={() => matchMaking(diff)}>
             {diff}
           </Button>
           ))
@@ -94,13 +111,21 @@ const MatchingComponent = ({user, jwt} : Props) => {
       <Dialog opened={opened} onClose={close} size="lg" radius="md">
         <Flex direction={"row"} justify="space-between">
         <Text size="sm" mb="xs" weight={500}>
-          {`Matching you with another user...   ${timer}s`}
+          { isTimeOut ? "The connection has timed out" : `Matching you with another user...   ${timer}s`}
         </Text>
-        <Loader/>
+        {!isTimeOut && (<Loader/>)}
         </Flex>
-        <Button>
-          Cancel matchmaking
-        </Button>
+        <Flex direction={"row"} justify="space-between">
+          
+          <Button onClick={() => {closeMatching(); close()}}>
+            Cancel
+          </Button>
+          {isTimeOut && (
+              <Button onClick={() => matchMaking(difficulty)}>
+                Retry
+              </Button>
+          )}
+        </Flex>
       </Dialog>
     </section>
   )
