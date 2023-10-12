@@ -39,7 +39,7 @@ The following actions can be done:
 
 ```json
 {
-    "room_id": 1, // uint
+    "room_id": 1, // uint (Required for closing rooms, can omit if room has not been created yet)
     "user_id": 2, // uint
     "action": "Stop"
 }
