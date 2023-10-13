@@ -14,16 +14,22 @@
     "@mantine/core": "^6.0.19",
     "@mantine/form": "^6.0.19",
     "@mantine/hooks": "^6.0.19",
+    "@monaco-editor/react": "^4.6.0",
     "@tanstack/react-query": "^4.33.0",
     "axios": "^1.5.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
+    "monaco-editor": "^0.44.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.11.0",
+    "react-monaco-editor": "^0.54.0",
     "react-router-dom": "^6.15.0",
     "sort-by": "^1.2.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "y-monaco": "^0.1.4",
+    "y-webrtc": "^10.2.5",
+    "yjs": "^13.6.8"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
