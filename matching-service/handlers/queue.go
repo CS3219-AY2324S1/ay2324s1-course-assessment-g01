@@ -170,7 +170,7 @@ func handleCancelMatchings(
 		curUserId := utils.ConvertToString(curUser.UserId)
 
 		// send message to socket
-		currentUserSocket.Write([]byte("cancel_match_user:" + curUserId + "\n"))
+		currentUserSocket.Write([]byte("cancel\n"))
 		fmt.Printf("Removed %s from queue\n", curUserId)
 
 		// delete socket from the store
