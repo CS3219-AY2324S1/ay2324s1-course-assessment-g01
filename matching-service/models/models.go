@@ -21,8 +21,9 @@ const (
 type ActionType string
 
 const (
-	StartMatch ActionType = "Start"
-	StopMatch  ActionType = "Stop"
+	StartMatch  ActionType = "Start"
+	StopMatch   ActionType = "Stop"
+	CancelMatch ActionType = "Cancel"
 )
 
 type Room struct {

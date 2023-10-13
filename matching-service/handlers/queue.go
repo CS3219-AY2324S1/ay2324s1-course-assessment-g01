@@ -134,11 +134,52 @@ func ConsumeMessage(ch *amqp.Channel, queueName string, s *utils.SocketStore) {
 			handleMatchings(&curStartUser, userRequest, s)
 		}
 
+		if userRequest.Action == models.CancelMatch {
+			handleCancelMatchings(&curStartUser, userRequest, s)
+		}
+
 		if userRequest.Action == models.StopMatch {
 			handleUnmatchings(&roomsToUser,
 				userRequest, s)
 		}
 
+	}
+}
+
+func handleCancelMatchings(
+	curUser *models.User,
+	parsedUser models.User,
+	s *utils.SocketStore,
+) {
+
+	// check if current is empty
+	if curUser.UserId == 0 {
+		return
+	}
+
+	// check if the user ids match
+	if curUser.UserId == parsedUser.UserId {
+
+		// check if current exists in socket store and is open
+		currentUserSocket, err := s.GetSocket(curUser.UserId)
+
+		// if current user socket is closed, set current user to empty
+		if err != nil || currentUserSocket.IsClosed() {
+			return
+		}
+		curUserId := utils.ConvertToString(curUser.UserId)
+
+		// send message to socket
+		currentUserSocket.Write([]byte("cancel_match_user:" + curUserId + "\n"))
+		fmt.Printf("Removed %s from queue\n", curUserId)
+
+		// delete socket from the store
+		s.DeleteSocket(curUser.UserId)
+
+		// reset current user
+		*curUser = models.User{}
+
+		return
 	}
 }
 
@@ -154,6 +195,8 @@ func handleMatchings(
 	} else {
 		// check if current exists in socket store and is open
 		currentUserSocket, err := s.GetSocket(curUser.UserId)
+
+		// if current user socket is closed, set current user to parsed user
 		if err != nil || currentUserSocket.IsClosed() {
 			*curUser = parsedUser
 			return
@@ -162,6 +205,7 @@ func handleMatchings(
 		// check if parsedUser exists in socket store and is open
 		parsedUserSocket, err := s.GetSocket(parsedUser.UserId)
 
+		// if parsed user socket is closed, do nothing
 		if err != nil || parsedUserSocket.IsClosed() {
 			return
 		}
@@ -197,11 +241,6 @@ func handleUnmatchings(
 	curUser models.User,
 	s *utils.SocketStore,
 ) {
-	// room has not been created yet
-	if curUser.RoomId == 0 {
-		s.DeleteSocket(curUser.UserId)
-		return
-	}
 
 	hasAnotherUserInRoom := (*roomsToUser)[curUser.RoomId] != 0 && (*roomsToUser)[curUser.RoomId] != curUser.UserId
 
