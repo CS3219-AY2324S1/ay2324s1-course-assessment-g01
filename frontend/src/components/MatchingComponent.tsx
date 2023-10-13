@@ -2,7 +2,7 @@ import { Button, Dialog, Flex, Loader, Popover, Text } from "@mantine/core";
 import { useDisclosure, useInterval } from "@mantine/hooks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { matchingServiceURL } from "../services/MatchingAPI";
+import { Actions, matchingMessage, matchingServiceURL } from "../services/MatchingAPI";
 import { User } from "../types/User";
 
 interface Props {
@@ -15,20 +15,17 @@ const MatchingComponent = ({user, jwt} : Props) => {
   const DIFFICULTIES = ["Easy", "Medium", "Hard"];
 
   const [ timer, setTimer ] = useState(0);
-  const [ difficulty, setDifficulty ] = useState<string>("");
   const [ isTimeOut, setIsTimeOut ] = useState(false);
   const webSocketRef = useRef<WebSocket | undefined>(undefined);
+  const difficultyRef = useRef<string>("");
   const [ opened, {toggle, close} ] = useDisclosure(false);
   const nav = useNavigate();
 
   const closeMatching = useCallback(() => {
-    webSocketRef.current?.send(JSON.stringify({
-      "user_id": user?.user_id,
-      "action": "Stop",
-      "jwt": jwt
-    }));
-    webSocketRef.current?.close();
-  }, [jwt, user]);
+    if (webSocketRef.current?.readyState == 1) {
+      webSocketRef.current?.send(matchingMessage(user?.user_id, Actions.cancel, difficultyRef.current, jwt));
+    }
+  }, [jwt, user, difficultyRef]);
 
   const matchTimeout = () => {
     console.log("Timeout");
@@ -47,17 +44,12 @@ const MatchingComponent = ({user, jwt} : Props) => {
 
   const matchMaking = (diff : string) => {
     const soc = new WebSocket(matchingServiceURL);
-    if (webSocketRef.current) webSocketRef.current?.close();
+    if (webSocketRef.current) closeMatching();
     webSocketRef.current = soc;
-    setDifficulty(diff);
-    if (!opened) toggle();
+    difficultyRef.current = diff;
+    
     soc.addEventListener("open", () => {
-      soc.send(JSON.stringify({
-        "user_id": user?.user_id,
-        "action": "Start",
-        "difficulty": diff,
-        "jwt": jwt
-      }));
+      soc.send(matchingMessage(user?.user_id, Actions.start, diff, jwt));
     });
 
     soc.addEventListener("message", (event) => {
@@ -67,7 +59,10 @@ const MatchingComponent = ({user, jwt} : Props) => {
       let parsedData = event.data.split(",");
       if (parsedData.length > 1) {
         parsedData = parsedData.map((x : string) => x.split(":"));
+        soc.close();
         nav(`/collab/${parsedData[1][1]}`);
+      } else if (event.data.split(":").length > 1) { // Change this when the cancel reply is updated
+        soc.close();
       }
     });
 
@@ -76,13 +71,10 @@ const MatchingComponent = ({user, jwt} : Props) => {
     });
 
     // Initialise states for matching and start timer
+    if (!opened) toggle();
     setIsTimeOut(false);
     setTimer(0);
     interval.start();
-
-    return () => {
-      soc.close();
-    };
   };
 
   // For clean up purposes
@@ -125,7 +117,7 @@ const MatchingComponent = ({user, jwt} : Props) => {
             Cancel
           </Button>
           {isTimeOut && (
-            <Button onClick={() => matchMaking(difficulty)}>
+            <Button onClick={() => matchMaking(difficultyRef.current)}>
               Retry
             </Button>
           )}
