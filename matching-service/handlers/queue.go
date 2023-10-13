@@ -230,17 +230,15 @@ func handleMatchings(
 			fmt.Printf("%s: %v\n", utils.QuestionRetrievalError, err)
 			return
 		}
-		questionString := utils.ConvertModelToString(question)
-		curUser.RoomId = room.RoomId
-		parsedUser.RoomId = room.RoomId
 
-		fmt.Printf("Question retrieved: %s\n", questionString)
-
+		matchResponse, err := json.Marshal(models.MatchedResponse{RoomId: room.RoomId, Question: question})
+		if err != nil {
+			fmt.Printf("%s: %v\n", utils.RoomCreationError, err)
+			return
+		}
 		// send message to both sockets
-		currentUserSocket.Write([]byte(utils.ConvertModelToString(curUser)))
-		currentUserSocket.Write([]byte(questionString + "\n"))
-		parsedUserSocket.Write([]byte(utils.ConvertModelToString(parsedUser)))
-		parsedUserSocket.Write([]byte(questionString + "\n"))
+		currentUserSocket.Write((matchResponse))
+		parsedUserSocket.Write((matchResponse))
 
 		// delete both sockets from the store
 		s.DeleteSocket(curUser.UserId)

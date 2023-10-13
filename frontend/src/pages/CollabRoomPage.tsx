@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { User } from "../types/User";
 import { getUserData } from "../services/UserAPI";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore -- need to patch
 import { WebrtcProvider } from "y-webrtc";
@@ -11,7 +11,8 @@ import { MonacoBinding } from "y-monaco";
 import * as Y from "yjs";
 import { editor, languages } from "monaco-editor";
 import "./CollabRoomPage.css";
-import { Select } from "@mantine/core";
+import { Select, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Question } from "../types/Question";
 
 // import { useMemo } from "react";
 
@@ -25,6 +26,11 @@ const CollabRoomPage = () => {
   const [editorInstance, seteditorInstance] =
     useState<editor.IStandaloneCodeEditor>();
   const [otherName, setotherName] = useState("");
+
+  // TODO: replace with getting from the backend
+  const {
+    state: { question },
+  }: { state: { question: Question } } = useLocation();
 
   const [language, setLanguage] = useState("javascript");
 
@@ -67,28 +73,40 @@ const CollabRoomPage = () => {
   // const params = useMemo(() => new URLSearchParams(search), [search]);
 
   return (
-    <div>
-      <div>You are working with {otherName}</div>
-      <div>
-        <Select
-          searchable
-          label="Language"
-          data={languages.getLanguages().map((x) => x.id)}
-          defaultValue={"javascript"}
-          value={settingsMap.get("language") as string}
-          onChange={(e) => {
-            settingsMap.set("language", e);
-          }}
-        ></Select>
-      </div>
-      <Editor
-        language={language}
-        height="90vh"
-        defaultLanguage="javascript"
-        onMount={seteditorInstance}
-        theme="vs-dark"
-      ></Editor>
-    </div>
+    <SimpleGrid cols={2}>
+      <section>
+        <Title>{question.title}</Title>
+        <pre style={{ whiteSpace: "pre-wrap" }}>{question.description}</pre>
+      </section>
+      <Stack>
+        <Text
+          variant="gradient"
+          gradient={{ from: "blue", to: "red", deg: 90 }}
+        >
+          You are working with
+          {" " + otherName}
+        </Text>
+        <div>
+          <Select
+            searchable
+            label="Language"
+            data={languages.getLanguages().map((x) => x.id)}
+            defaultValue={"javascript"}
+            value={settingsMap.get("language") as string}
+            onChange={(e) => {
+              settingsMap.set("language", e);
+            }}
+          ></Select>
+        </div>
+        <Editor
+          language={language}
+          height="70vh"
+          defaultLanguage="javascript"
+          onMount={seteditorInstance}
+          theme="vs-dark"
+        ></Editor>
+      </Stack>
+    </SimpleGrid>
   );
 };
 

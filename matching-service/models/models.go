@@ -39,3 +39,8 @@ type Question struct {
 	Description string     `json:"description"`
 	Categories  []string   `json:"categories"`
 }
+
+type MatchedResponse struct {
+	RoomId   uint     `json:"room_id"`
+	Question Question `json:"question"`
+}
