@@ -1,6 +1,6 @@
 import { Button, Dialog, Flex, Loader, Popover, Text } from "@mantine/core";
 import { useDisclosure, useInterval } from "@mantine/hooks";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { matchingServiceURL } from "../services/MatchingAPI";
 import { User } from "../types/User";
@@ -21,27 +21,27 @@ const MatchingComponent = ({user, jwt} : Props) => {
   const [ opened, {toggle, close} ] = useDisclosure(false);
   const nav = useNavigate();
 
-  const closeMatching = () => {
+  const closeMatching = useCallback(() => {
     webSocketRef.current?.send(JSON.stringify({
       "user_id": user?.user_id,
       "action": "Stop",
       "jwt": jwt
     }));
     webSocketRef.current?.close();
-  }
+  }, [jwt, user]);
 
   const matchTimeout = () => {
     console.log("Timeout");
     interval.stop();
     closeMatching();
     setIsTimeOut(true);
-  }
+  };
 
   const interval = useInterval(() => {
     setTimer(t => {
       if (t >= TIME_OUT_DURATION) matchTimeout();
-      return t + 1
-    })
+      return t + 1;
+    });
   }, 1000);
   
 
@@ -58,22 +58,22 @@ const MatchingComponent = ({user, jwt} : Props) => {
         "difficulty": diff,
         "jwt": jwt
       }));
-    })
+    });
 
     soc.addEventListener("message", (event) => {
       console.log(event.data);
       // Current way to parse the matching success format
       // matched_user:3,room_id:4
-      let parsedData = event.data.split(',');
+      let parsedData = event.data.split(",");
       if (parsedData.length > 1) {
-        parsedData = parsedData.map((x : string) => x.split(':'));
+        parsedData = parsedData.map((x : string) => x.split(":"));
         nav(`/collab/${parsedData[1][1]}`);
       }
-    })
+    });
 
     soc.addEventListener("error", (event) => {
       console.log(`error: ${event}`);
-    })
+    });
 
     // Initialise states for matching and start timer
     setIsTimeOut(false);
@@ -83,14 +83,14 @@ const MatchingComponent = ({user, jwt} : Props) => {
     return () => {
       soc.close();
     };
-  }
+  };
 
   // For clean up purposes
   useEffect(() => {
     return () => {
       closeMatching();
-    }
-  }, [user]);
+    };
+  }, [closeMatching, user]);
 
   return (
     <section>
@@ -121,7 +121,7 @@ const MatchingComponent = ({user, jwt} : Props) => {
         {!isTimeOut && (<Loader/>)}
         </Flex>
         <Flex direction={"row"} justify="space-between">
-          <Button onClick={() => {closeMatching(); close()}}>
+          <Button onClick={() => {closeMatching(); close();}}>
             Cancel
           </Button>
           {isTimeOut && (
@@ -132,7 +132,7 @@ const MatchingComponent = ({user, jwt} : Props) => {
         </Flex>
       </Dialog>
     </section>
-  )
-}
+  );
+};
 
 export default MatchingComponent;
