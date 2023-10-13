@@ -12,16 +12,14 @@ import (
 )
 
 func main() {
-
-	database.Connect()
-
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
 		AllowCredentials: true,
 	}))
 
-	routes.Setup(app)
+	db := database.Connect()
+	routes.Setup(app, db)
 
 	port := fmt.Sprintf(":%s", config.GoDotEnvVariable("REST_PORT"))
 
