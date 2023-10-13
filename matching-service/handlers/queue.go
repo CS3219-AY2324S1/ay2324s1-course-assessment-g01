@@ -231,13 +231,15 @@ func handleMatchings(
 			return
 		}
 		questionString := utils.ConvertModelToString(question)
+		curUser.RoomId = room.RoomId
+		parsedUser.RoomId = room.RoomId
 
 		fmt.Printf("Question retrieved: %s\n", questionString)
 
 		// send message to both sockets
-		currentUserSocket.Write([]byte("matched_user:" + parsedUserId + "," + "room_id:" + roomId + "\n"))
+		currentUserSocket.Write([]byte(utils.ConvertModelToString(curUser)))
 		currentUserSocket.Write([]byte(questionString + "\n"))
-		parsedUserSocket.Write([]byte("matched_user:" + currentUserId + "," + "room_id:" + roomId + "\n"))
+		parsedUserSocket.Write([]byte(utils.ConvertModelToString(parsedUser)))
 		parsedUserSocket.Write([]byte(questionString + "\n"))
 
 		// delete both sockets from the store
