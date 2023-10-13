@@ -35,10 +35,12 @@ func HandleMessage(msg []byte, ch *amqp091.Channel, store *utils.SocketStore, s 
 // parses the message type and runs the appropriate handler
 func parseAndRun(user models.User, ch *amqp091.Channel, store *utils.SocketStore) string {
 	switch user.Action {
-	case models.StartMatch:
-		return handleStart(user, ch)
 	case models.StopMatch:
 		return handleStop(user, ch)
+	case models.CancelMatch:
+		fallthrough
+	case models.StartMatch:
+		return handleStart(user, ch)
 	default:
 		return utils.InvalidMessageTypeError
 	}

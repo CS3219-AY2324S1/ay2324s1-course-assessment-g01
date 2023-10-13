@@ -30,7 +30,18 @@ The following actions can be done:
 {
     "user_id": 1, // uint
     "action": "Start",
-    "difficulty": "Easy", // Required for "Start", optional for the rest - Easy/Medium/Hard
+    "difficulty": "Easy", // Required for "Start" action - Easy/Medium/Hard
+    "jwt": "" // Required for the session of the user_id passed in body
+}
+```
+
+### Cancel collaboration
+
+```json
+{
+    "user_id": 1, // uint
+    "action": "Cancel",
+    "difficulty": "Easy", // Required for "Cancel" action - Easy/Medium/Hard
     "jwt": "" // Required for the session of the user_id passed in body
 }
 ```
@@ -39,9 +50,10 @@ The following actions can be done:
 
 ```json
 {
-    "room_id": 1, // uint (Required for closing rooms, can omit if room has not been created yet)
+    "room_id": 1, // uint (Required for closing rooms)
     "user_id": 2, // uint
-    "action": "Stop"
+    "action": "Stop",
+    "jwt": "" // Required for the session of the user_id passed in body
 }
 ```
 
