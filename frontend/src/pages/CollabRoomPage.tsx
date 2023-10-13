@@ -11,7 +11,14 @@ import { MonacoBinding } from "y-monaco";
 import * as Y from "yjs";
 import { editor, languages } from "monaco-editor";
 import "./CollabRoomPage.css";
-import { Select, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import {
+  LoadingOverlay,
+  Select,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { Question } from "../types/Question";
 
 // import { useMemo } from "react";
@@ -25,7 +32,7 @@ const CollabRoomPage = () => {
   const { id } = useParams();
   const [editorInstance, seteditorInstance] =
     useState<editor.IStandaloneCodeEditor>();
-  const [otherName, setotherName] = useState("");
+  const [otherName, setotherName] = useState<string | undefined>("");
 
   // TODO: replace with getting from the backend
   const {
@@ -45,6 +52,12 @@ const CollabRoomPage = () => {
 
     //If awareness changes, set other party's name
     provider.awareness.on("change", () => {
+      // If other party not here, set to undefined for loading
+      if (Array.from(provider.awareness.getStates().keys()).length < 2) {
+        setotherName(undefined);
+        return;
+      }
+
       provider.awareness.getStates().forEach((state: { user: string }) => {
         if (state.user !== user?.name) {
           setotherName(state.user);
@@ -73,40 +86,43 @@ const CollabRoomPage = () => {
   // const params = useMemo(() => new URLSearchParams(search), [search]);
 
   return (
-    <SimpleGrid cols={2}>
-      <section>
-        <Title>{question.title}</Title>
-        <pre style={{ whiteSpace: "pre-wrap" }}>{question.description}</pre>
-      </section>
-      <Stack>
-        <Text
-          variant="gradient"
-          gradient={{ from: "blue", to: "red", deg: 90 }}
-        >
-          You are working with
-          {" " + otherName}
-        </Text>
-        <div>
-          <Select
-            searchable
-            label="Language"
-            data={languages.getLanguages().map((x) => x.id)}
-            defaultValue={"javascript"}
-            value={settingsMap.get("language") as string}
-            onChange={(e) => {
-              settingsMap.set("language", e);
-            }}
-          ></Select>
-        </div>
-        <Editor
-          language={language}
-          height="70vh"
-          defaultLanguage="javascript"
-          onMount={seteditorInstance}
-          theme="vs-dark"
-        ></Editor>
-      </Stack>
-    </SimpleGrid>
+    <>
+      <LoadingOverlay visible={otherName === undefined} />
+      <SimpleGrid cols={2}>
+        <section>
+          <Title>{question.title}</Title>
+          <pre style={{ whiteSpace: "pre-wrap" }}>{question.description}</pre>
+        </section>
+        <Stack>
+          <Text
+            variant="gradient"
+            gradient={{ from: "blue", to: "red", deg: 90 }}
+          >
+            You are working with
+            {" " + otherName}
+          </Text>
+          <div>
+            <Select
+              searchable
+              label="Language"
+              data={languages.getLanguages().map((x) => x.id)}
+              defaultValue={"javascript"}
+              value={settingsMap.get("language") as string}
+              onChange={(e) => {
+                settingsMap.set("language", e);
+              }}
+            ></Select>
+          </div>
+          <Editor
+            language={language}
+            height="70vh"
+            defaultLanguage="javascript"
+            onMount={seteditorInstance}
+            theme="vs-dark"
+          ></Editor>
+        </Stack>
+      </SimpleGrid>
+    </>
   );
 };
 
