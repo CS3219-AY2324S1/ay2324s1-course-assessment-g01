@@ -9,6 +9,7 @@ import (
 	"matching-service/models"
 	"matching-service/services"
 	"matching-service/utils"
+	"strings"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -223,9 +224,21 @@ func handleMatchings(
 		fmt.Printf("Matched %s and %s\n", currentUserId, parsedUserId)
 		fmt.Printf("Room created with id %s\n", roomId)
 
+		// get random question from question service
+		question, err := services.GetRandomQuestionId(strings.ToLower(string(curUser.Difficulty)), curUser.JWT)
+		if err != nil {
+			fmt.Printf("%s: %v\n", utils.QuestionRetrievalError, err)
+			return
+		}
+		questionString := utils.ConvertModelToString(question)
+
+		fmt.Printf("Question retrieved: %s\n", questionString)
+
 		// send message to both sockets
 		currentUserSocket.Write([]byte("matched_user:" + parsedUserId + "," + "room_id:" + roomId + "\n"))
+		currentUserSocket.Write([]byte(questionString + "\n"))
 		parsedUserSocket.Write([]byte("matched_user:" + currentUserId + "," + "room_id:" + roomId + "\n"))
+		parsedUserSocket.Write([]byte(questionString + "\n"))
 
 		// delete both sockets from the store
 		s.DeleteSocket(curUser.UserId)

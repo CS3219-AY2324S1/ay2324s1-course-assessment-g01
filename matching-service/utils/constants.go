@@ -5,8 +5,9 @@ const (
 	UserAuthError = "Error: User authentication failed"
 
 	// Room Errors
-	RoomCreationError = "Error: Room creation failed"
-	RoomCloseError    = "Error: Room close failed"
+	RoomCreationError      = "Error: Room creation failed"
+	RoomCloseError         = "Error: Room close failed"
+	QuestionRetrievalError = "Error: Question retrieval failed"
 
 	// Go Errors
 	UnmarshalError             = "Error: Invalid message format"

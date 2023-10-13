@@ -40,12 +40,20 @@ func GetCollaborationServicePort() string {
 	return ":" + GoDotEnvVariable("COLLABORATION_SERVICE_PORT")
 }
 
+func GetQuestionServicePort() string {
+	return ":" + GoDotEnvVariable("QUESTION_SERVICE_PORT")
+}
+
 func GetUserServiceURL() string {
 	return "http://user-service" + GetUserServicePort() + "/api/v1/user"
 }
 
 func GetCollaborationRoomServiceURL() string {
 	return "http://collaboration-service" + GetCollaborationServicePort() + "/api/v1/room"
+}
+
+func GetQuestionServiceURL() string {
+	return "http://question-service" + GetQuestionServicePort() + "/api/v1/questions"
 }
 
 func GetRabbitMQConnString() string {
