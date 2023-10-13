@@ -7,12 +7,12 @@ import (
 	"strconv"
 	"strings"
 	"user-service/config"
-	"user-service/database"
 	"user-service/models"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/lib/pq"
+	"gorm.io/gorm"
 )
 
 // Wrapper around strconv.ParseUint. Base is set to 10; bitSize is set to 64.
@@ -27,7 +27,7 @@ func GetJwt(cookie string, SecretKey string) (*jwt.Token, error) {
 	})
 }
 
-func GetCurrentUser(c *fiber.Ctx, SecretKey string, jwToken string) (models.User, error) {
+func GetCurrentUser(db *gorm.DB, c *fiber.Ctx, SecretKey string, jwToken string) (models.User, error) {
 	token, err := GetJwt(jwToken, SecretKey)
 
 	var user models.User
@@ -38,7 +38,7 @@ func GetCurrentUser(c *fiber.Ctx, SecretKey string, jwToken string) (models.User
 
 	claims := token.Claims.(*jwt.StandardClaims)
 
-	if err := database.DB.Where("user_id = ?", claims.Subject).First(&user).Error; err != nil {
+	if err := db.Where("user_id = ?", claims.Subject).First(&user).Error; err != nil {
 		return user, err
 	}
 
