@@ -122,3 +122,8 @@ services:
       - "./frontend/src:/app/src"
     ports:
       - "5173:5173"
+
+  webrtc-signaling-server:
+    build: ./signaling-server
+    ports:
+      - 4444:4444
