@@ -1,4 +1,4 @@
-import { Button, Center, Loader, Table, Text } from "@mantine/core";
+import { Button, Center, Loader, Table, Text, Flex } from "@mantine/core";
 import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -6,8 +6,12 @@ import WelcomeComponent from "../components/WelcomeComponent";
 import { User } from "../types/User";
 import { isAdmin } from "../utils/userUtils";
 import { getUserData } from "../services/UserAPI";
+import { useContext } from "react";
+import { UserContext } from "../contexts/UserContext";
+import MatchingComponent from "../components/MatchingComponent";
 
 const LandingPage = () => {
+  const { jwt } = useContext(UserContext);
   const queryClient = useQueryClient();
   const {
     data: questions,
@@ -33,12 +37,14 @@ const LandingPage = () => {
   return (
     <section>
       <WelcomeComponent />
-
-      {user && isAdmin(user) && (
-        <Button component={Link} to="/create">
-          Create new question
-        </Button>
-      )}
+      <Flex justify="space-between">
+        {user && isAdmin(user) && (
+          <Button component={Link} to="/create">
+            Create new question
+          </Button>
+        )}
+        <MatchingComponent user={user} jwt={jwt}/>
+      </Flex>
       <Table>
         <thead>
           <tr>

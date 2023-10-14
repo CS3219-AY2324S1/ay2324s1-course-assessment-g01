@@ -1,0 +1,7 @@
+go 1.21.0
+
+use (
+	./collaboration-service
+	./matching-service
+	./user-service
+)

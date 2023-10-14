@@ -7,7 +7,7 @@ services:
       - MONGODB_URL=mongodb://mongo:27017/questions
     depends_on:
       - mongo
-      
+
   mongo:
     image: bitnami/mongodb:latest
     ports:
@@ -22,24 +22,88 @@ services:
       - 8081:8081
     depends_on:
       - mongo
-  
+
   postgres:
     image: postgres:14-alpine
     ports:
-      - "5000:5432"
+      - "5001:5432"
     user: postgres
     environment:
       POSTGRES_PASSWORD: "123"
       POSTGRES_DB: "dev"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   user-service:
     build: ./user-service
-    ports: 
+    ports:
       - "3000:3000"
     env_file:
       - ./user-service/.env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+
+  rabbitmq:
+    user: rabbitmq
+    image: rabbitmq:management
+    container_name: rabbitmq
+    restart: on-failure
+    hostname: 'prod-rabbitmq'
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672" # amqp
+      - "15672:15672" # management
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  matching-service:
+    build:
+      context: ./matching-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - USER_SERVICE_PORT=3000
+      - COLLABORATION_SERVICE_PORT=3005
+      - MATCHING_SERVICE_PORT=8082
+      - QUESTION_SERVICE_PORT=8080
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    restart: on-failure
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      collaboration-service:
+        condition: service_healthy
+
+  collaboration-service:
+    build:
+      context: ./collaboration-service
+      dockerfile: Dockerfile
+    ports:
+      - "3005:3005"
+    env_file:
+      - ./collaboration-service/.env
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: wget --spider --no-verbose --tries=1 localhost:3005/ || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   front-end:
     build: ./frontend
