@@ -39,3 +39,7 @@ type Question struct {
 	Description string     `json:"description"`
 	Categories  []string   `json:"categories"`
 }
+
+type Error struct {
+	Message string `json:"error"`
+}
