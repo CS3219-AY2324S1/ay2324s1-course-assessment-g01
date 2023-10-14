@@ -18,8 +18,8 @@ const CollabRoomPage = () => {
         Collab Stub
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default CollabRoomPage;
 

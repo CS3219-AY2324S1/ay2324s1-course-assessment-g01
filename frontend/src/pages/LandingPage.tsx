@@ -1,4 +1,4 @@
-import { Button, Center, Loader, Table, Text, Flex, Popover, Dialog } from "@mantine/core";
+import { Button, Center, Loader, Table, Text, Flex } from "@mantine/core";
 import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";

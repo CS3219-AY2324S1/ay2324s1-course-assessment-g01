@@ -1,8 +1,8 @@
 import { Button, Dialog, Flex, Loader, Popover, Text } from "@mantine/core";
 import { useDisclosure, useInterval } from "@mantine/hooks";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { matchingServiceURL } from "../services/MatchingAPI";
+import { Actions, matchingMessage, matchingServiceURL } from "../services/MatchingAPI";
 import { User } from "../types/User";
 
 interface Props {
@@ -15,82 +15,74 @@ const MatchingComponent = ({user, jwt} : Props) => {
   const DIFFICULTIES = ["Easy", "Medium", "Hard"];
 
   const [ timer, setTimer ] = useState(0);
-  const [ difficulty, setDifficulty ] = useState<string>("");
   const [ isTimeOut, setIsTimeOut ] = useState(false);
   const webSocketRef = useRef<WebSocket | undefined>(undefined);
+  const difficultyRef = useRef<string>("");
   const [ opened, {toggle, close} ] = useDisclosure(false);
   const nav = useNavigate();
 
-  const closeMatching = () => {
-    webSocketRef.current?.send(JSON.stringify({
-      "user_id": user?.user_id,
-      "action": "Stop",
-      "jwt": jwt
-    }));
-    webSocketRef.current?.close();
-  }
+  const closeMatching = useCallback(() => {
+    if (webSocketRef.current?.readyState == 1) {
+      webSocketRef.current?.send(matchingMessage(user?.user_id, Actions.cancel, difficultyRef.current, jwt));
+    }
+  }, [jwt, user, difficultyRef]);
 
   const matchTimeout = () => {
     console.log("Timeout");
     interval.stop();
     closeMatching();
     setIsTimeOut(true);
-  }
+  };
 
   const interval = useInterval(() => {
     setTimer(t => {
       if (t >= TIME_OUT_DURATION) matchTimeout();
-      return t + 1
-    })
+      return t + 1;
+    });
   }, 1000);
   
 
   const matchMaking = (diff : string) => {
     const soc = new WebSocket(matchingServiceURL);
-    if (webSocketRef.current) webSocketRef.current?.close();
+    if (webSocketRef.current) closeMatching();
     webSocketRef.current = soc;
-    setDifficulty(diff);
-    if (!opened) toggle();
+    difficultyRef.current = diff;
+    
     soc.addEventListener("open", () => {
-      soc.send(JSON.stringify({
-        "user_id": user?.user_id,
-        "action": "Start",
-        "difficulty": diff,
-        "jwt": jwt
-      }));
-    })
+      soc.send(matchingMessage(user?.user_id, Actions.start, diff, jwt));
+    });
 
     soc.addEventListener("message", (event) => {
       console.log(event.data);
       // Current way to parse the matching success format
       // matched_user:3,room_id:4
-      let parsedData = event.data.split(',');
+      let parsedData = event.data.split(",");
       if (parsedData.length > 1) {
-        parsedData = parsedData.map((x : string) => x.split(':'));
+        parsedData = parsedData.map((x : string) => x.split(":"));
+        soc.close();
         nav(`/collab/${parsedData[1][1]}`);
+      } else if (event.data.split(":").length > 1) { // Change this when the cancel reply is updated
+        soc.close();
       }
-    })
+    });
 
     soc.addEventListener("error", (event) => {
       console.log(`error: ${event}`);
-    })
+    });
 
     // Initialise states for matching and start timer
+    if (!opened) toggle();
     setIsTimeOut(false);
     setTimer(0);
     interval.start();
-
-    return () => {
-      soc.close();
-    };
-  }
+  };
 
   // For clean up purposes
   useEffect(() => {
     return () => {
       closeMatching();
-    }
-  }, [user]);
+    };
+  }, [closeMatching, user]);
 
   return (
     <section>
@@ -121,18 +113,18 @@ const MatchingComponent = ({user, jwt} : Props) => {
         {!isTimeOut && (<Loader/>)}
         </Flex>
         <Flex direction={"row"} justify="space-between">
-          <Button onClick={() => {closeMatching(); close()}}>
+          <Button onClick={() => {closeMatching(); close();}}>
             Cancel
           </Button>
           {isTimeOut && (
-            <Button onClick={() => matchMaking(difficulty)}>
+            <Button onClick={() => matchMaking(difficultyRef.current)}>
               Retry
             </Button>
           )}
         </Flex>
       </Dialog>
     </section>
-  )
-}
+  );
+};
 
 export default MatchingComponent;
