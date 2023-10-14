@@ -40,7 +40,6 @@ const MatchingComponent = ({user, jwt} : Props) => {
       return t + 1;
     });
   }, 1000);
-  
 
   const matchMaking = (diff : string) => {
     const soc = new WebSocket(matchingServiceURL);
@@ -53,16 +52,16 @@ const MatchingComponent = ({user, jwt} : Props) => {
     });
 
     soc.addEventListener("message", (event) => {
-      console.log(event.data);
-      // Current way to parse the matching success format
-      // matched_user:3,room_id:4
-      let parsedData = event.data.split(",");
-      if (parsedData.length > 1) {
-        parsedData = parsedData.map((x : string) => x.split(":"));
-        soc.close();
-        nav(`/collab/${parsedData[1][1]}`);
-      } else if (event.data.split(":").length > 1) { // Change this when the cancel reply is updated
-        soc.close();
+      try {
+        const parsedData = JSON.parse(event.data);
+        if (parsedData.room_id) {
+          soc.close();
+          nav(`/collab/${parsedData.room_id}`);
+        } else if (parsedData.error == "") { // Change this when the cancel reply is updated
+          soc.close();
+        }
+      } catch (e) {
+        console.log(e);
       }
     });
 
