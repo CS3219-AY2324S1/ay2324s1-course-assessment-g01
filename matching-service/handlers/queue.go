@@ -9,6 +9,7 @@ import (
 	"matching-service/models"
 	"matching-service/services"
 	"matching-service/utils"
+	"strings"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -169,8 +170,10 @@ func handleCancelMatchings(
 		}
 		curUserId := utils.ConvertToString(curUser.UserId)
 
+		error_message := utils.ConvertModelToString(models.Error{Message: ""})
+
 		// send message to socket
-		currentUserSocket.Write([]byte("cancel_match_user:" + curUserId + "\n"))
+		currentUserSocket.Write([]byte(error_message))
 		fmt.Printf("Removed %s from queue\n", curUserId)
 
 		// delete socket from the store
@@ -223,9 +226,23 @@ func handleMatchings(
 		fmt.Printf("Matched %s and %s\n", currentUserId, parsedUserId)
 		fmt.Printf("Room created with id %s\n", roomId)
 
+		// get random question from question service
+		question, err := services.GetRandomQuestionId(strings.ToLower(string(curUser.Difficulty)), curUser.JWT)
+		if err != nil {
+			fmt.Printf("%s: %v\n", utils.QuestionRetrievalError, err)
+			return
+		}
+		questionString := utils.ConvertModelToString(question)
+		curUser.RoomId = room.RoomId
+		parsedUser.RoomId = room.RoomId
+
+		fmt.Printf("Question retrieved: %s\n", questionString)
+
 		// send message to both sockets
-		currentUserSocket.Write([]byte("matched_user:" + parsedUserId + "," + "room_id:" + roomId + "\n"))
-		parsedUserSocket.Write([]byte("matched_user:" + currentUserId + "," + "room_id:" + roomId + "\n"))
+		currentUserSocket.Write([]byte(utils.ConvertModelToString(curUser)))
+		currentUserSocket.Write([]byte(questionString + "\n"))
+		parsedUserSocket.Write([]byte(utils.ConvertModelToString(parsedUser)))
+		parsedUserSocket.Write([]byte(questionString + "\n"))
 
 		// delete both sockets from the store
 		s.DeleteSocket(curUser.UserId)
@@ -270,9 +287,11 @@ func handleUnmatchings(
 
 		fmt.Printf("Room %d closed for %s and %s\n", curUser.RoomId, currentUserIdStr, otherUserIdStr)
 
+		error_message := utils.ConvertModelToString(models.Error{Message: ""})
+
 		// send message to both sockets
-		currentUserSocket.Write([]byte("unmatched_user:" + otherUserIdStr + "\n"))
-		otherUserSocket.Write([]byte("unmatched_user:" + currentUserIdStr + "\n"))
+		currentUserSocket.Write([]byte(error_message))
+		otherUserSocket.Write([]byte(error_message))
 
 		// delete both sockets from the store
 		s.DeleteSocket(curUser.UserId)

@@ -31,3 +31,15 @@ type Room struct {
 	UserAId uint `json:"user_a_id"`
 	UserBId uint `json:"user_b_id"`
 }
+
+type Question struct {
+	QuestionId  string     `json:"_id"`
+	Title       string     `json:"title"`
+	Difficulty  Difficulty `json:"complexity"`
+	Description string     `json:"description"`
+	Categories  []string   `json:"categories"`
+}
+
+type Error struct {
+	Message string `json:"error"`
+}

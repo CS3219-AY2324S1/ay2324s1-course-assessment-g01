@@ -26,6 +26,8 @@ The following actions can be done:
 
 ### Start collaboration
 
+Request:
+
 ```json
 {
     "user_id": 1, // uint
@@ -35,7 +37,21 @@ The following actions can be done:
 }
 ```
 
+Response:
+
+```json
+{
+    "user_id": 1, // uint
+    "room_id": 1, // uint
+    "action": "Start",
+    "difficulty": "Easy",
+    "jwt": ""
+}
+```
+
 ### Cancel collaboration
+
+Request:
 
 ```json
 {
@@ -46,7 +62,17 @@ The following actions can be done:
 }
 ```
 
+Response:
+
+```json
+{
+    "error": "some error message" // Empty if there is no error
+}
+```
+
 ### Stop collaboration
+
+Request:
 
 ```json
 {
@@ -54,6 +80,14 @@ The following actions can be done:
     "user_id": 2, // uint
     "action": "Stop",
     "jwt": "" // Required for the session of the user_id passed in body
+}
+```
+
+Response:
+
+```json
+{
+    "error": "some error message" // Empty if there is no error
 }
 ```
 
