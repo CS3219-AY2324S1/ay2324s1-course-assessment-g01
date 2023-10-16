@@ -4,7 +4,7 @@ import { getUserData } from "../services/UserAPI";
 import { Link, useLocation, useParams } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore -- need to patch
-import { WebrtcProvider } from "y-webrtc";
+import { WebsocketProvider } from "y-websocket";
 import Editor from "@monaco-editor/react";
 import { useEffect, useMemo, useState } from "react";
 import { MonacoBinding } from "y-monaco";
@@ -46,9 +46,11 @@ const CollabRoomPage = () => {
 
   useEffect(() => {
     if (!editorInstance) return;
-    const provider = new WebrtcProvider(id!, ydoc, {
-      signaling: ["ws://localhost:4444"],
-    });
+    const provider = new WebsocketProvider(
+      import.meta.env.VITE_COLLAB_WS_SERVER,
+      id!,
+      ydoc,
+    );
 
     if (!user) return;
 
@@ -57,6 +59,8 @@ const CollabRoomPage = () => {
 
     //If awareness changes, set other party's name
     provider.awareness.on("change", () => {
+      console.log(provider.awareness.getStates());
+      
       // If other party not here, set to undefined for loading
       if (Array.from(provider.awareness.getStates().keys()).length < 2) {
         setotherName(undefined);

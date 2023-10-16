@@ -124,7 +124,7 @@ services:
     ports:
       - "5173:5173"
 
-  webrtc-signaling-server:
-    build: ./signaling-server
+  collab-ws-server:
+    build: ./collab-ws-server
     ports:
       - 4444:4444

@@ -8,4 +8,7 @@ RUN yarn
 
 EXPOSE 4444
 
-CMD ["npx", "y-webrtc"]
+ENV PORT=4444
+ENV HOST="0.0.0.0"
+
+CMD ["npx", "y-websocket"]

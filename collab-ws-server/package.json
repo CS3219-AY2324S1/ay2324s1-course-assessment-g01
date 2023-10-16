@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "y-webrtc": "^10.2.5"
+    "y-websocket": "1.5.0",
+    "yjs": "^13.6.8"
   }
 }
