@@ -36,6 +36,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
 
   user-service:
     build: ./user-service
@@ -109,3 +112,6 @@ services:
     build: ./frontend
     ports:
       - "5173:5173"
+
+volumes: 
+  postgres:
