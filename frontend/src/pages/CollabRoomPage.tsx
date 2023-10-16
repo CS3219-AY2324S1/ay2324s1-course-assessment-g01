@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { User } from "../types/User";
 import { getUserData } from "../services/UserAPI";
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore -- need to patch
 import { WebrtcProvider } from "y-webrtc";
@@ -12,7 +12,9 @@ import * as Y from "yjs";
 import { editor, languages } from "monaco-editor";
 import "./CollabRoomPage.css";
 import {
-  LoadingOverlay,
+  Button,
+  Center,
+  Overlay,
   Select,
   SimpleGrid,
   Stack,
@@ -47,6 +49,8 @@ const CollabRoomPage = () => {
     const provider = new WebrtcProvider(id!, ydoc, {
       signaling: ["ws://localhost:4444"],
     });
+
+    if (!user) return;
 
     //Set own name
     provider.awareness.setLocalStateField("user", user?.name);
@@ -91,7 +95,18 @@ const CollabRoomPage = () => {
 
   return (
     <>
-      <LoadingOverlay visible={otherName === undefined} />
+      {otherName === undefined && (
+        <Overlay blur={10} fixed>
+          <Center h="100%">
+            <Stack>
+              <p>Other user has left</p>
+              <Button variant="light" component={Link} to="/">
+                Return Home
+              </Button>
+            </Stack>
+          </Center>
+        </Overlay>
+      )}
       <SimpleGrid
         cols={2}
         h={"calc(100vh - var(--mantine-header-height, 0px) - 2rem)"}
