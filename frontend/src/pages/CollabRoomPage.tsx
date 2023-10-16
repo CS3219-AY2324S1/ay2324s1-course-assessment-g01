@@ -120,6 +120,7 @@ const CollabRoomPage = () => {
           </Text>
           <div>
             <Select
+              autoComplete="false"
               searchable
               label="Language"
               data={languages.getLanguages().map((x) => x.id)}
