@@ -20,6 +20,7 @@ import {
   Title,
 } from "@mantine/core";
 import { Question } from "../types/Question";
+import ChatComponent, { ChatMessage } from "../components/ChatComponent";
 
 // import { useMemo } from "react";
 
@@ -77,10 +78,13 @@ const CollabRoomPage = () => {
   //Set language when other side changes
   const settingsMap = ydoc.getMap("settings");
   useEffect(() => {
-    settingsMap.observe(() =>
-      setLanguage(ydoc.getMap("settings").get("language") as string),
-    );
+    const set = () =>
+      setLanguage(ydoc.getMap<string>("settings").get("language") || "python");
+    settingsMap.observe(set);
+    return () => settingsMap.unobserve(set);
   }, [settingsMap, ydoc]);
+
+  const chatArray = ydoc.getArray<ChatMessage>("chat");
 
   // const { search: password } = useLocation();
   // const params = useMemo(() => new URLSearchParams(search), [search]);
@@ -88,11 +92,24 @@ const CollabRoomPage = () => {
   return (
     <>
       <LoadingOverlay visible={otherName === undefined} />
-      <SimpleGrid cols={2}>
-        <section>
-          <Title>{question.title}</Title>
-          <pre style={{ whiteSpace: "pre-wrap" }}>{question.description}</pre>
-        </section>
+      <SimpleGrid
+        cols={2}
+        h={"calc(100vh - var(--mantine-header-height, 0px) - 2rem)"}
+      >
+        <Stack style={{ minHeight: 0, height: "100%" }}>
+          <Stack style={{ flex: 1, minHeight: 0 }}>
+            <Title>{question.title}</Title>
+            <div
+              style={{
+                whiteSpace: "pre-wrap",
+                overflow: "auto",
+              }}
+            >
+              {question.description}
+            </div>
+          </Stack>
+          <ChatComponent chatlog={chatArray} id={ydoc.clientID} />
+        </Stack>
         <Stack>
           <Text
             variant="gradient"

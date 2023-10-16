@@ -5,7 +5,7 @@ import AppHeader from "./components/AppHeader";
 
 function App() {
   return (
-    <AppShell header={<AppHeader />}>
+    <AppShell h={"100vh"} header={<AppHeader />}>
       <Outlet></Outlet>
     </AppShell>
   );
