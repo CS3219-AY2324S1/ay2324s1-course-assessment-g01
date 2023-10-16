@@ -22,14 +22,13 @@ func (controller *UserController) GetUserByJwt(c *fiber.Ctx) error {
 	token, err := utils.GetAuthBearerToken(c)
 
 	if err != nil {
-		return utils.ErrorResponse(c, err.Error())
+		return utils.UnauthorizedResponse(c, err.Error())
 	}
 
 	user, err := utils.GetCurrentUser(controller.DB, c, controller.SecretKey, token)
 
 	if err != nil {
-		c.Status(fiber.StatusNotFound)
-		return utils.ErrorResponse(c, utils.UserNotFound)
+		return utils.UnauthorizedResponse(c, utils.UserNotFound)
 	}
 	return utils.GetRequestResponse(c, user)
 }
