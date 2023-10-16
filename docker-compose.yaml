@@ -36,6 +36,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
 
   user-service:
     build: ./user-service
@@ -114,3 +117,5 @@ services:
     build: ./collab-ws-server
     ports:
       - 4444:4444
+volumes: 
+  postgres:
