@@ -101,7 +101,7 @@ const CollabRoomPage = () => {
             <Title>{question.title}</Title>
             <div
               style={{
-                whiteSpace: "pre-wrap",
+                whiteSpace: "pre-line",
                 overflow: "auto",
               }}
             >
