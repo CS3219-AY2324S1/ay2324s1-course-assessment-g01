@@ -4,13 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Actions, matchingMessage, matchingServiceURL } from "../services/MatchingAPI";
 import { User } from "../types/User";
+import { Question } from "../types/Question";
 
 interface Props {
-  user : User | undefined;
-  jwt : string | null;
+  user: User | undefined;
+  jwt: string | null;
 }
 
-const MatchingComponent = ({user, jwt} : Props) => {
+const MatchingComponent = ({ user, jwt }: Props) => {
   const TIME_OUT_DURATION = 30;
   const DIFFICULTIES = ["Easy", "Medium", "Hard"];
 
@@ -35,13 +36,13 @@ const MatchingComponent = ({user, jwt} : Props) => {
   };
 
   const interval = useInterval(() => {
-    setTimer(t => {
+    setTimer((t) => {
       if (t >= TIME_OUT_DURATION) matchTimeout();
       return t + 1;
     });
   }, 1000);
 
-  const matchMaking = (diff : string) => {
+  const matchMaking = (diff: string) => {
     const soc = new WebSocket(matchingServiceURL);
     if (webSocketRef.current) closeMatching();
     webSocketRef.current = soc;
@@ -51,12 +52,20 @@ const MatchingComponent = ({user, jwt} : Props) => {
       soc.send(matchingMessage(user?.user_id, Actions.start, diff, jwt));
     });
 
+    type MatchResponse = {
+      room_id: number;
+      question: Question;
+      error?: string
+    };
+
     soc.addEventListener("message", (event) => {
       try {
-        const parsedData = JSON.parse(event.data);
+        const parsedData: MatchResponse = JSON.parse(event.data);
         if (parsedData.room_id) {
           soc.close();
-          nav(`/collab/${parsedData.room_id}`);
+          nav(`/collab/${parsedData.room_id}`, {
+            state: { question: parsedData.question },
+          });
         } else if (parsedData.error == "") { // Change this when the cancel reply is updated
           soc.close();
         }
@@ -87,32 +96,36 @@ const MatchingComponent = ({user, jwt} : Props) => {
     <section>
       {/* This is the buttons to start matching service */}
       <Popover position="bottom" shadow="md">
-      <Popover.Target>
-        <Button>Collaborate</Button>
-      </Popover.Target>
-      <Popover.Dropdown>
-        <Flex direction="column">
-        {
-          DIFFICULTIES.map((diff) => (
-          <Button key={diff}
-            onClick={() => matchMaking(diff)}>
-            {diff}
-          </Button>
-          ))
-        }
-        </Flex>
-      </Popover.Dropdown>
+        <Popover.Target>
+          <Button>Collaborate</Button>
+        </Popover.Target>
+        <Popover.Dropdown>
+          <Flex direction="column">
+            {DIFFICULTIES.map((diff) => (
+              <Button key={diff} onClick={() => matchMaking(diff)}>
+                {diff}
+              </Button>
+            ))}
+          </Flex>
+        </Popover.Dropdown>
       </Popover>
       {/* This is the dialog that will appear at the bottom with the matching status */}
       <Dialog opened={opened} onClose={close} size="lg" radius="md">
         <Flex direction={"row"} justify="space-between">
-        <Text size="sm" mb="xs" weight={500}>
-          { isTimeOut ? "The connection has timed out" : `Matching you with another user...   ${timer}s`}
-        </Text>
-        {!isTimeOut && (<Loader/>)}
+          <Text size="sm" mb="xs" weight={500}>
+            {isTimeOut
+              ? "The connection has timed out"
+              : `Matching you with another user...   ${timer}s`}
+          </Text>
+          {!isTimeOut && <Loader />}
         </Flex>
         <Flex direction={"row"} justify="space-between">
-          <Button onClick={() => {closeMatching(); close();}}>
+          <Button
+            onClick={() => {
+              closeMatching();
+              close();
+            }}
+          >
             Cancel
           </Button>
           {isTimeOut && (

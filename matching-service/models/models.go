@@ -40,6 +40,11 @@ type Question struct {
 	Categories  []string   `json:"categories"`
 }
 
+type MatchedResponse struct {
+	RoomId   uint     `json:"room_id"`
+	Question Question `json:"question"`
+}
+
 type Error struct {
 	Message string `json:"error"`
 }
