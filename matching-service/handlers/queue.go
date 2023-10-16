@@ -170,8 +170,10 @@ func handleCancelMatchings(
 		}
 		curUserId := utils.ConvertToString(curUser.UserId)
 
+		error_message := utils.ConvertModelToString(models.Error{Message: ""})
+
 		// send message to socket
-		currentUserSocket.Write([]byte("cancel\n"))
+		currentUserSocket.Write([]byte(error_message))
 		fmt.Printf("Removed %s from queue\n", curUserId)
 
 		// delete socket from the store
@@ -283,9 +285,11 @@ func handleUnmatchings(
 
 		fmt.Printf("Room %d closed for %s and %s\n", curUser.RoomId, currentUserIdStr, otherUserIdStr)
 
+		error_message := utils.ConvertModelToString(models.Error{Message: ""})
+
 		// send message to both sockets
-		currentUserSocket.Write([]byte("unmatched_user:" + otherUserIdStr + "\n"))
-		otherUserSocket.Write([]byte("unmatched_user:" + currentUserIdStr + "\n"))
+		currentUserSocket.Write([]byte(error_message))
+		otherUserSocket.Write([]byte(error_message))
 
 		// delete both sockets from the store
 		s.DeleteSocket(curUser.UserId)

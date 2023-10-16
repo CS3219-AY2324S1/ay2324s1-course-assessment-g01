@@ -2,7 +2,7 @@ import { Button, Dialog, Flex, Loader, Popover, Text } from "@mantine/core";
 import { useDisclosure, useInterval } from "@mantine/hooks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { matchingServiceURL } from "../services/MatchingAPI";
+import { Actions, matchingMessage, matchingServiceURL } from "../services/MatchingAPI";
 import { User } from "../types/User";
 import { Question } from "../types/Question";
 
@@ -15,23 +15,18 @@ const MatchingComponent = ({ user, jwt }: Props) => {
   const TIME_OUT_DURATION = 30;
   const DIFFICULTIES = ["Easy", "Medium", "Hard"];
 
-  const [timer, setTimer] = useState(0);
-  const [difficulty, setDifficulty] = useState<string>("");
-  const [isTimeOut, setIsTimeOut] = useState(false);
+  const [ timer, setTimer ] = useState(0);
+  const [ isTimeOut, setIsTimeOut ] = useState(false);
   const webSocketRef = useRef<WebSocket | undefined>(undefined);
-  const [opened, { toggle, close }] = useDisclosure(false);
+  const difficultyRef = useRef<string>("");
+  const [ opened, {toggle, close} ] = useDisclosure(false);
   const nav = useNavigate();
 
   const closeMatching = useCallback(() => {
-    webSocketRef.current?.send(
-      JSON.stringify({
-        user_id: user?.user_id,
-        action: "Stop",
-        jwt: jwt,
-      }),
-    );
-    webSocketRef.current?.close();
-  }, [jwt, user]);
+    if (webSocketRef.current?.readyState == 1) {
+      webSocketRef.current?.send(matchingMessage(user?.user_id, Actions.cancel, difficultyRef.current, jwt));
+    }
+  }, [jwt, user, difficultyRef]);
 
   const matchTimeout = () => {
     console.log("Timeout");
@@ -49,34 +44,31 @@ const MatchingComponent = ({ user, jwt }: Props) => {
 
   const matchMaking = (diff: string) => {
     const soc = new WebSocket(matchingServiceURL);
-    if (webSocketRef.current) webSocketRef.current?.close();
+    if (webSocketRef.current) closeMatching();
     webSocketRef.current = soc;
-    setDifficulty(diff);
-    if (!opened) toggle();
+    difficultyRef.current = diff;
+    
     soc.addEventListener("open", () => {
-      soc.send(
-        JSON.stringify({
-          user_id: user?.user_id,
-          action: "Start",
-          difficulty: diff,
-          jwt: jwt,
-        }),
-      );
+      soc.send(matchingMessage(user?.user_id, Actions.start, diff, jwt));
     });
 
     type MatchResponse = {
       room_id: number;
       question: Question;
+      error?: string
     };
 
     soc.addEventListener("message", (event) => {
       try {
-        const data: MatchResponse = JSON.parse(event.data);
-        console.log(data);
-        if (data.room_id)
-          nav(`/collab/${data.room_id}`, {
-            state: { question: data.question },
+        const parsedData: MatchResponse = JSON.parse(event.data);
+        if (parsedData.room_id) {
+          soc.close();
+          nav(`/collab/${parsedData.room_id}`, {
+            state: { question: parsedData.question },
           });
+        } else if (parsedData.error == "") { // Change this when the cancel reply is updated
+          soc.close();
+        }
       } catch (e) {
         console.log(e);
       }
@@ -87,13 +79,10 @@ const MatchingComponent = ({ user, jwt }: Props) => {
     });
 
     // Initialise states for matching and start timer
+    if (!opened) toggle();
     setIsTimeOut(false);
     setTimer(0);
     interval.start();
-
-    return () => {
-      soc.close();
-    };
   };
 
   // For clean up purposes
@@ -140,7 +129,9 @@ const MatchingComponent = ({ user, jwt }: Props) => {
             Cancel
           </Button>
           {isTimeOut && (
-            <Button onClick={() => matchMaking(difficulty)}>Retry</Button>
+            <Button onClick={() => matchMaking(difficultyRef.current)}>
+              Retry
+            </Button>
           )}
         </Flex>
       </Dialog>
