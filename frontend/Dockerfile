@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:lts-alpine AS build
 
 WORKDIR /app
 
@@ -6,8 +6,13 @@ COPY . .
 
 RUN yarn 
 
-## EXPOSE [Port you mentioned in the vite.config file]
+RUN yarn run build
 
 EXPOSE 5173
 
-CMD ["yarn", "dev"]
+FROM nginx:1.19
+
+WORKDIR /app
+
+COPY --from=build /app/dist /usr/share/nginx/html
+

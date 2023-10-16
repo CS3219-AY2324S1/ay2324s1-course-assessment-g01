@@ -39,7 +39,6 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
 
-
   user-service:
     build: ./user-service
     ports:
@@ -110,12 +109,14 @@ services:
 
   front-end:
     build: ./frontend
-    ports:
-      - "5173:5173"
 
   collab-ws-server:
     build: ./collab-ws-server
     ports:
       - 4444:4444
-volumes: 
+  reverse_proxy:
+    build: ./reverse-proxy
+    ports:
+      - 80:80
+volumes:
   postgres:
