@@ -15,11 +15,11 @@ export default defineConfig({
         target: "ws://matching-service:8082",
         ws: true,
       },
-      "/collab/*": {
+      "/collab/ws": {
         target: "ws://collab-ws-server:4444",
         ws: true,
         rewrite(path) {
-          return path.replace("/collab", "");
+          return path.replace("/collab/ws", "");
         },
       },
     },
