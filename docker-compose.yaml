@@ -32,13 +32,12 @@ services:
       POSTGRES_PASSWORD: "123"
       POSTGRES_DB: "dev"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
     volumes:
       - postgres:/var/lib/postgresql/data
-
 
   user-service:
     build: ./user-service
@@ -55,7 +54,7 @@ services:
     image: rabbitmq:management
     container_name: rabbitmq
     restart: on-failure
-    hostname: 'prod-rabbitmq'
+    hostname: "prod-rabbitmq"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -96,8 +95,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3005:3005"
-    env_file:
-      - ./collaboration-service/.env
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=123
+      - PGDATABASE=dev
+      - PGSSLMODE=disable
+      - REST_PORT=3005
+      - USER_SERVICE_PORT=3000
     restart: on-failure
     depends_on:
       postgres:
@@ -117,5 +123,5 @@ services:
     build: ./collab-ws-server
     ports:
       - 4444:4444
-volumes: 
+volumes:
   postgres:
