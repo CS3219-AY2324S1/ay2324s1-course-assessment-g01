@@ -33,3 +33,7 @@ func DeleteRequestResponse(c *fiber.Ctx, data interface{}) error {
 func UpdateRequestResponse(c *fiber.Ctx, data interface{}) error {
 	return c.Status(http.StatusAccepted).JSON(data)
 }
+
+func UnauthorizedResponse(c *fiber.Ctx, errMsg string) error {
+	return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": errMsg})
+}
