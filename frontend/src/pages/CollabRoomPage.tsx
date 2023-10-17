@@ -47,7 +47,7 @@ const CollabRoomPage = () => {
   useEffect(() => {
     if (!editorInstance) return;
     const provider = new WebsocketProvider(
-      import.meta.env.VITE_COLLAB_WS_SERVER,
+      "ws://" + location.host + "/collab",
       id!,
       ydoc,
     );

@@ -11,8 +11,19 @@ export default defineConfig({
         secure: false,
       },
       "/api/v1/user": "http://user-service:3000",
+      "/ws": {
+        target: "ws://matching-service:8082",
+        ws: true,
+      },
+      "/collab/*": {
+        target: "ws://collab-ws-server:4444",
+        ws: true,
+        rewrite(path) {
+          return path.replace("/collab", "");
+        },
+      },
     },
     host: "0.0.0.0",
-    port: 5173
+    port: 5173,
   },
 });

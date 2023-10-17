@@ -8,8 +8,6 @@ RUN yarn
 
 RUN yarn run build
 
-EXPOSE 5173
-
 FROM nginx:1.19
 
 WORKDIR /app
