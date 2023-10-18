@@ -8,9 +8,9 @@ import (
 	"net/http"
 )
 
-func CreateRoom(userAId uint, userBId uint) (models.Room, error) {
+func CreateRoom(userAId uint, userBId uint, jwt string) (models.Room, error) {
 	resp, err := MakePostRequest(config.GetCollaborationRoomServiceURL()+"/create",
-		models.Room{UserAId: userAId, UserBId: userBId}, "")
+		models.Room{UserAId: userAId, UserBId: userBId}, jwt)
 
 	if err != nil || resp.StatusCode != http.StatusCreated {
 		fmt.Println("Error creating room")
@@ -27,9 +27,9 @@ func CreateRoom(userAId uint, userBId uint) (models.Room, error) {
 	return room, nil
 }
 
-func CloseRoom(roomId uint) error {
+func CloseRoom(roomId uint, jwt string) error {
 	resp, err := MakePostRequest(config.GetCollaborationRoomServiceURL()+"/close",
-		models.Room{RoomId: roomId}, "")
+		models.Room{RoomId: roomId}, jwt)
 
 	if err != nil || resp.StatusCode != http.StatusAccepted {
 		fmt.Println(resp.StatusCode)

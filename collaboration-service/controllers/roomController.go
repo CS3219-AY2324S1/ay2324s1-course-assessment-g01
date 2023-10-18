@@ -3,6 +3,7 @@ package controllers
 import (
 	"collaboration-service/database"
 	"collaboration-service/models"
+	"collaboration-service/services"
 	"collaboration-service/utils"
 	"strconv"
 
@@ -37,6 +38,16 @@ func CreateRoom(c *fiber.Ctx) error {
 		return err
 	}
 
+	token, err := utils.GetAuthBearerToken(c)
+
+	if err != nil {
+		return utils.UnauthorizedResponse(c, err.Error())
+	}
+
+	if !services.IsRequestAuthentic(token) {
+		return utils.UnauthorizedResponse(c, "Invalid token")
+	}
+
 	room := models.Room{
 		UserAId: data["user_a_id"],
 		UserBId: data["user_b_id"],
@@ -55,6 +66,12 @@ func CloseRoom(c *fiber.Ctx) error {
 	// Parse the request body into data
 	if err := c.BodyParser(&data); err != nil {
 		return err
+	}
+
+	token, err := utils.GetAuthBearerToken(c)
+
+	if err != nil || !services.IsRequestAuthentic(token) {
+		return utils.UnauthorizedResponse(c, err.Error())
 	}
 
 	var room models.Room
