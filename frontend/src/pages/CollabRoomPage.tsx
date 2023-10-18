@@ -47,7 +47,7 @@ const CollabRoomPage = () => {
   useEffect(() => {
     if (!editorInstance) return;
     const provider = new WebsocketProvider(
-      import.meta.env.VITE_COLLAB_WS_SERVER,
+      "ws://" + location.host + "/collab/ws",
       id!,
       ydoc,
     );
@@ -58,9 +58,7 @@ const CollabRoomPage = () => {
     provider.awareness.setLocalStateField("user", user?.name);
 
     //If awareness changes, set other party's name
-    provider.awareness.on("change", () => {
-      console.log(provider.awareness.getStates());
-      
+    provider.awareness.on("change", () => {     
       // If other party not here, set to undefined for loading
       if (Array.from(provider.awareness.getStates().keys()).length < 2) {
         setotherName(undefined);

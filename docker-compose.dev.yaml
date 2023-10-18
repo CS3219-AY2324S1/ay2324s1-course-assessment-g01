@@ -127,7 +127,9 @@ services:
       retries: 10
 
   front-end:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.dev    
     volumes:
       - "./frontend/src:/app/src"
     ports:

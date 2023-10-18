@@ -71,8 +71,6 @@ services:
     build:
       context: ./matching-service
       dockerfile: Dockerfile
-    ports:
-      - "8082:8082"
     environment:
       - USER_SERVICE_PORT=3000
       - COLLABORATION_SERVICE_PORT=3005
@@ -116,12 +114,12 @@ services:
 
   front-end:
     build: ./frontend
-    ports:
-      - "5173:5173"
 
   collab-ws-server:
     build: ./collab-ws-server
+  reverse_proxy:
+    build: ./reverse-proxy
     ports:
-      - 4444:4444
+      - 80:80
 volumes:
   postgres:
