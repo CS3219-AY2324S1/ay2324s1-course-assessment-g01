@@ -40,8 +40,12 @@ func CreateRoom(c *fiber.Ctx) error {
 
 	token, err := utils.GetAuthBearerToken(c)
 
-	if err != nil || !services.IsRequestAuthentic(token) {
+	if err != nil {
 		return utils.UnauthorizedResponse(c, err.Error())
+	}
+
+	if !services.IsRequestAuthentic(token) {
+		return utils.UnauthorizedResponse(c, "Invalid token")
 	}
 
 	room := models.Room{
