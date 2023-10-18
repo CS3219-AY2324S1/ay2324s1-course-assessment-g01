@@ -1,0 +1,92 @@
+@startuml microservices_architecture
+
+component frontend_service [
+	Frontend Service
+]
+
+component user_service [
+	User Service
+
+	---
+
+	- Register new users
+	- Deregister users
+	- Authenticate users
+	- Login users
+	- Logout users
+]
+
+component question_service [
+	Question Service
+
+	---
+
+	- Create new questions
+	- Retrieve questions
+	- Update questions
+	- Delete questions
+]
+
+component matching_service [
+	Matching Service
+
+	---
+	Used to match users by question difficulty
+	---
+
+	- Start match
+	- Cancel match
+	- Close match
+]
+
+component collaboration_service [
+	Collaboration Service
+
+	---
+
+	- Create new room
+	- Close room
+	- Delete room
+]
+
+component collab_websocket [
+	Collaboration Websocket
+
+	---
+	Used to build and sync chat feature,
+	collaborative text editor
+	and selected programming language
+]
+
+component judge_service [
+	Judge Service
+
+	---
+
+	- Get code submission result/stats
+]
+
+component history_service [
+	History Service
+
+	---
+
+	- Get user attempt
+	- Add user attempt
+	- Get user collaboration
+]
+
+frontend_service -down-> user_service
+frontend_service -left-> question_service
+frontend_service -up-> matching_service
+frontend_service -up-> collaboration_service
+frontend_service -> collab_websocket
+frontend_service -down-> judge_service
+frontend_service -down-> history_service
+question_service -> user_service
+matching_service -> user_service
+matching_service -> question_service
+matching_service -> collaboration_service
+collaboration_service -> user_service
+
+@enduml
