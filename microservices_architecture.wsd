@@ -1,5 +1,17 @@
 @startuml microservices_architecture
 
+' clients
+actor UserA
+
+actor UserB
+
+actor UserC
+
+node user_interface [
+	User Interface
+]
+
+' services
 component frontend_service [
 	Frontend Service
 ]
@@ -76,6 +88,22 @@ component history_service [
 	- Get user collaboration
 ]
 
+' databases
+database postgresql [
+	PostgreSQL
+]
+
+database mongodb [
+	MongoDB
+]
+
+' connections
+UserA -down-> user_interface
+UserB -down-> user_interface
+UserC -down-> user_interface
+
+user_interface -down-> frontend_service
+
 frontend_service -down-> user_service
 frontend_service -left-> question_service
 frontend_service -up-> matching_service
@@ -84,9 +112,13 @@ frontend_service -> collab_websocket
 frontend_service -down-> judge_service
 frontend_service -down-> history_service
 question_service -> user_service
+question_service -left-> mongodb
 matching_service -> user_service
 matching_service -> question_service
-matching_service -> collaboration_service
+matching_service -left-> collaboration_service
 collaboration_service -> user_service
+user_service -left-> postgresql
+collaboration_service -left-> postgresql
+history_service -left-> postgresql
 
 @enduml
