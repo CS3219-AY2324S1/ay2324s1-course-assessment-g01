@@ -2,13 +2,20 @@
 
 ' clients
 actor UserA
-
 actor UserB
+actor UserC...
 
-actor UserC
 
 node user_interface [
 	User Interface
+]
+
+node nginx_reverse_proxy [
+	NGINX Reverse Proxy
+]
+
+node rabbit_mq [
+	RabbitMQ
 ]
 
 ' services
@@ -100,19 +107,20 @@ database mongodb [
 ' connections
 UserA -down-> user_interface
 UserB -down-> user_interface
-UserC -down-> user_interface
 
 user_interface -down-> frontend_service
 
-frontend_service -down-> user_service
-frontend_service -left-> question_service
-frontend_service -up-> matching_service
-frontend_service -up-> collaboration_service
-frontend_service -> collab_websocket
-frontend_service -down-> judge_service
-frontend_service -down-> history_service
+frontend_service -down-> nginx_reverse_proxy
+nginx_reverse_proxy -down-> user_service
+nginx_reverse_proxy -left-> question_service
+nginx_reverse_proxy -up-> matching_service
+nginx_reverse_proxy -up-> collaboration_service
+nginx_reverse_proxy -> collab_websocket
+nginx_reverse_proxy -down-> judge_service
+nginx_reverse_proxy -down-> history_service
 question_service -> user_service
 question_service -left-> mongodb
+matching_service -> rabbit_mq
 matching_service -> user_service
 matching_service -> question_service
 matching_service -left-> collaboration_service
