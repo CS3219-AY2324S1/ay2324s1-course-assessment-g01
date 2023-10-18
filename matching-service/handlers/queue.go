@@ -214,7 +214,7 @@ func handleMatchings(
 		}
 
 		// create room using collaboration service
-		room, err := services.CreateRoom(curUser.UserId, parsedUser.UserId, curUser.JWT)
+		room, err := services.CreateRoom(curUser.UserId, parsedUser.UserId)
 		if err != nil {
 			fmt.Printf("%s: %v\n", utils.RoomCreationError, err)
 			return
@@ -275,7 +275,7 @@ func handleUnmatchings(
 		}
 
 		// update room as closed using collaboration service
-		if services.CloseRoom(curUser.RoomId, curUser.JWT); err != nil {
+		if services.CloseRoom(curUser.RoomId); err != nil {
 			fmt.Printf("%s: %v\n", utils.RoomCloseError, err)
 			return
 		}
