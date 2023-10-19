@@ -8,9 +8,9 @@ import (
 	"net/http"
 )
 
-func GetRandomQuestionId(difficulty string, token string) (models.Question, error) {
+func GetRandomQuestionId(difficulty string) (models.Question, error) {
 	resp, err := MakeGetRequest(config.GetQuestionServiceURL()+"/"+difficulty,
-		token)
+		"")
 
 	if err != nil || resp.StatusCode != http.StatusOK {
 		fmt.Println("Error getting random question id")

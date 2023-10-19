@@ -5,7 +5,6 @@ type User struct {
 	RoomId     uint       `json:"room_id"`
 	Difficulty Difficulty `json:"difficulty"`
 	Action     ActionType `json:"action"`
-	JWT        string     `json:"jwt"`
 }
 
 // enum for difficulty
