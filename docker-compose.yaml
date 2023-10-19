@@ -112,6 +112,30 @@ services:
       timeout: 5s
       retries: 10
 
+  history-service:
+    build:
+      context: ./history-service
+      dockerfile: Dockerfile
+    ports:
+      - "3008:3008"
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=123
+      - PGDATABASE=dev
+      - PGSSLMODE=disable
+      - REST_PORT=3008
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: wget --spider --no-verbose --tries=1 localhost:3008/ || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   front-end:
     build: ./frontend
 
