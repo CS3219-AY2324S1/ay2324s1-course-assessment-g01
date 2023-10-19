@@ -69,23 +69,3 @@ func CloseRoom(c *fiber.Ctx) error {
 	database.DB.Save(&room)
 	return utils.UpdateRequestResponse(c, room)
 }
-
-func DeleteRoomById(c *fiber.Ctx) error {
-	var data map[string]uint
-
-	// Parse the request body into data
-	if err := c.BodyParser(&data); err != nil {
-		return err
-	}
-
-	var room models.Room
-
-	// Find room by id
-	res := database.DB.Where("room_id = ?", data["room_id"]).First(&room)
-	if res.RowsAffected == 0 {
-		return utils.ErrorResponse(c, utils.RecordNotFound)
-	}
-
-	database.DB.Delete(&room)
-	return utils.DeleteRequestResponse(c, room)
-}

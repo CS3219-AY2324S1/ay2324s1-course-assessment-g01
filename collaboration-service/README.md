@@ -21,33 +21,49 @@ docker compose up -d
 
 **Get <http://localhost:3005/api/v1/room?id=1>**
 
-## Create Room
+### Create Room
 
 **Post <http://localhost:3005/api/v1/room/create>**
 
+Request:
+
 ```json
 {
- "user_a_id": 1,
- "user_b_id": 2
+    "user_a_id": 1, // uint
+    "user_b_id": 2 // uint
 }
 ```
 
-## Close Room By Id
+Response:
+
+```json
+{
+    "room_id": 1, // uint
+    "user_a_id": 1, // uint
+    "user_b_id": 2, // uint
+    "is_open": true // bool
+}
+```
+
+### Close Room By Id
 
 **Post <http://localhost:3005/api/v1/room/close>**
 
+Request:
+
 ```json
 {
- "room_id": 1
+    "room_id": 1, // uint
 }
 ```
 
-## Delete Room By Id
-
-**Post <http://localhost:3005/api/v1/room/delete>**
+Response:
 
 ```json
 {
- "room_id": 1
+    "room_id": 1, // uint
+    "user_a_id": 1, // uint
+    "user_b_id": 2, // uint
+    "is_open": false // bool
 }
 ```
