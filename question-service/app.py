@@ -30,7 +30,7 @@ def check_token(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())) -> 
 
     if not res.ok:
         raise HTTPException(status_code=401)
-    return res.json()['access_type']
+    return res.json()["access_type"]
 
 
 def is_admin(access_type: Annotated[int, Depends(check_token)]):
@@ -39,7 +39,7 @@ def is_admin(access_type: Annotated[int, Depends(check_token)]):
 
 
 # Routers
-app.include_router(question_router, dependencies=[Depends(check_token)])
+app.include_router(question_router)
 app.include_router(admin_router, dependencies=[Depends(is_admin)])
 
 
