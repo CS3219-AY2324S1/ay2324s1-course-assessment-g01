@@ -21,6 +21,18 @@ docker compose up -d
 
 **Get <http://localhost:3005/api/v1/room?id=1>**
 
+Response:
+
+```json
+{
+    "room_id": 1, // uint
+    "question_id": 1, // uint
+    "user_a_id": 1, // uint
+    "user_b_id": 2, // uint
+    "is_open": true // bool
+}
+```
+
 ### Create Room
 
 **Post <http://localhost:3005/api/v1/room/create>**
@@ -63,6 +75,7 @@ Response:
 ```json
 {
     "room_id": 1, // uint
+    "question_id": 1, // uint
     "user_a_id": 1, // uint
     "user_b_id": 2, // uint
     "is_open": false // bool
