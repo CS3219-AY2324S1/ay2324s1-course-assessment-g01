@@ -5,6 +5,7 @@ from routers.questions import router as question_router, admin_router
 from database.database import init_database
 import requests
 from typing_extensions import Annotated
+import jwt
 
 
 app = FastAPI(
@@ -23,14 +24,11 @@ async def startup_event():
 
 # Check bearer token against the user service
 def check_token(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())) -> str:
-    res = requests.post(
-        url="http://user-service:3000/api/v1/user",
-        headers={"Authorization": "Bearer {}".format(token.credentials)},
-    )
-
-    if not res.ok:
-        raise HTTPException(status_code=401)
-    return res.json()["access_type"]
+    try:
+        decoded = jwt.decode(token.credentials, options={"verify_signature": False})
+        return decoded["roles"]
+    except jwt.DecodeError:
+        raise HTTPException(status_code=401, detail="Not authenticated")
 
 
 def is_admin(access_type: Annotated[int, Depends(check_token)]):
