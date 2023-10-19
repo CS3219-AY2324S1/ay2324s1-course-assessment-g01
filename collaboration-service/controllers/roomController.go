@@ -5,6 +5,7 @@ import (
 	"collaboration-service/models"
 	"collaboration-service/utils"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -38,8 +39,9 @@ func CreateRoom(c *fiber.Ctx) error {
 	}
 
 	room := models.Room{
-		UserAId: data["user_a_id"],
-		UserBId: data["user_b_id"],
+		UserAId:   data["user_a_id"],
+		UserBId:   data["user_b_id"],
+		CreatedOn: time.Now().Format("2006-01-02 15:04:05"),
 	}
 
 	if err := database.DB.Create(&room).Error; err != nil {

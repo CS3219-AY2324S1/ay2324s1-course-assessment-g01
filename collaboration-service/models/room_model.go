@@ -6,4 +6,5 @@ type Room struct {
 	UserAId    uint   `json:"user_a_id" gorm:"not null"`
 	UserBId    uint   `json:"user_b_id" gorm:"not null"`
 	IsOpen     bool   `json:"is_open" gorm:"default:true"`
+	CreatedOn  string `json:"created_on" gorm:"not null"`
 }
