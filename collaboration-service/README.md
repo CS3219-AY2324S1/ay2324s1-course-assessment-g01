@@ -30,7 +30,8 @@ Request:
 ```json
 {
     "user_a_id": 1, // uint
-    "user_b_id": 2 // uint
+    "user_b_id": 2, // uint
+    "question_id": 1, // uint
 }
 ```
 

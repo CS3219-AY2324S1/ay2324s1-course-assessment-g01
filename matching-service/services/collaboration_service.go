@@ -6,11 +6,12 @@ import (
 	"matching-service/models"
 	"matching-service/utils"
 	"net/http"
+	"time"
 )
 
-func CreateRoom(userAId uint, userBId uint) (models.Room, error) {
+func CreateRoom(userAId uint, userBId uint, questionId string) (models.Room, error) {
 	resp, err := MakePostRequest(config.GetCollaborationRoomServiceURL()+"/create",
-		models.Room{UserAId: userAId, UserBId: userBId}, "")
+		models.Room{UserAId: userAId, UserBId: userBId, QuestionId: questionId, CreatedDatetime: time.Now().GoString()}, "")
 
 	if err != nil || resp.StatusCode != http.StatusCreated {
 		fmt.Println("Error creating room")
