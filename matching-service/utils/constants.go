@@ -1,9 +1,6 @@
 package utils
 
 const (
-	// Auth Errors
-	UserAuthError = "Error: User authentication failed"
-
 	// Room Errors
 	RoomCreationError      = "Error: Room creation failed"
 	RoomCloseError         = "Error: Room close failed"

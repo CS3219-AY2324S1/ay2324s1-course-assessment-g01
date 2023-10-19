@@ -77,13 +77,6 @@ func PublishMessage(ch *amqp.Channel, queueName string, userRequest models.User)
 	// marshal the message into a JSON object
 	msgJson, _ := json.Marshal(userRequest)
 
-	// Authenticate the request
-	isAuthentic, auth_err := services.IsRequestAuthentic(userRequest)
-	if auth_err != nil || !isAuthentic {
-		fmt.Printf("%s: %v\n", utils.UserAuthError, auth_err)
-		return
-	}
-
 	// Publish a message
 	err := ch.PublishWithContext(
 		context.TODO(),
@@ -214,7 +207,7 @@ func handleMatchings(
 		}
 
 		// create room using collaboration service
-		room, err := services.CreateRoom(curUser.UserId, parsedUser.UserId, curUser.JWT)
+		room, err := services.CreateRoom(curUser.UserId, parsedUser.UserId)
 		if err != nil {
 			fmt.Printf("%s: %v\n", utils.RoomCreationError, err)
 			return
@@ -227,7 +220,7 @@ func handleMatchings(
 		fmt.Printf("Room created with id %s\n", roomId)
 
 		// get random question from question service
-		question, err := services.GetRandomQuestionId(strings.ToLower(string(curUser.Difficulty)), curUser.JWT)
+		question, err := services.GetRandomQuestionId(strings.ToLower(string(curUser.Difficulty)))
 		if err != nil {
 			fmt.Printf("%s: %v\n", utils.QuestionRetrievalError, err)
 			return
@@ -275,7 +268,7 @@ func handleUnmatchings(
 		}
 
 		// update room as closed using collaboration service
-		if services.CloseRoom(curUser.RoomId, curUser.JWT); err != nil {
+		if services.CloseRoom(curUser.RoomId); err != nil {
 			fmt.Printf("%s: %v\n", utils.RoomCloseError, err)
 			return
 		}

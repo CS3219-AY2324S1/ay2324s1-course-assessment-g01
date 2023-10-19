@@ -32,8 +32,7 @@ Request:
 {
     "user_id": 1, // uint
     "action": "Start",
-    "difficulty": "Easy", // Required for "Start" action - Easy/Medium/Hard
-    "jwt": "" // Required for the session of the user_id passed in body
+    "difficulty": "Easy" // Required for "Start" action - Easy/Medium/Hard
 }
 ```
 
@@ -44,8 +43,7 @@ Response:
     "user_id": 1, // uint
     "room_id": 1, // uint
     "action": "Start",
-    "difficulty": "Easy",
-    "jwt": ""
+    "difficulty": "Easy"
 }
 ```
 
@@ -57,8 +55,7 @@ Request:
 {
     "user_id": 1, // uint
     "action": "Cancel",
-    "difficulty": "Easy", // Required for "Cancel" action - Easy/Medium/Hard
-    "jwt": "" // Required for the session of the user_id passed in body
+    "difficulty": "Easy" // Required for "Cancel" action - Easy/Medium/Hard
 }
 ```
 
@@ -78,8 +75,7 @@ Request:
 {
     "room_id": 1, // uint (Required for closing rooms)
     "user_id": 2, // uint
-    "action": "Stop",
-    "jwt": "" // Required for the session of the user_id passed in body
+    "action": "Stop"
 }
 ```
 
