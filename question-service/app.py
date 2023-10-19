@@ -3,7 +3,6 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from routers.questions import router as question_router, admin_router
 from database.database import init_database
-import requests
 from typing_extensions import Annotated
 import jwt
 
