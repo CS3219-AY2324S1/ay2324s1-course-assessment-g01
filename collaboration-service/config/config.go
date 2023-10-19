@@ -50,12 +50,3 @@ func GetPostgresConnectionStr() string {
 
 	return postgresConnectionStr
 }
-
-// return port used by user-service
-func GetUserServicePort() string {
-	return ":" + GoDotEnvVariable("USER_SERVICE_PORT")
-}
-
-func GetUserServiceURL() string {
-	return "http://user-service" + GetUserServicePort() + "/api/v1/user"
-}

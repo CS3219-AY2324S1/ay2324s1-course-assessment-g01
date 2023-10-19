@@ -125,7 +125,6 @@ services:
       - PGPASSWORD=123
       - PGDATABASE=dev
       - PGSSLMODE=disable
-      - REST_PORT=3008
     restart: on-failure
     depends_on:
       postgres:
