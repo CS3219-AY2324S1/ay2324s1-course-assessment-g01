@@ -31,17 +31,23 @@ func GetRoomById(c *fiber.Ctx) error {
 }
 
 func CreateRoom(c *fiber.Ctx) error {
-	var data map[string]uint
+	var data map[string]interface{}
 
 	// Parse the request body into data
 	if err := c.BodyParser(&data); err != nil {
 		return err
 	}
 
+	location, err := time.LoadLocation("Singapore")
+	if err != nil {
+		return utils.ErrorResponse(c, utils.InternalServerError)
+	}
+
 	room := models.Room{
-		UserAId:   data["user_a_id"],
-		UserBId:   data["user_b_id"],
-		CreatedOn: time.Now().Format("2006-01-02 15:04:05"),
+		UserAId:    uint(data["user_a_id"].(float64)),
+		UserBId:    uint(data["user_b_id"].(float64)),
+		QuestionId: data["question_id"].(string),
+		CreatedOn:  time.Now().In(location).Format("2006-01-02 15:04:05"),
 	}
 
 	if err := database.DB.Create(&room).Error; err != nil {

@@ -26,11 +26,11 @@ const (
 )
 
 type Room struct {
-	RoomId          uint   `json:"room_id"`
-	QuestionId      string `json:"question_id"`
-	UserAId         uint   `json:"user_a_id"`
-	UserBId         uint   `json:"user_b_id"`
-	CreatedDatetime string `json:"created_datetime"`
+	RoomId     uint   `json:"room_id"`
+	QuestionId string `json:"question_id"`
+	UserAId    uint   `json:"user_a_id"`
+	UserBId    uint   `json:"user_b_id"`
+	CreatedOn  string `json:"created_on"`
 }
 
 type Question struct {
