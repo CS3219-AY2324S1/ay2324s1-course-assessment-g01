@@ -26,7 +26,7 @@ Response:
 ```json
 {
     "room_id": 1, // uint
-    "question_id": 1, // uint
+    "question_id": "df2374892143", // string
     "user_a_id": 1, // uint
     "user_b_id": 2, // uint
     "is_open": true // bool
@@ -43,7 +43,7 @@ Request:
 {
     "user_a_id": 1, // uint
     "user_b_id": 2, // uint
-    "question_id": 1, // uint
+    "question_id": "df2374892143", // string
 }
 ```
 
@@ -52,9 +52,11 @@ Response:
 ```json
 {
     "room_id": 1, // uint
+    "question_id": "df2374892143", // string
     "user_a_id": 1, // uint
     "user_b_id": 2, // uint
-    "is_open": true // bool
+    "is_open": true, // bool
+    "created_on": "2023-10-20 09:54:25" // string in format "YYYY-MM-DD HH:MM:SS"
 }
 ```
 
@@ -75,9 +77,10 @@ Response:
 ```json
 {
     "room_id": 1, // uint
-    "question_id": 1, // uint
+    "question_id": "df2374892143", // string
     "user_a_id": 1, // uint
     "user_b_id": 2, // uint
-    "is_open": false // bool
+    "is_open": false, // bool
+    "created_on": "2023-10-20 09:54:25" // string in format "YYYY-MM-DD HH:MM:SS"
 }
 ```

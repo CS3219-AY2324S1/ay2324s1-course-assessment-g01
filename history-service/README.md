@@ -17,21 +17,23 @@ docker compose up -d
 
 ## Using the history service
 
-### Get user attempt by user id
+### Get user attempts by user id
 
 **Get <http://localhost:3008/api/v1/history/attempt?userId=1>**
 
 Response:
 
 ```json
-{
-    "question_id": 1, // uint
-    "user_id": 1, // uint
-    "code": "print('hello world')",
-    "language": "python", // python, javascript, java, c, c++, c#
-    "passed": true, // failed - false, passed - true
-    "attempted_on": ""
-}
+[
+    {
+        "question_id": "df2374892143", // string
+        "user_id": 1, // uint
+        "code": "print('hello world')",
+        "language": "python", // python, javascript, java, c, c++, c#
+        "passed": true, // failed - false, passed - true
+        "attempted_on": ""
+    }
+]
 ```
 
 ### Add user attempt
@@ -42,7 +44,7 @@ Request:
 
 ```json
 {
-    "question_id": 1, // uint
+    "question_id": "df2374892143", // string
     "user_id": 1, // uint
     "code": "print('hello world')",
     "language": "python", // python, javascript, java, c, c++, c#
@@ -54,7 +56,7 @@ Response:
 
 ```json
 {
-    "question_id": 1, // uint
+    "question_id": "df2374892143", // string
     "user_id": 1, // uint
     "code": "print('hello world')",
     "language": "python", // python, javascript, java, c, c++, c#
@@ -70,11 +72,13 @@ Response:
 Response:
 
 ```json
-{
-    "room_id": 1, // uint
-    "question_id": 1, // uint
-    "user_a_id": 1, // uint
-    "user_b_id": 2, // uint
-    "collaborated_on": "" // datetime
-}
+[
+    {
+        "room_id": 1, // uint
+        "question_id": "df2374892143", // string
+        "user_a_id": 1, // uint
+        "user_b_id": 2, // uint
+        "created_on": "2023-10-20 09:54:25" // string in format "YYYY-MM-DD HH:MM:SS"
+    }
+]
 ```
