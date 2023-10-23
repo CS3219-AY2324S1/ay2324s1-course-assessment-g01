@@ -58,7 +58,7 @@ const CollabRoomPage = () => {
     provider.awareness.setLocalStateField("user", user?.name);
 
     //If awareness changes, set other party's name
-    provider.awareness.on("change", () => {     
+    provider.awareness.on("change", () => {
       // If other party not here, set to undefined for loading
       if (Array.from(provider.awareness.getStates().keys()).length < 2) {
         setotherName(undefined);
@@ -118,12 +118,11 @@ const CollabRoomPage = () => {
             <Title>{question.title}</Title>
             <div
               style={{
-                whiteSpace: "pre-line",
+                // whiteSpace: "pre-line",
                 overflow: "auto",
               }}
-            >
-              {question.description}
-            </div>
+              dangerouslySetInnerHTML={{ __html: question.description }}
+            />
           </Stack>
           <ChatComponent chatlog={chatArray} id={ydoc.clientID} />
         </Stack>
