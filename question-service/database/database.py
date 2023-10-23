@@ -3,24 +3,44 @@ from motor import motor_asyncio
 from motor.core import AgnosticClient
 from models.models import Question, QuestionWithId, Complexity, convert
 from config.config import Settings
-from utils.tasks import repeat_every
 from bson import ObjectId
 import requests
+import logging
+import asyncio
 
 
 # Initialize database
-def init_database():
+async def init_database():
     global db
     client: AgnosticClient = motor_asyncio.AsyncIOMotorClient(Settings().mongodb_url)
     db = client.questions
-    # create index for quickly checking question titles
-    db["questions"].create_index(keys={"title": 1})
+    asyncio.create_task(update_db())
 
 
 # Run cloud function once a day to update DB with latest questions
-@repeat_every(seconds=60 * 60 * 24, wait_first=True)
 async def update_db() -> None:
-    questions: List[Question] = requests.get(Settings().questions_url)
+    while True:
+        try:
+            # Fetch data from cloud function and update each question if necessary
+            res = requests.get(Settings().questions_url).json()
+            questions = [
+                Question(
+                    title=ques["title"],
+                    description=ques["description"],
+                    categories=ques["categories"],
+                    complexity=Complexity(ques["complexity"]),
+                )
+                for ques in res
+            ]
+            print(questions[0])
+            for question in questions:
+                _ = await add_question(question)
+            # create index for quickly checking question titles
+            db["questions"].create_index(keys=["title"])
+            # wait for an hour
+            await asyncio.sleep(60)
+        except Exception as e:
+            logging.error(f"{e}")
 
 
 # Get all questions
@@ -62,13 +82,17 @@ async def get_random_question(complexity: Complexity) -> QuestionWithId:
 
 # Add a question
 async def add_question(question: Question) -> str:
-    res = await db["questions"].insert_one(question.model_dump())
+    check_presence = await db["questions"].find_one({"title": question.title})
+    if not check_presence:
+        res = await db["questions"].insert_one(question.model_dump())
 
-    # Check if inserted
-    if not res.acknowledged:
-        raise Exception("Failed to insert question")
+        # Check if inserted
+        if not res.acknowledged:
+            raise Exception("Failed to insert question")
 
-    return str(res.inserted_id)
+        return str(res.inserted_id)
+    else:
+        return str(check_presence["_id"])
 
 
 # Update a question
