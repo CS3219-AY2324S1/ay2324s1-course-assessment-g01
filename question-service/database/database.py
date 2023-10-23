@@ -21,6 +21,7 @@ async def init_database():
 async def update_db() -> None:
     while True:
         try:
+            print("Running cloud function")
             # Fetch data from cloud function and update each question if necessary
             res = requests.get(Settings().questions_url).json()
             questions = [
@@ -32,9 +33,8 @@ async def update_db() -> None:
                 )
                 for ques in res
             ]
-            print(questions[0])
             for question in questions:
-                _ = await add_question(question)
+                _ = await sync_question(question)
             # create index for quickly checking question titles
             db["questions"].create_index(keys=["title"])
             # wait for an hour
@@ -82,6 +82,7 @@ async def get_random_question(complexity: Complexity) -> QuestionWithId:
 
 # Add a question
 async def add_question(question: Question) -> str:
+    # Do not add questions manually with the same title
     check_presence = await db["questions"].find_one({"title": question.title})
     if not check_presence:
         res = await db["questions"].insert_one(question.model_dump())
@@ -92,7 +93,7 @@ async def add_question(question: Question) -> str:
 
         return str(res.inserted_id)
     else:
-        return str(check_presence["_id"])
+        return "Question exists with id: " + str(check_presence["_id"])
 
 
 # Update a question
@@ -117,3 +118,18 @@ async def delete_question(question_id: str) -> int:
         raise Exception("Failed to delete question", res.acknowledged)
 
     return res.deleted_count
+
+
+# Sync question with Leetcode
+async def sync_question(question: Question) -> str:
+    check_presence = await db["questions"].find_one({"title": question.title})
+    # replace question if it exists
+    if check_presence:
+        db["questions"].delete_one({"title": question.title})
+    res = await db["questions"].insert_one(question.model_dump())
+
+    # Check if inserted
+    if not res.acknowledged:
+        raise Exception("Failed to insert question")
+
+    return str(res.inserted_id)

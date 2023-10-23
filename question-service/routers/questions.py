@@ -24,6 +24,7 @@ admin_router = APIRouter(
     },
 )
 
+
 @router.get("/", description="Get all questions")
 async def get_questions() -> List[QuestionWithId]:
     try:
@@ -32,6 +33,7 @@ async def get_questions() -> List[QuestionWithId]:
     except Exception as e:
         logging.error(f"get_questions | {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 @router.get("/easy", description="Get random easy question")
 async def get_easy_question() -> QuestionWithId:
@@ -62,6 +64,7 @@ async def get_hard_question() -> QuestionWithId:
         logging.error(f"get_hard_question | {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
 @router.get("/{question_id}", description="Get a specific question")
 async def get_specific_question(question_id: str) -> QuestionWithId:
     try:
@@ -73,7 +76,10 @@ async def get_specific_question(question_id: str) -> QuestionWithId:
             status_code=404, detail=f"No question with id={question_id} exists"
         )
 
-@admin_router.post("/", description="Add a question")
+
+@admin_router.post(
+    "/", description="Add a question if a question with the same title does not exist"
+)
 async def add_question(question: Question) -> JSONResponse:
     try:
         id: str = await db.add_question(question)
