@@ -9,6 +9,7 @@ services:
       - ./question-service:/app
     environment:
       - MONGODB_URL=mongodb://mongo:27017/questions
+      - QUESTIONS_URL=https://asia-southeast1-peerprep-cs3219.cloudfunctions.net/getQuestions
     depends_on:
       - mongo
 
@@ -127,9 +128,9 @@ services:
       retries: 10
 
   front-end:
-    build: 
+    build:
       context: ./frontend
-      dockerfile: Dockerfile.dev    
+      dockerfile: Dockerfile.dev
     volumes:
       - "./frontend/src:/app/src"
     ports:

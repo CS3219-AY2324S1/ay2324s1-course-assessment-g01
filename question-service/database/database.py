@@ -3,7 +3,9 @@ from motor import motor_asyncio
 from motor.core import AgnosticClient
 from models.models import Question, QuestionWithId, Complexity, convert
 from config.config import Settings
+from utils.tasks import repeat_every
 from bson import ObjectId
+import requests
 
 
 # Initialize database
@@ -11,6 +13,14 @@ def init_database():
     global db
     client: AgnosticClient = motor_asyncio.AsyncIOMotorClient(Settings().mongodb_url)
     db = client.questions
+    # create index for quickly checking question titles
+    db["questions"].create_index(keys={"title": 1})
+
+
+# Run cloud function once a day to update DB with latest questions
+@repeat_every(seconds=60 * 60 * 24, wait_first=True)
+async def update_db() -> None:
+    questions: List[Question] = requests.get(Settings().questions_url)
 
 
 # Get all questions
