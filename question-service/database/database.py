@@ -21,7 +21,6 @@ def init_database():
 async def update_db() -> None:
     while True:
         try:
-            print("Running cloud function")
             # Fetch data from cloud function and update each question if necessary
             res = requests.get(Settings().questions_url).json()
             questions = [
@@ -37,8 +36,8 @@ async def update_db() -> None:
                 _ = await sync_question(question)
             # create index for quickly checking question titles
             db["questions"].create_index(keys=["title"])
-            # wait for an hour
-            await asyncio.sleep(60)
+            # wait for a day
+            await asyncio.sleep(60 * 60 * 24)
         except Exception as e:
             logging.error(f"{e}")
 
@@ -122,14 +121,21 @@ async def delete_question(question_id: str) -> int:
 
 # Sync question with Leetcode
 async def sync_question(question: Question) -> str:
+    # Insert directly if no existing question with the same title exists
     check_presence = await db["questions"].find_one({"title": question.title})
-    # replace question if it exists
-    if check_presence:
-        db["questions"].delete_one({"title": question.title})
-    res = await db["questions"].insert_one(question.model_dump())
+    if not check_presence:
+        res = await db["questions"].insert_one(question.model_dump())
+        return str(res.inserted_id)
 
-    # Check if inserted
-    if not res.acknowledged:
-        raise Exception("Failed to insert question")
+    # Replace question if it exists
+    res = await db["questions"].update_one(
+        {"title": question.title}, {"$set": question.model_dump()}
+    )
 
-    return str(res.inserted_id)
+    # Check if updated
+    if not res.acknowledged or not res.raw_result["updatedExisting"]:
+        raise Exception(
+            f"Failed to update question: {question.title}, {res.raw_result}"
+        )
+
+    return str(res.upserted_id)
