@@ -33,7 +33,7 @@ async def update_db() -> None:
                 for ques in res
             ]
             for question in questions:
-                _ = await sync_question(question)
+                asyncio.create_task(sync_question(question))
             # create index for quickly checking question titles
             db["questions"].create_index(keys=["title"])
             # wait for a day
