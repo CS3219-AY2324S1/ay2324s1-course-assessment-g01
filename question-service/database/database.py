@@ -10,7 +10,7 @@ import asyncio
 
 
 # Initialize database
-async def init_database():
+def init_database():
     global db
     client: AgnosticClient = motor_asyncio.AsyncIOMotorClient(Settings().mongodb_url)
     db = client.questions

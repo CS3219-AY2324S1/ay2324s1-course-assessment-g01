@@ -18,7 +18,7 @@ app = FastAPI(
 # Initialize database on startup
 @app.on_event("startup")
 async def startup_event():
-    await init_database()
+    init_database()
 
 
 # Check bearer token against the user service
