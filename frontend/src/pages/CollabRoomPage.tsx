@@ -15,6 +15,7 @@ import {
   Button,
   Center,
   Overlay,
+  ScrollArea,
   Select,
   SimpleGrid,
   Stack,
@@ -114,15 +115,22 @@ const CollabRoomPage = () => {
         h={"calc(100vh - var(--mantine-header-height, 0px) - 2rem)"}
       >
         <Stack style={{ minHeight: 0, height: "100%" }}>
-          <Stack style={{ flex: 1, minHeight: 0 }}>
+          <Stack
+            style={{
+              flex: 1,
+              minHeight: 0,
+            }}
+          >
             <Title>{question.title}</Title>
-            <div
-              style={{
-                // whiteSpace: "pre-line",
-                overflow: "auto",
-              }}
-              dangerouslySetInnerHTML={{ __html: question.description }}
-            />
+            <ScrollArea type="always" scrollbarSize={4}>
+              <div
+                style={{
+                  // whiteSpace: "pre-line",
+                  overflow: "auto",
+                }}
+                dangerouslySetInnerHTML={{ __html: question.description }}
+              />
+            </ScrollArea>
           </Stack>
           <ChatComponent chatlog={chatArray} id={ydoc.clientID} />
         </Stack>
