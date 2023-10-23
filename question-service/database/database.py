@@ -36,10 +36,12 @@ async def update_db() -> None:
                 asyncio.create_task(sync_question(question))
             # create index for quickly checking question titles
             db["questions"].create_index(keys=["title"])
-            # wait for a day
+            # rerun after a day
             await asyncio.sleep(60 * 60 * 24)
         except Exception as e:
             logging.error(f"{e}")
+            # rerun after a day
+            await asyncio.sleep(60 * 60 * 24)
 
 
 # Get all questions
