@@ -5,6 +5,7 @@ services:
       - 8080:8080
     environment:
       - MONGODB_URL=mongodb://mongo:27017/questions
+      - QUESTIONS_URL=https://asia-southeast1-peerprep-cs3219.cloudfunctions.net/getQuestions
     depends_on:
       - mongo
 
