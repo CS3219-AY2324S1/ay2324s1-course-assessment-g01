@@ -4,7 +4,7 @@ export enum Actions {
     stop = "Stop"
 }
 
-export const matchingServiceURL = import.meta.env.VITE_MATCHING_SERVICE_URL;
+export const matchingServiceURL = "ws://" + location.host    + "/ws";
 
 export const matchingMessage = (userId : number | undefined, action : string, difficulty : string, jwt : string | null) => {
     return JSON.stringify({

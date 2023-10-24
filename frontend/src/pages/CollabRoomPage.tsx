@@ -15,6 +15,7 @@ import {
   Button,
   Center,
   Overlay,
+  ScrollArea,
   Select,
   SimpleGrid,
   Stack,
@@ -47,7 +48,7 @@ const CollabRoomPage = () => {
   useEffect(() => {
     if (!editorInstance) return;
     const provider = new WebsocketProvider(
-      import.meta.env.VITE_COLLAB_WS_SERVER,
+      "ws://" + location.host + "/collab/ws",
       id!,
       ydoc,
     );
@@ -59,8 +60,6 @@ const CollabRoomPage = () => {
 
     //If awareness changes, set other party's name
     provider.awareness.on("change", () => {
-      console.log(provider.awareness.getStates());
-      
       // If other party not here, set to undefined for loading
       if (Array.from(provider.awareness.getStates().keys()).length < 2) {
         setotherName(undefined);
@@ -116,16 +115,22 @@ const CollabRoomPage = () => {
         h={"calc(100vh - var(--mantine-header-height, 0px) - 2rem)"}
       >
         <Stack style={{ minHeight: 0, height: "100%" }}>
-          <Stack style={{ flex: 1, minHeight: 0 }}>
+          <Stack
+            style={{
+              flex: 1,
+              minHeight: 0,
+            }}
+          >
             <Title>{question.title}</Title>
-            <div
-              style={{
-                whiteSpace: "pre-line",
-                overflow: "auto",
-              }}
-            >
-              {question.description}
-            </div>
+            <ScrollArea type="always" scrollbarSize={4}>
+              <div
+                style={{
+                  // whiteSpace: "pre-line",
+                  overflow: "auto",
+                }}
+                dangerouslySetInnerHTML={{ __html: question.description }}
+              />
+            </ScrollArea>
           </Stack>
           <ChatComponent chatlog={chatArray} id={ydoc.clientID} />
         </Stack>

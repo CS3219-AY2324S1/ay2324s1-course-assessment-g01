@@ -20,9 +20,11 @@ const QuestionPage = () => {
           </Title>
           <Paper withBorder p="md">
             <Title order={2}>Description</Title>
-            <Text component="pre" style={{ whiteSpace: "pre-wrap" }}>
-              {data.description}
-            </Text>
+            <Text
+              // component="pre"
+              // style={{ whiteSpace: "pre-wrap" }}
+              dangerouslySetInnerHTML={{ __html: data.description }}
+            ></Text>
           </Paper>
         </>
       )}
