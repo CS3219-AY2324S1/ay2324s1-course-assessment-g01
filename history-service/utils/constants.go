@@ -7,4 +7,5 @@ const (
 	InvalidBoolType       string = "Invalid bool type"
 	AttemptNotFound       string = "Attempt not found"
 	CollaborationNotFound string = "Collaboration not found"
+	InternalServerError   string = "Internal server error"
 )

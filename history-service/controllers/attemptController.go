@@ -5,6 +5,7 @@ import (
 	"history-service/models"
 	"history-service/utils"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -31,6 +32,13 @@ func GetUserAttemptsByUserId(c *fiber.Ctx) error {
 
 func AddUserAttempt(c *fiber.Ctx) error {
 	var attempt models.Attempt
+
+	location, err := time.LoadLocation("Singapore")
+	if err != nil {
+		return utils.ErrorResponse(c, utils.InternalServerError)
+	}
+
+	attempt.AttemptedOn = time.Now().In(location).Format("2006-01-02 15:04:05")
 
 	// Parse the request body into data
 	if err := c.BodyParser(&attempt); err != nil {
