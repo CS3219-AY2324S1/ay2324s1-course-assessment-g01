@@ -30,19 +30,11 @@ func GetUserAttemptsByUserId(c *fiber.Ctx) error {
 }
 
 func AddUserAttempt(c *fiber.Ctx) error {
-	var data map[string]interface{}
+	var attempt models.Attempt
 
 	// Parse the request body into data
-	if err := c.BodyParser(&data); err != nil {
+	if err := c.BodyParser(&attempt); err != nil {
 		return err
-	}
-
-	attempt := models.Attempt{
-		QuestionId: data["question_id"].(string),
-		UserId:     uint(data["user_id"].(float64)),
-		Code:       data["code"].(string),
-		Language:   data["language"].(string),
-		Passed:     data["passed"].(bool),
 	}
 
 	if err := database.DB.Create(&attempt).Error; err != nil {
