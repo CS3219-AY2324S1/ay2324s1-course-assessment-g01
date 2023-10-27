@@ -31,7 +31,7 @@ def check_token(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())) -> 
 
 
 def is_admin(access_type: Annotated[int, Depends(check_token)]):
-    if access_type != "1":
+    if access_type != 1:
         raise HTTPException(status_code=403, detail="Not an admin")
 
 
