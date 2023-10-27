@@ -163,7 +163,7 @@ Request:
 ```json
 {
     "email": "userA@example.com",
-    "password": "456123" // new password
+    "password": "456123" // new password (must be at least 6 characters long)
 }
 
 ```
@@ -185,7 +185,7 @@ Request:
 ```json
 {
     "email": "userA@example.com",
-    "name": "userAA"
+    "name": "userAA" // new name (must be at least 3 characters long)
 }
 
 ```

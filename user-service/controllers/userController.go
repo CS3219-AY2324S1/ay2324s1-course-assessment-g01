@@ -72,7 +72,16 @@ func (controller *UserController) Register(c *fiber.Ctx) error {
 		user.AccessType = 2
 	}
 
-	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), bcrypt.DefaultCost)
+	inputPassword := data["password"]
+	if len(inputPassword) < utils.MinPasswordLength {
+		return utils.ErrorResponse(c, utils.PasswordTooShort)
+	}
+	name := data["name"]
+	if len(name) < utils.MinNameLength {
+		return utils.ErrorResponse(c, utils.NameTooShort)
+	}
+
+	password, _ := bcrypt.GenerateFromPassword([]byte(inputPassword), bcrypt.DefaultCost)
 	user.Password = password
 
 	if err := controller.DB.Create(&user).Error; err != nil {
@@ -176,6 +185,11 @@ func (controller *UserController) ChangePassword(c *fiber.Ctx) error {
 		return err
 	}
 
+	inputPassword := data["password"]
+	if len(inputPassword) < utils.MinPasswordLength {
+		return utils.ErrorResponse(c, utils.PasswordTooShort)
+	}
+
 	var user models.User
 	hashedNewPw, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), bcrypt.DefaultCost)
 
@@ -196,6 +210,10 @@ func (controller *UserController) ChangeName(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&user); err != nil {
 		return err
+	}
+
+	if len(user.Name) < utils.MinNameLength {
+		return utils.ErrorResponse(c, utils.NameTooShort)
 	}
 
 	// Find user with this email

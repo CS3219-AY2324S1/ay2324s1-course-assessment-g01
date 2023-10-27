@@ -7,6 +7,8 @@ const (
 	UserNotFound      string = "User is not found"
 	IncorrectPassword string = "Password is incorrect"
 	PasswordChanged   string = "Password is changed"
+	PasswordTooShort  string = "Password is too short"
+	NameTooShort      string = "Name is too short"
 	NameChanged       string = "User name is changed"
 	InvalidEmail      string = "Invalid email address"
 	InvalidId         string = "Invalid id"
@@ -19,4 +21,6 @@ const (
 	Success           string = "Operation success"
 	RecordNotFound    string = "No record is found"
 	DuplicateRecord   string = "Record already exists"
+	MinPasswordLength int    = 6
+	MinNameLength     int    = 3
 )
