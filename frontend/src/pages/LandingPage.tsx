@@ -1,4 +1,4 @@
-import { Button, Center, Loader, Table, Text, Flex } from "@mantine/core";
+import { Button, Center, Loader, Table, Flex } from "@mantine/core";
 import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -8,6 +8,8 @@ import { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
 import MatchingComponent from "../components/MatchingComponent";
 import { useUserQuery } from "../hooks/queries";
+
+import styles from "./LandingPage.module.css";
 
 const LandingPage = () => {
   const { jwt } = useContext(UserContext);
@@ -57,6 +59,8 @@ const LandingPage = () => {
               <td>{question._id}</td>
               <td>
                 <Button
+                  className={styles.wrap}
+                  maw={"100%"}
                   variant="light"
                   to={`/question/${question._id}`}
                   component={Link}
@@ -64,7 +68,9 @@ const LandingPage = () => {
                   {question.title}
                 </Button>
               </td>
-              <td>{question.categories.join(",")}</td>
+              <td style={{ wordWrap: "break-word" }}>
+                {question.categories.join(",")}
+              </td>
               <td>{question.complexity}</td>
               {user && isAdmin(user) && (
                 <td>
