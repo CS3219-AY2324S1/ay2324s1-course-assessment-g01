@@ -6,6 +6,7 @@ import {
   Flex,
   Pagination,
   Input,
+  MultiSelect,
 } from "@mantine/core";
 import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +19,7 @@ import MatchingComponent from "../components/MatchingComponent";
 import { useUserQuery } from "../hooks/queries";
 
 import styles from "./LandingPage.module.css";
+import { Complexity } from "../types/Question";
 
 const QUESTIONS_PER_PAGE = 12;
 
@@ -46,12 +48,20 @@ const LandingPage = () => {
 
   const [search, setSearch] = useSearchParams("search");
 
+  const [complexityFilter, setComplexityFilter] = useState<string[]>([]);
+
   // TODO: change to backend search?
-  const filtered = questions?.filter((question) =>
-    question.title
-      .toLowerCase()
-      .includes(search.get("search")?.toLowerCase() || ""),
-  );
+  const filtered = questions
+    ?.filter((question) =>
+      question.title
+        .toLowerCase()
+        .includes(search.get("search")?.toLowerCase() || ""),
+    )
+    .filter(
+      (question) =>
+        complexityFilter.length == 0 ||
+        complexityFilter.includes(question.complexity),
+    );
 
   return (
     <section>
@@ -77,7 +87,17 @@ const LandingPage = () => {
             <th>Question Id</th>
             <th>Title</th>
             <th>Category</th>
-            <th>Complexity</th>
+            <th>
+              <MultiSelect
+              placeholder="Complexity"
+              w={300}
+                data={Object.values(Complexity).map((complexity) => ({
+                  label: complexity,
+                  value: complexity,
+                }))}
+                onChange={setComplexityFilter}
+              />
+            </th>
             {user && isAdmin(user) && <th>Delete</th>}
           </tr>
         </thead>
