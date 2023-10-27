@@ -1,7 +1,15 @@
-import { Button, Center, Loader, Table, Flex, Pagination } from "@mantine/core";
+import {
+  Button,
+  Center,
+  Loader,
+  Table,
+  Flex,
+  Pagination,
+  Input,
+} from "@mantine/core";
 import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import WelcomeComponent from "../components/WelcomeComponent";
 import { isAdmin } from "../utils/userUtils";
 import { useContext, useState } from "react";
@@ -36,16 +44,32 @@ const LandingPage = () => {
 
   const [questionsPage, setQuestionsPage] = useState(1);
 
+  const [search, setSearch] = useSearchParams("search");
+
+  // TODO: change to backend search?
+  const filtered = questions?.filter((question) =>
+    question.title
+      .toLowerCase()
+      .includes(search.get("search")?.toLowerCase() || ""),
+  );
+
   return (
     <section>
       <WelcomeComponent />
-      <Flex justify="space-between">
+      <Flex justify="space-between" wrap={"wrap"}>
         {user && isAdmin(user) && (
           <Button component={Link} to="/create">
             Create new question
           </Button>
         )}
         <MatchingComponent user={user} jwt={jwt} />
+        <Input
+          placeholder="Search"
+          value={search.get("search") || ""}
+          onChange={(e) =>
+            setSearch((prev) => ({ ...prev, search: e.currentTarget.value }))
+          }
+        />
       </Flex>
       <Table striped>
         <thead>
@@ -58,8 +82,11 @@ const LandingPage = () => {
           </tr>
         </thead>
         <tbody>
-          {questions
-            ?.slice((questionsPage - 1) * QUESTIONS_PER_PAGE, (questionsPage - 1) * QUESTIONS_PER_PAGE + QUESTIONS_PER_PAGE)
+          {filtered
+            ?.slice(
+              (questionsPage - 1) * QUESTIONS_PER_PAGE,
+              (questionsPage - 1) * QUESTIONS_PER_PAGE + QUESTIONS_PER_PAGE,
+            )
             .map((question) => (
               <tr key={question._id}>
                 <td>{question._id}</td>
@@ -97,7 +124,7 @@ const LandingPage = () => {
       <Pagination
         onChange={setQuestionsPage}
         value={questionsPage}
-        total={questions ? Math.ceil(questions.length / QUESTIONS_PER_PAGE) : 0}
+        total={filtered ? Math.ceil(filtered.length / QUESTIONS_PER_PAGE) : 0}
       />
       {(isLoading || isRefetching) && (
         <Center>
