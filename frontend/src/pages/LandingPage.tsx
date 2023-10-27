@@ -41,7 +41,7 @@ const LandingPage = () => {
         )}
         <MatchingComponent user={user} jwt={jwt} />
       </Flex>
-      <Table>
+      <Table striped>
         <thead>
           <tr>
             <th>Question Id</th>
@@ -56,9 +56,13 @@ const LandingPage = () => {
             <tr key={question._id}>
               <td>{question._id}</td>
               <td>
-                <Text to={`/question/${question._id}`} component={Link}>
+                <Button
+                  variant="light"
+                  to={`/question/${question._id}`}
+                  component={Link}
+                >
                   {question.title}
-                </Text>
+                </Button>
               </td>
               <td>{question.categories.join(",")}</td>
               <td>{question.complexity}</td>
