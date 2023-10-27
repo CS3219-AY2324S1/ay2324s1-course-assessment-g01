@@ -12,11 +12,12 @@ export const useUserQuery = (options?: UseQueryOptions<User>) =>
   });
 
 export const useAttemptsQuery = (
-  userId: number,
+  userId?: number,
   options?: UseQueryOptions<Attempt[]>,
 ) =>
   useQuery<Attempt[]>({
     queryKey: ["attempts", userId],
     queryFn: getHistory,
     ...options,
+    enabled: !!userId,
   });

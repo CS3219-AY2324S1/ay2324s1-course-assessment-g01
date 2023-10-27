@@ -24,6 +24,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         theme={{ colorScheme: "dark" }}
         withGlobalStyles
         withNormalizeCSS
+        withCSSVariables
       >
         <UserContextProvider>
           <BrowserRouter>

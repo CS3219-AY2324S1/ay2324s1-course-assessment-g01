@@ -35,8 +35,8 @@ const UsernameComponent = () => {
   });
 
   return (
-    <Title order={1}>
-      <Group spacing={"xs"}>
+    <Title>
+      <Group spacing={"xs"} position={"center"}>
         {editing ? (
           <TextInput
             disabled={mutation.isLoading}

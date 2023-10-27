@@ -9,7 +9,7 @@ import { baseInstance } from "./apiInstance";
 export const getHistory: QueryFunction<Attempt[]> = async ({
   queryKey,
 }: QueryFunctionContext<QueryKey, string>) => {
-  const [_, userId] = queryKey;
+  const [, userId] = queryKey;
 
   const data = await baseInstance.get<Attempt[]>("/history/attempt", {
     params: { userId },
