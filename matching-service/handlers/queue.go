@@ -206,8 +206,15 @@ func handleMatchings(
 			return
 		}
 
+		// get random question from question service
+		question, err := services.GetRandomQuestionId(strings.ToLower(string(curUser.Difficulty)))
+		if err != nil {
+			fmt.Printf("%s: %v\n", utils.QuestionRetrievalError, err)
+			return
+		}
+
 		// create room using collaboration service
-		room, err := services.CreateRoom(curUser.UserId, parsedUser.UserId)
+		room, err := services.CreateRoom(curUser.UserId, parsedUser.UserId, question.QuestionId)
 		if err != nil {
 			fmt.Printf("%s: %v\n", utils.RoomCreationError, err)
 			return
@@ -218,13 +225,6 @@ func handleMatchings(
 
 		fmt.Printf("Matched %s and %s\n", currentUserId, parsedUserId)
 		fmt.Printf("Room created with id %s\n", roomId)
-
-		// get random question from question service
-		question, err := services.GetRandomQuestionId(strings.ToLower(string(curUser.Difficulty)))
-		if err != nil {
-			fmt.Printf("%s: %v\n", utils.QuestionRetrievalError, err)
-			return
-		}
 
 		matchResponse, err := json.Marshal(models.MatchedResponse{RoomId: room.RoomId, Question: question})
 		if err != nil {
