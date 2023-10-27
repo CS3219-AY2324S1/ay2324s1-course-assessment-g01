@@ -3,12 +3,11 @@ import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import WelcomeComponent from "../components/WelcomeComponent";
-import { User } from "../types/User";
 import { isAdmin } from "../utils/userUtils";
-import { getUserData } from "../services/UserAPI";
 import { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
 import MatchingComponent from "../components/MatchingComponent";
+import { useUserQuery } from "../hooks/queries";
 
 const LandingPage = () => {
   const { jwt } = useContext(UserContext);
@@ -29,10 +28,7 @@ const LandingPage = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["questions"] }),
   });
 
-  const { data: user } = useQuery<User>({
-    queryKey: ["user"],
-    queryFn: getUserData,
-  });
+  const { data: user } = useUserQuery();
 
   return (
     <section>
@@ -43,7 +39,7 @@ const LandingPage = () => {
             Create new question
           </Button>
         )}
-        <MatchingComponent user={user} jwt={jwt}/>
+        <MatchingComponent user={user} jwt={jwt} />
       </Flex>
       <Table>
         <thead>
