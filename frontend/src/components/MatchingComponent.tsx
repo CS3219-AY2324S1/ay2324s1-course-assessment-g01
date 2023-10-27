@@ -80,8 +80,8 @@ const MatchingComponent = ({ user, jwt }: Props) => {
     soc.addEventListener("message", (event) => {
       try {
         const parsedData: MatchResponse = JSON.parse(event.data);
-        if (parsedData.room_id) {
-          soc.close();
+        if (parsedData.room_id != undefined) {
+          soc.close();          
           nav(`/collab/${parsedData.room_id}`, {
             state: { question: parsedData.question },
           });
