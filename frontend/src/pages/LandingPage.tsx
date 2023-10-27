@@ -1,15 +1,17 @@
-import { Button, Center, Loader, Table, Flex } from "@mantine/core";
+import { Button, Center, Loader, Table, Flex, Pagination } from "@mantine/core";
 import { deleteQuestion, getQuestions } from "../services/QuestionsAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import WelcomeComponent from "../components/WelcomeComponent";
 import { isAdmin } from "../utils/userUtils";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { UserContext } from "../contexts/UserContext";
 import MatchingComponent from "../components/MatchingComponent";
 import { useUserQuery } from "../hooks/queries";
 
 import styles from "./LandingPage.module.css";
+
+const QUESTIONS_PER_PAGE = 12;
 
 const LandingPage = () => {
   const { jwt } = useContext(UserContext);
@@ -31,6 +33,8 @@ const LandingPage = () => {
   });
 
   const { data: user } = useUserQuery();
+
+  const [questionsPage, setQuestionsPage] = useState(1);
 
   return (
     <section>
@@ -54,38 +58,47 @@ const LandingPage = () => {
           </tr>
         </thead>
         <tbody>
-          {questions?.map((question) => (
-            <tr key={question._id}>
-              <td>{question._id}</td>
-              <td>
-                <Button
-                  className={styles.wrap}
-                  maw={"100%"}
-                  variant="light"
-                  to={`/question/${question._id}`}
-                  component={Link}
-                >
-                  {question.title}
-                </Button>
-              </td>
-              <td style={{ wordWrap: "break-word" }}>
-                {question.categories.join(",")}
-              </td>
-              <td>{question.complexity}</td>
-              {user && isAdmin(user) && (
+          {questions
+            ?.slice((questionsPage - 1) * QUESTIONS_PER_PAGE, (questionsPage - 1) * QUESTIONS_PER_PAGE + QUESTIONS_PER_PAGE)
+            .map((question) => (
+              <tr key={question._id}>
+                <td>{question._id}</td>
                 <td>
                   <Button
-                    onClick={() => deleteQuestionMutation.mutate(question._id)}
-                    loading={deleteQuestionMutation.isLoading}
+                    className={styles.wrap}
+                    maw={"100%"}
+                    variant="light"
+                    to={`/question/${question._id}`}
+                    component={Link}
                   >
-                    Delete
+                    {question.title}
                   </Button>
                 </td>
-              )}
-            </tr>
-          ))}
+                <td style={{ wordWrap: "break-word" }}>
+                  {question.categories.join(",")}
+                </td>
+                <td>{question.complexity}</td>
+                {user && isAdmin(user) && (
+                  <td>
+                    <Button
+                      onClick={() =>
+                        deleteQuestionMutation.mutate(question._id)
+                      }
+                      loading={deleteQuestionMutation.isLoading}
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                )}
+              </tr>
+            ))}
         </tbody>
       </Table>
+      <Pagination
+        onChange={setQuestionsPage}
+        value={questionsPage}
+        total={questions ? Math.ceil(questions.length / QUESTIONS_PER_PAGE) : 0}
+      />
       {(isLoading || isRefetching) && (
         <Center>
           <Loader />
