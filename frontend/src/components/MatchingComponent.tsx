@@ -1,8 +1,20 @@
-import { Button, Dialog, Flex, Loader, Popover, Text } from "@mantine/core";
+import {
+  Button,
+  Dialog,
+  Flex,
+  Loader,
+  Popover,
+  Stack,
+  Text,
+} from "@mantine/core";
 import { useDisclosure, useInterval } from "@mantine/hooks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Actions, matchingMessage, matchingServiceURL } from "../services/MatchingAPI";
+import {
+  Actions,
+  matchingMessage,
+  matchingServiceURL,
+} from "../services/MatchingAPI";
 import { User } from "../types/User";
 import { Question } from "../types/Question";
 
@@ -15,16 +27,23 @@ const MatchingComponent = ({ user, jwt }: Props) => {
   const TIME_OUT_DURATION = 30;
   const DIFFICULTIES = ["Easy", "Medium", "Hard"];
 
-  const [ timer, setTimer ] = useState(0);
-  const [ isTimeOut, setIsTimeOut ] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [isTimeOut, setIsTimeOut] = useState(false);
   const webSocketRef = useRef<WebSocket | undefined>(undefined);
   const difficultyRef = useRef<string>("");
-  const [ opened, {toggle, close} ] = useDisclosure(false);
+  const [opened, { toggle, close }] = useDisclosure(false);
   const nav = useNavigate();
 
   const closeMatching = useCallback(() => {
     if (webSocketRef.current?.readyState == 1) {
-      webSocketRef.current?.send(matchingMessage(user?.user_id, Actions.cancel, difficultyRef.current, jwt));
+      webSocketRef.current?.send(
+        matchingMessage(
+          user?.user_id,
+          Actions.cancel,
+          difficultyRef.current,
+          jwt,
+        ),
+      );
     }
   }, [jwt, user, difficultyRef]);
 
@@ -47,7 +66,7 @@ const MatchingComponent = ({ user, jwt }: Props) => {
     if (webSocketRef.current) closeMatching();
     webSocketRef.current = soc;
     difficultyRef.current = diff;
-    
+
     soc.addEventListener("open", () => {
       soc.send(matchingMessage(user?.user_id, Actions.start, diff, jwt));
     });
@@ -55,7 +74,7 @@ const MatchingComponent = ({ user, jwt }: Props) => {
     type MatchResponse = {
       room_id: number;
       question: Question;
-      error?: string
+      error?: string;
     };
 
     soc.addEventListener("message", (event) => {
@@ -66,7 +85,8 @@ const MatchingComponent = ({ user, jwt }: Props) => {
           nav(`/collab/${parsedData.room_id}`, {
             state: { question: parsedData.question },
           });
-        } else if (parsedData.error == "") { // Change this when the cancel reply is updated
+        } else if (parsedData.error == "") {
+          // Change this when the cancel reply is updated
           soc.close();
         }
       } catch (e) {
@@ -100,13 +120,13 @@ const MatchingComponent = ({ user, jwt }: Props) => {
           <Button>Collaborate</Button>
         </Popover.Target>
         <Popover.Dropdown>
-          <Flex direction="column">
+          <Stack>
             {DIFFICULTIES.map((diff) => (
               <Button key={diff} onClick={() => matchMaking(diff)}>
                 {diff}
               </Button>
             ))}
-          </Flex>
+          </Stack>
         </Popover.Dropdown>
       </Popover>
       {/* This is the dialog that will appear at the bottom with the matching status */}
