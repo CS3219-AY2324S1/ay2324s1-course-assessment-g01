@@ -28,7 +28,7 @@ Response:
     "user_id": 1,
     "email": "userA@example.com",
     "name": "userA",
-    "access_type": 0
+    "access_type": 0 // 0: user, 1: admin
 }
 ```
 

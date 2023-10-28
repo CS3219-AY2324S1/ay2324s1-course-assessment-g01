@@ -69,7 +69,7 @@ func (controller *UserController) Register(c *fiber.Ctx) error {
 	token, authErr := utils.GetAuthBearerToken(c)
 
 	if authErr != nil || token != controller.SecretKey {
-		user.AccessType = 2
+		user.AccessType = 1
 	}
 
 	inputPassword := data["password"]
@@ -82,6 +82,8 @@ func (controller *UserController) Register(c *fiber.Ctx) error {
 	}
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(inputPassword), bcrypt.DefaultCost)
+	user.Email = data["email"]
+	user.Name = name
 	user.Password = password
 
 	if err := controller.DB.Create(&user).Error; err != nil {
