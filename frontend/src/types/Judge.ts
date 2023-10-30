@@ -3,10 +3,10 @@ export type JudgeToken = {
 }
 
 export type CodeSubmission = {
-    "source_code" : string,
-    "language_id" : number,
-    "stdin" : string,
-    "expected_output" : string
+    "source_code" : string | null,
+    "language_id" : number | null,
+    "stdin" : string | undefined,
+    "expected_output" : string | undefined
 }
 
 export type CodeResult = {

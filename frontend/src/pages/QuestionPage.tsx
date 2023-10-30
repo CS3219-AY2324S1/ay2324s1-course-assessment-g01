@@ -6,6 +6,7 @@ import Editor from "@monaco-editor/react";
 import { editor, languages } from "monaco-editor";
 import { useState } from "react";
 import SubmissionComponent from "../components/SubmissionComponent";
+import { supportedLanguages } from "../services/JudgeAPI";
 
 const QuestionPage = () => {
   const { id } = useParams();
@@ -13,15 +14,29 @@ const QuestionPage = () => {
     queryKey: ["questions", id],
     queryFn: () => getQuestion(id!),
   });
-  const [language, setLanguage] = useState("javascript");
+  const [language, setLanguage] = useState("JavaScript (Node.js 12.14.0)");
+  const [languageId, setLanguageId] = useState(63);
+  const [editorLanguage, setEditorLanguage] = useState("javascript");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [editorInstance, seteditorInstance] =
     useState<editor.IStandaloneCodeEditor>();
-
+  const updateLangage = (languageOption : string) => {
+    const lang = supportedLanguages.find(x => x.name == languageOption);
+    if (lang) {
+      setLanguage(lang.name);
+      setLanguageId(lang.id);
+      setEditorLanguage(lang.editor);
+    } else {
+      // Debugging purposes
+      console.log(languageOption);
+    }
+  };
+  
   return (
     <section style={{ position: "relative" }}>
       <LoadingOverlay visible={isLoading} overlayBlur={2} />
-      <SubmissionComponent/>
+      <SubmissionComponent code={editorInstance?.getValue()} languageId={languageId}/>
+      <Button onClick={()=>console.log(editorInstance)}/>
       <SimpleGrid cols={2}>
         <div>
           {isError && <Text>{"Error: Not found"}</Text>}
@@ -46,16 +61,16 @@ const QuestionPage = () => {
             autoComplete="false"
             searchable
             label="Language"
-            data={languages.getLanguages().map((x) => x.id)}
-            defaultValue={"javascript"}
+            data={supportedLanguages.map((x) => x.name)}
+            defaultValue={"JavaScript (Node.js 12.14.0)"}
             value={language}
             onChange={(e) => {
-              if (e) setLanguage(e);
+              if (e) updateLangage(e);
             }}
           ></Select>
           
           <Editor
-            language={language}
+            language={editorLanguage}
             height="70vh"
             defaultLanguage="javascript"
             onMount={seteditorInstance}
