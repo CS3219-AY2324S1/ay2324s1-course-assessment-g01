@@ -11,6 +11,7 @@ export const getResult = async (token : string) => {
     return data.data;
 };
 
+// List of common languages Judge0 can accept, alongside Monaco Editor's language setting
 export const supportedLanguages = [
     {
         "id": 75,

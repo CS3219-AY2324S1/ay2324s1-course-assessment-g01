@@ -3,8 +3,8 @@ import { getQuestion } from "../services/QuestionsAPI";
 import { useParams } from "react-router-dom";
 import { Text, Title, LoadingOverlay, Paper, Select, SimpleGrid, Transition, Affix, Button, rem } from "@mantine/core";
 import Editor from "@monaco-editor/react";
-import { editor, languages } from "monaco-editor";
-import { useState } from "react";
+import { editor } from "monaco-editor";
+import { useCallback, useEffect, useState } from "react";
 import SubmissionComponent from "../components/SubmissionComponent";
 import { supportedLanguages } from "../services/JudgeAPI";
 
@@ -31,11 +31,15 @@ const QuestionPage = () => {
       console.log(languageOption);
     }
   };
+
+  const getCode = useCallback<()=>string>(() => {
+    return editorInstance.getValue();
+  }, [editorInstance]);
   
   return (
     <section style={{ position: "relative" }}>
       <LoadingOverlay visible={isLoading} overlayBlur={2} />
-      <SubmissionComponent code={editorInstance?.getValue()} languageId={languageId}/>
+      <SubmissionComponent code={getCode} languageId={languageId}/>
       <Button onClick={()=>console.log(editorInstance)}/>
       <SimpleGrid cols={2}>
         <div>

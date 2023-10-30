@@ -1,30 +1,30 @@
 import { Affix, Button, Drawer, Flex, Text, Textarea, rem } from "@mantine/core";
-import { useDisclosure, useInterval } from "@mantine/hooks";
-import { useEffect, useRef, useState } from "react";
-import { CodeResult } from "../types/Judge";
+import { useDisclosure } from "@mantine/hooks";
+import { useCallback, useRef } from "react";
+//import { CodeResult } from "../types/Judge";
 import { submitCode } from "../services/JudgeAPI";
 
 interface Props {
-  code : string,
+  code : () => string,
   languageId : number
 }
 
 const SubmissionComponent = ({code, languageId} : Props) => {
   const [opened, { open, close }] = useDisclosure(false);
-  const [results, setResults] = useState<CodeResult | null>(null);
+  //const [results, setResults] = useState<CodeResult | null>(null);
   // I think this is the only way to definitively get the submission details
-  const interval = useInterval(() => console.log("bruh"), 1000);
+  //const interval = useInterval(() => console.log("bruh"), 1000);
   const input = useRef<HTMLTextAreaElement>(null);
   const expectedOutput = useRef<HTMLTextAreaElement>(null);
 
-  const submit = () => {
+  const submit = useCallback(() => {
     submitCode({
-      "source_code" : code,
+      "source_code" : code(),
       "language_id" : languageId,
       "stdin": input.current?.value,
       "expected_output" : expectedOutput.current?.value
     });
-  };
+  }, [code, languageId]);
 
   return (
     <>
@@ -40,9 +40,11 @@ const SubmissionComponent = ({code, languageId} : Props) => {
           </Flex>
         </Flex>
         <Button
-        onClick={submit}
+        onClick={() => {
+          languageId = languageId + 0;
+          submit();
+        }}
         >
-
         </Button>
       </Drawer>
       {!opened && <Affix position={{ bottom: rem(20), right: "50vw" }}>
