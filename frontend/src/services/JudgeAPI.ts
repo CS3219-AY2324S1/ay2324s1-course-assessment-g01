@@ -1,4 +1,4 @@
-import { CodeSubmission } from "../types/Judge";
+import { CodeSubmission, JudgeToken } from "../types/Judge";
 import { baseInstance } from "./apiInstance";
 
 export const submitCode = async (submission : CodeSubmission) => {
@@ -6,8 +6,8 @@ export const submitCode = async (submission : CodeSubmission) => {
     return data.data;
 };
 
-export const getResult = async (token : string) => {
-    const data = await baseInstance.get(`/judge/submissions${token}`);
+export const getResult = async (token : JudgeToken) => {
+    const data = await baseInstance.get(`/judge/submissions/${token.token}`);
     return data.data;
 };
 

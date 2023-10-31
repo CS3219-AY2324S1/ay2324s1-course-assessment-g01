@@ -39,7 +39,7 @@ const QuestionPage = () => {
   return (
     <section style={{ position: "relative" }}>
       <LoadingOverlay visible={isLoading} overlayBlur={2} />
-      <SubmissionComponent code={getCode} languageId={languageId}/>
+      <SubmissionComponent getCode={getCode} languageId={languageId}/>
       <Button onClick={()=>console.log(editorInstance)}/>
       <SimpleGrid cols={2}>
         <div>
