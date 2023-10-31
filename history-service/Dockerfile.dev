@@ -1,0 +1,14 @@
+FROM golang:1.19.0-alpine3.16 AS builder
+
+RUN mkdir /app
+
+ADD . /app
+
+WORKDIR /app
+
+EXPOSE 3008
+
+RUN go install github.com/mitranim/gow@latest
+
+
+CMD ["gow" ,"run", "."]

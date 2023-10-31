@@ -1,0 +1,43 @@
+@startuml matching_service_flow
+
+actor MatchRequest
+
+node producer [
+	Producer
+	(Matching Service)
+]
+
+node consumer [
+	Consumer
+	(Matching Service)
+]
+
+node "RabbitMQ" {
+	cloud exchange [
+		Exchange (Direct)
+	]
+	component easy_queue [
+		Easy Queue
+	]
+	component medium_queue [
+		Medium Queue
+	]
+	component hard_queue [
+		Hard Queue
+	]
+}
+
+MatchRequest -down-> producer
+
+producer -down-> exchange: publish
+
+exchange -up-> easy_queue: easy
+exchange -left-> medium_queue: medium
+exchange -down-> hard_queue: hard
+
+easy_queue -down-> consumer: consume
+medium_queue -> consumer: consume
+hard_queue -up-> consumer: consume
+
+
+@enduml

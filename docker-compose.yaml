@@ -102,7 +102,6 @@ services:
       - PGDATABASE=dev
       - PGSSLMODE=disable
       - REST_PORT=3005
-      - USER_SERVICE_PORT=3000
     restart: on-failure
     depends_on:
       postgres:
@@ -112,6 +111,25 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  history-service:
+    build:
+      context: ./history-service
+      dockerfile: Dockerfile
+    ports:
+      - "3008:3008"
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=123
+      - PGDATABASE=dev
+      - PGSSLMODE=disable
+      - REST_PORT=3008
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   front-end:
     build: ./frontend

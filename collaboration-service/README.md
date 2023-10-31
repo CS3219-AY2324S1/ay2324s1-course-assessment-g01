@@ -21,33 +21,66 @@ docker compose up -d
 
 **Get <http://localhost:3005/api/v1/room?id=1>**
 
-## Create Room
+Response:
+
+```json
+{
+    "room_id": 1, // uint
+    "question_id": "df2374892143", // string
+    "user_a_id": 1, // uint
+    "user_b_id": 2, // uint
+    "is_open": true // bool
+}
+```
+
+### Create Room
 
 **Post <http://localhost:3005/api/v1/room/create>**
 
+Request:
+
 ```json
 {
- "user_a_id": 1,
- "user_b_id": 2
+    "user_a_id": 1, // uint
+    "user_b_id": 2, // uint
+    "question_id": "df2374892143", // string
 }
 ```
 
-## Close Room By Id
+Response:
+
+```json
+{
+    "room_id": 1, // uint
+    "question_id": "df2374892143", // string
+    "user_a_id": 1, // uint
+    "user_b_id": 2, // uint
+    "is_open": true, // bool
+    "created_on": "2023-10-20 09:54:25" // string in format "YYYY-MM-DD HH:MM:SS"
+}
+```
+
+### Close Room By Id
 
 **Post <http://localhost:3005/api/v1/room/close>**
 
+Request:
+
 ```json
 {
- "room_id": 1
+    "room_id": 1, // uint
 }
 ```
 
-## Delete Room By Id
-
-**Post <http://localhost:3005/api/v1/room/delete>**
+Response:
 
 ```json
 {
- "room_id": 1
+    "room_id": 1, // uint
+    "question_id": "df2374892143", // string
+    "user_a_id": 1, // uint
+    "user_b_id": 2, // uint
+    "is_open": false, // bool
+    "created_on": "2023-10-20 09:54:25" // string in format "YYYY-MM-DD HH:MM:SS"
 }
 ```
