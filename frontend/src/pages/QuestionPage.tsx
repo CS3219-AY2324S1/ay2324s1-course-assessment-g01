@@ -33,7 +33,7 @@ const QuestionPage = () => {
   };
 
   const getCode = useCallback<()=>string>(() => {
-    return editorInstance.getValue();
+    return editorInstance ? editorInstance.getValue() : "";
   }, [editorInstance]);
   
   return (
