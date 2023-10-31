@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { getQuestion } from "../services/QuestionsAPI";
 import { useParams } from "react-router-dom";
-import { Text, Title, LoadingOverlay, Paper, Select, SimpleGrid, Transition, Affix, Button, rem } from "@mantine/core";
+import { Text, Title, LoadingOverlay, Paper, Select, SimpleGrid  } from "@mantine/core";
 import Editor from "@monaco-editor/react";
 import { editor } from "monaco-editor";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import SubmissionComponent from "../components/SubmissionComponent";
 import { supportedLanguages } from "../services/JudgeAPI";
 
@@ -40,7 +40,6 @@ const QuestionPage = () => {
     <section style={{ position: "relative" }}>
       <LoadingOverlay visible={isLoading} overlayBlur={2} />
       <SubmissionComponent getCode={getCode} languageId={languageId}/>
-      <Button onClick={()=>console.log(editorInstance)}/>
       <SimpleGrid cols={2}>
         <div>
           {isError && <Text>{"Error: Not found"}</Text>}
