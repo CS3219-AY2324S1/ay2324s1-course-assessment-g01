@@ -13,6 +13,7 @@ import ProtectedRoute from "./routing/ProtectedRoute.tsx";
 import LoginPage from "./pages/LoginRegisterPage.tsx";
 import AdminRoute from "./routing/AdminRoute.tsx";
 import Logout from "./components/Logout.tsx";
+import UserProfilePage from "./pages/UserProfilePage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         theme={{ colorScheme: "dark" }}
         withGlobalStyles
         withNormalizeCSS
+        withCSSVariables
       >
         <UserContextProvider>
           <BrowserRouter>
@@ -36,6 +38,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   <Route path="/" index element={<LandingPage />} />
                   <Route path="/question/:id" element={<QuestionPage />} />
                   <Route path="/collab/:id" element={<CollabRoomPage />} />
+                  <Route path="/profile" element={<UserProfilePage />} />
+                  
                   <Route path="/logout" element={<Logout />} />
 
                   <Route path="*" element={<Navigate to="/" replace />} />
