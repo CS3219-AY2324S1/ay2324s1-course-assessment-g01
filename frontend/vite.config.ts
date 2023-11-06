@@ -18,6 +18,7 @@ export default defineConfig({
           return path.replace("/api/v1/judge", "");
         },
       },
+      "/api/v1/history/attempt": "http://history-service:3008",
       "/ws": {
         target: "ws://matching-service:8082",
         ws: true,

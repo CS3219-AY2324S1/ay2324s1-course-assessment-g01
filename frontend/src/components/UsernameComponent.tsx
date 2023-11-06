@@ -7,7 +7,7 @@ import { changeName } from "../services/UserAPI";
 import { User } from "../types/User";
 import { useUserQuery } from "../hooks/queries";
 
-const WelcomeComponent = () => {
+const UsernameComponent = () => {
   const client = useQueryClient();
   const [editing, toggle] = useToggle();
 
@@ -35,34 +35,27 @@ const WelcomeComponent = () => {
   });
 
   return (
-    <section>
-      <Title order={1}>
-        <Group spacing={"xs"}>
-          Welcome,
-          {editing ? (
-            <TextInput
-              disabled={mutation.isLoading}
-              onChange={(e) => setNewName(e.currentTarget.value)}
-              onBlur={() => {
-                mutation.mutate();
-              }}
-            />
-          ) : (
-            <Text
-              variant="gradient"
-              gradient={{ from: "blue", to: "red" }}
-              span
-            >
-              {user?.name}
-            </Text>
-          )}
-          <ActionIcon onClick={() => toggle()} h={"100%"} variant="subtle">
-            <FaEdit />
-          </ActionIcon>
-        </Group>
-      </Title>
-    </section>
+    <Title>
+      <Group spacing={"xs"} position={"center"}>
+        {editing ? (
+          <TextInput
+            disabled={mutation.isLoading}
+            onChange={(e) => setNewName(e.currentTarget.value)}
+            onBlur={() => {
+              mutation.mutate();
+            }}
+          />
+        ) : (
+          <Text variant="gradient" gradient={{ from: "blue", to: "red" }} span>
+            {user?.name}
+          </Text>
+        )}
+        <ActionIcon onClick={() => toggle()} h={"100%"} variant="subtle">
+          <FaEdit />
+        </ActionIcon>
+      </Group>
+    </Title>
   );
 };
 
-export default WelcomeComponent;
+export default UsernameComponent;

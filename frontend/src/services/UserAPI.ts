@@ -50,3 +50,12 @@ export const changeName = async (email: string, name: string) => {
   });
   return data.data;
 };
+
+// TODO: should use JWT to determine user and change password accordingly
+export const changePassword = async (email: string, password: string) => {
+  const data = await baseInstance.post("/user/changepassword", {
+    email,
+    password,
+  });
+  return data.data;
+};

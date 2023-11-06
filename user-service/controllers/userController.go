@@ -133,7 +133,7 @@ func (controller *UserController) Login(c *fiber.Ctx) error {
 		"iat":   time.Now().Unix(),
 		"sub":   strconv.Itoa(int(user.UserId)),
 		"exp":   time.Now().Add(time.Hour).Unix(), // 1 hour
-		"roles": strconv.Itoa(int(user.AccessType)),
+		"roles": user.AccessType,
 	})
 
 	token, err := claims.SignedString([]byte(controller.SecretKey))

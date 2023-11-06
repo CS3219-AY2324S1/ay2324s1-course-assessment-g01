@@ -1,4 +1,11 @@
-import { Button, Group, Header, Text } from "@mantine/core";
+import {
+  Avatar,
+  Group,
+  Header,
+  Menu,
+  Text,
+  UnstyledButton,
+} from "@mantine/core";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
@@ -19,32 +26,38 @@ const AppHeader = () => {
         <Text size={24} component={Link} to="/">
           Home
         </Text>
-        <Group>
-          <Button
-            variant="light"
-            color="red"
-            onClick={async () => {
-              try {
-                await deregister(user!.user_id);
+        <Menu transitionProps={{duration: 50}}>
+          <Menu.Target>
+            <Avatar bg={"blue"} component={UnstyledButton}></Avatar>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item component={Link} to="/profile">
+              User Profile
+            </Menu.Item>
+            <Menu.Item
+              color="red"
+              onClick={async () => {
+                try {
+                  await deregister(user!.user_id);
+                  logout();
+                  logoutFromContext();
+                } catch (e) {
+                  console.log(e);
+                }
+              }}
+            >
+              Deregister
+            </Menu.Item>
+            <Menu.Item
+              onClick={() => {
                 logout();
                 logoutFromContext();
-              } catch (e) {
-                console.log(e);
-              }
-            }}
-          >
-            Deregister
-          </Button>
-          <Button
-            variant="subtle"
-            onClick={() => {
-              logout();
-              logoutFromContext();
-            }}
-          >
-            Log Out
-          </Button>
-        </Group>
+              }}
+            >
+              Log Out
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
       </Group>
     </Header>
   );
