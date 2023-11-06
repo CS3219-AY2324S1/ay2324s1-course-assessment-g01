@@ -57,7 +57,7 @@ const SubmissionComponent = ({getCode, languageId, questionId, userId} : Props) 
           setIsLoading(false);
           postAttempt({
             "question_id": questionId!,
-            "user_id": userId,
+            "user_id": userId!,
             "code": getCode(),
             "language": getLanguage(languageId)!,
             "passed" : result.status.description == "Accepted"
@@ -83,7 +83,7 @@ const SubmissionComponent = ({getCode, languageId, questionId, userId} : Props) 
     setResults(null);
     timer.current = window.setInterval(fetchResult, 1000, token);
     return stopInterval;
-  }, [token]);
+  }, [token, fetchResult]);
 
   useEffect(() => {
     if (!results) return;

@@ -9,9 +9,9 @@ export type Attempt = {
 };
 
 export type PostAttempt = {
-  "question_id":  string
-  "user_id": number
-  "code": string,
-  "language": string
-  "passed": boolean
+  "question_id":  string;
+  "user_id": number;
+  "code": string;
+  "language": string;
+  "passed": boolean;
 };
