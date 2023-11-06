@@ -6,10 +6,10 @@ import { Link, useLocation, useParams } from "react-router-dom";
 //@ts-ignore -- need to patch
 import { WebsocketProvider } from "y-websocket";
 import Editor from "@monaco-editor/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { MonacoBinding } from "y-monaco";
 import * as Y from "yjs";
-import { editor, languages } from "monaco-editor";
+import { editor } from "monaco-editor";
 import "./CollabRoomPage.css";
 import {
   Button,
@@ -24,6 +24,8 @@ import {
 } from "@mantine/core";
 import { Question } from "../types/Question";
 import ChatComponent, { ChatMessage } from "../components/ChatComponent";
+import SubmissionComponent from "../components/SubmissionComponent";
+import { supportedLanguages } from "../services/JudgeAPI";
 
 // import { useMemo } from "react";
 
@@ -43,7 +45,9 @@ const CollabRoomPage = () => {
     state: { question },
   }: { state: { question: Question } } = useLocation();
 
-  const [language, setLanguage] = useState("javascript");
+  const [language, setLanguage] = useState("JavaScript (Node.js 12.14.0)");
+  const [languageId, setLanguageId] = useState(63);
+  const [editorLanguage, setEditorLanguage] = useState("javascript");
 
   useEffect(() => {
     if (!editorInstance) return;
@@ -85,11 +89,27 @@ const CollabRoomPage = () => {
   //Set language when other side changes
   const settingsMap = ydoc.getMap("settings");
   useEffect(() => {
-    const set = () =>
-      setLanguage(ydoc.getMap<string>("settings").get("language") || "python");
+    const set = () => {
+      setLanguage(ydoc.getMap<string>("settings").get("language") || "JavaScript (Node.js 12.14.0)");
+    };
     settingsMap.observe(set);
     return () => settingsMap.unobserve(set);
   }, [settingsMap, ydoc]);
+
+  useEffect(() => {
+    const lang = supportedLanguages.find(x => x.name == language);
+    if (lang) {
+      setLanguageId(lang.id);
+      setEditorLanguage(lang.editor);
+    } else {
+      // Debugging purposes
+      console.log(language);
+    }
+  }, [language]);
+
+  const getCode = useCallback<()=>string>(() => {
+    return editorInstance ? editorInstance.getValue() : "";
+  }, [editorInstance]);
 
   const chatArray = ydoc.getArray<ChatMessage>("chat");
 
@@ -110,6 +130,12 @@ const CollabRoomPage = () => {
           </Center>
         </Overlay>
       )}
+      <SubmissionComponent 
+        getCode={getCode} 
+        languageId={languageId}
+        questionId={question._id}
+        userId={user?.user_id}
+        />
       <SimpleGrid
         cols={2}
         h={"calc(100vh - var(--mantine-header-height, 0px) - 2rem)"}
@@ -147,8 +173,8 @@ const CollabRoomPage = () => {
               autoComplete="false"
               searchable
               label="Language"
-              data={languages.getLanguages().map((x) => x.id)}
-              defaultValue={"javascript"}
+              data={supportedLanguages.map((x) => x.name)}
+              defaultValue={"JavaScript (Node.js 12.14.0)"}
               value={settingsMap.get("language") as string}
               onChange={(e) => {
                 settingsMap.set("language", e);
@@ -156,7 +182,7 @@ const CollabRoomPage = () => {
             ></Select>
           </div>
           <Editor
-            language={language}
+            language={editorLanguage}
             height="70vh"
             defaultLanguage="javascript"
             onMount={seteditorInstance}
