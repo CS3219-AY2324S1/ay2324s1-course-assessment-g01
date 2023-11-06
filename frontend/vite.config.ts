@@ -11,6 +11,13 @@ export default defineConfig({
         secure: false,
       },
       "/api/v1/user": "http://user-service:3000",
+      "/api/v1/judge": {
+        target: "http://judge-service:2358",
+        changeOrigin: true,
+        rewrite(path) {
+          return path.replace("/api/v1/judge", "");
+        },
+      },
       "/api/v1/history/attempt": "http://history-service:3008",
       "/ws": {
         target: "ws://matching-service:8082",

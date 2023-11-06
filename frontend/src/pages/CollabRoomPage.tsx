@@ -37,7 +37,7 @@ const CollabRoomPage = () => {
   const [editorInstance, seteditorInstance] =
     useState<editor.IStandaloneCodeEditor>();
   const [otherName, setotherName] = useState<string | undefined>("");
-
+  
   // TODO: replace with getting from the backend
   const {
     state: { question },

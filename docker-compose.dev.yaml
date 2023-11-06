@@ -153,6 +153,7 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - "./frontend/src:/app/src"
+      - "./frontend/vite.config.ts:/app/vite.config.ts"
     ports:
       - "5173:5173"
 
