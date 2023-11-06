@@ -1,6 +1,7 @@
-import { Affix, Button, Card, Drawer, Flex, Loader, Tabs, Text, Textarea, rem } from "@mantine/core";
+import { ActionIcon, Affix, Button, Card, Drawer, Flex, Loader, Tabs, Text, Textarea, rem } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AiOutlineArrowUp } from "react-icons/ai";
 import { CodeResult, JudgeToken } from "../types/Judge";
 import { getLanguage, getResult, submitCode } from "../services/JudgeAPI";
 import CodeResultDisplay from "./CodeResultDisplay";
@@ -135,12 +136,13 @@ const SubmissionComponent = ({getCode, languageId, questionId, userId} : Props) 
       </Drawer>
 
       {!opened && <Affix position={{ bottom: rem(20), right: "50vw" }}>
-        <Button
+        <ActionIcon
         onClick={opened ? close : open}
-        radius={90}
+        variant={"filled"}
+        color={"blue"}
         >
-        Tests
-        </Button>
+          <AiOutlineArrowUp/>
+        </ActionIcon>
       </Affix>}
     </>
   );
