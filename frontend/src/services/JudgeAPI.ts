@@ -109,3 +109,12 @@ export const supportedLanguages = [
         "editor": "typescript"
     },
 ];
+
+export const getLanguage = (langId : number) => {
+    const language =  supportedLanguages.filter((language) => language.id == langId);
+    if (!language) {
+        console.error("No such language");
+        return;
+    }
+    return language[0].name;
+};

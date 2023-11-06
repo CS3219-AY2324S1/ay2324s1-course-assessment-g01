@@ -2,15 +2,18 @@ import { Affix, Button, Card, Drawer, Flex, Loader, Tabs, Text, Textarea, rem } 
 import { useDisclosure } from "@mantine/hooks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CodeResult, JudgeToken } from "../types/Judge";
-import { getResult, submitCode } from "../services/JudgeAPI";
+import { getLanguage, getResult, submitCode } from "../services/JudgeAPI";
 import CodeResultDisplay from "./CodeResultDisplay";
+import { postAttempt } from "../services/HistoryAPI";
 
 interface Props {
   getCode : () => string,
-  languageId : number
+  languageId : number,
+  questionId : string | undefined,
+  userId : number | undefined
 }
 
-const SubmissionComponent = ({getCode, languageId} : Props) => {
+const SubmissionComponent = ({getCode, languageId, questionId, userId} : Props) => {
   const LOADING_MESSAGE = "Loading...";
   const NO_CODE_ERROR = "You have no code to submit :(";
   const RESULTS_LOADED = "Your code has finished executing";
@@ -46,13 +49,24 @@ const SubmissionComponent = ({getCode, languageId} : Props) => {
     setStatusMessage(NO_CODE_ERROR);
   };
 
-  const fetchResult = async (token : JudgeToken) => {
-    const result = await getResult(token!);
-    if (result["time"]) {
-      setResults(result);
-      setIsLoading(false);
-    }
-  };
+  const fetchResult = useCallback((token : JudgeToken) => {
+    getResult(token!).then(
+      (result) => {
+        if (result["time"]) {
+          setResults(result);
+          setIsLoading(false);
+          postAttempt({
+            "question_id": questionId!,
+            "user_id": userId,
+            "code": getCode(),
+            "language": getLanguage(languageId)!,
+            "passed" : result.status.description == "Accepted"
+          });
+          return result;
+        }
+      }
+    );
+  }, [questionId, userId, languageId, getCode]);
 
   // To prevent clearing other interval by accident
   const stopInterval = () => {
@@ -72,9 +86,7 @@ const SubmissionComponent = ({getCode, languageId} : Props) => {
   }, [token]);
 
   useEffect(() => {
-    console.log(results);
     if (!results) return;
-    console.log(results);
     setStatusMessage(RESULTS_LOADED);
     stopInterval();
   }, [results]);
