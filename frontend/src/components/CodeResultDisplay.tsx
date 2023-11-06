@@ -14,7 +14,7 @@ const CodeResultDisplay = ({result, expected} : Props) => {
           <Flex direction={"column"}>
             <Text fw={700} fz={"xl"}> {`Result: ${result.status.description}`} </Text>
             <Space h="md" />
-            <Text fw={700}> {"Stats"} </Text>
+            <Text fw={700}> {`Stats ${result.base64 ? "(base64)" : ""}`} </Text>
             <Text> {"Time taken: " + (result.time ? `${result.time} sec` : "NaN")} </Text>
             <Text> {"Memory used: " + (result.memory ? `${result.memory} kb` : "NaN")} </Text>
             <Text> {"Error message: "}</Text>

@@ -17,6 +17,7 @@ export type CodeResult = {
     "token" : string;
     "compile_output": string | null;
     "message": string | null;
+    "base64": boolean | null;
     "status": {
         "id" : number; 
         "description" : string;

@@ -53,7 +53,7 @@ const SubmissionComponent = ({getCode, languageId, questionId, userId} : Props) 
   const fetchResult = useCallback((token : JudgeToken) => {
     getResult(token!).then(
       (result) => {
-        if (result["status"]["id"] > 2) {
+        if (result && result["status"]["id"] > 2) {
           setResults(result);
           setIsLoading(false);
           postAttempt({
