@@ -130,16 +130,17 @@ const CollabRoomPage = () => {
           </Center>
         </Overlay>
       )}
-      <SubmissionComponent 
+      {otherName && <SubmissionComponent 
         getCode={getCode} 
         languageId={languageId}
         questionId={question._id}
         userId={user?.user_id}
-        />
+        />}
       <SimpleGrid
         cols={2}
         h={"calc(100vh - var(--mantine-header-height, 0px) - 2rem)"}
       >
+        
         <Stack style={{ minHeight: 0, height: "100%" }}>
           <Stack
             style={{
