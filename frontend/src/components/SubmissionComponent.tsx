@@ -53,7 +53,7 @@ const SubmissionComponent = ({getCode, languageId, questionId, userId} : Props) 
   const fetchResult = useCallback((token : JudgeToken) => {
     getResult(token!).then(
       (result) => {
-        if (result["time"]) {
+        if (result["status"]["id"] > 2) {
           setResults(result);
           setIsLoading(false);
           postAttempt({
@@ -135,11 +135,12 @@ const SubmissionComponent = ({getCode, languageId, questionId, userId} : Props) 
         </Tabs>
       </Drawer>
 
-      {!opened && <Affix position={{ bottom: rem(20), right: "50vw" }}>
+      {!opened && <Affix position={{ bottom: rem(20), right: "calc(50vw - 14px)" }}>
         <ActionIcon
         onClick={opened ? close : open}
         variant={"filled"}
         color={"blue"}
+        radius={90}
         >
           <AiOutlineArrowUp/>
         </ActionIcon>
