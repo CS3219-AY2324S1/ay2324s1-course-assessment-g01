@@ -7,8 +7,25 @@ export const submitCode = async (submission : CodeSubmission) => {
 };
 
 export const getResult = async (token : JudgeToken) => {
-    const data = await baseInstance.get(`/judge/submissions/${token.token}`);
+    const data = await baseInstance.get(`/judge/submissions/${token.token}`)
+        .catch(() => {
+            return getBase64Result(token);
+        });
     return data.data;
+};
+
+const getBase64Result = async (token : JudgeToken) => {
+    const data = await baseInstance.get(`/judge/submissions/${token.token}?base64_encoded=true`)
+        .then((response) => {
+            return {
+                status: response.status,
+                data: {
+                    ...response.data,
+                    base64: true
+                }
+            };
+        });
+    return data;
 };
 
 // List of common languages Judge0 can accept, alongside Monaco Editor's language setting
@@ -109,3 +126,12 @@ export const supportedLanguages = [
         "editor": "typescript"
     },
 ];
+
+export const getLanguage = (langId : number) => {
+    const language =  supportedLanguages.filter((language) => language.id == langId);
+    if (!language) {
+        console.error("No such language");
+        return;
+    }
+    return language[0].name;
+};

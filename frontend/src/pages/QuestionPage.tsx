@@ -7,6 +7,7 @@ import { editor } from "monaco-editor";
 import { useCallback, useState } from "react";
 import SubmissionComponent from "../components/SubmissionComponent";
 import { supportedLanguages } from "../services/JudgeAPI";
+import { useUserQuery } from "../hooks/queries";
 
 const QuestionPage = () => {
   const { id } = useParams();
@@ -14,6 +15,7 @@ const QuestionPage = () => {
     queryKey: ["questions", id],
     queryFn: () => getQuestion(id!),
   });
+  const { data: user } = useUserQuery();
   const [language, setLanguage] = useState("JavaScript (Node.js 12.14.0)");
   const [languageId, setLanguageId] = useState(63);
   const [editorLanguage, setEditorLanguage] = useState("javascript");
@@ -39,7 +41,12 @@ const QuestionPage = () => {
   return (
     <section style={{ position: "relative" }}>
       <LoadingOverlay visible={isLoading} overlayBlur={2} />
-      <SubmissionComponent getCode={getCode} languageId={languageId}/>
+      <SubmissionComponent 
+        getCode={getCode} 
+        languageId={languageId}
+        questionId={id}
+        userId={user?.user_id}
+        />
       <SimpleGrid cols={2}>
         <div>
           {isError && <Text>{"Error: Not found"}</Text>}

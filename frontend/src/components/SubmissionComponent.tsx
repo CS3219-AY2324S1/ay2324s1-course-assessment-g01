@@ -1,16 +1,20 @@
-import { Affix, Button, Card, Drawer, Flex, Loader, Tabs, Text, Textarea, rem } from "@mantine/core";
+import { ActionIcon, Affix, Button, Card, Drawer, Flex, Loader, Tabs, Text, Textarea, rem } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AiOutlineArrowUp } from "react-icons/ai";
 import { CodeResult, JudgeToken } from "../types/Judge";
-import { getResult, submitCode } from "../services/JudgeAPI";
+import { getLanguage, getResult, submitCode } from "../services/JudgeAPI";
 import CodeResultDisplay from "./CodeResultDisplay";
+import { postAttempt } from "../services/HistoryAPI";
 
 interface Props {
   getCode : () => string,
-  languageId : number
+  languageId : number,
+  questionId : string | undefined,
+  userId : number | undefined
 }
 
-const SubmissionComponent = ({getCode, languageId} : Props) => {
+const SubmissionComponent = ({getCode, languageId, questionId, userId} : Props) => {
   const LOADING_MESSAGE = "Loading...";
   const NO_CODE_ERROR = "You have no code to submit :(";
   const RESULTS_LOADED = "Your code has finished executing";
@@ -46,13 +50,24 @@ const SubmissionComponent = ({getCode, languageId} : Props) => {
     setStatusMessage(NO_CODE_ERROR);
   };
 
-  const fetchResult = async (token : JudgeToken) => {
-    const result = await getResult(token!);
-    if (result["time"]) {
-      setResults(result);
-      setIsLoading(false);
-    }
-  };
+  const fetchResult = useCallback((token : JudgeToken) => {
+    getResult(token!).then(
+      (result) => {
+        if (result && result["status"]["id"] > 2) {
+          setResults(result);
+          setIsLoading(false);
+          postAttempt({
+            "question_id": questionId!,
+            "user_id": userId!,
+            "code": getCode(),
+            "language": getLanguage(languageId)!,
+            "passed" : result.status.description == "Accepted"
+          });
+          return result;
+        }
+      }
+    );
+  }, [questionId, userId, languageId, getCode]);
 
   // To prevent clearing other interval by accident
   const stopInterval = () => {
@@ -69,12 +84,10 @@ const SubmissionComponent = ({getCode, languageId} : Props) => {
     setResults(null);
     timer.current = window.setInterval(fetchResult, 1000, token);
     return stopInterval;
-  }, [token]);
+  }, [token, fetchResult]);
 
   useEffect(() => {
-    console.log(results);
     if (!results) return;
-    console.log(results);
     setStatusMessage(RESULTS_LOADED);
     stopInterval();
   }, [results]);
@@ -122,13 +135,15 @@ const SubmissionComponent = ({getCode, languageId} : Props) => {
         </Tabs>
       </Drawer>
 
-      {!opened && <Affix position={{ bottom: rem(20), right: "50vw" }}>
-        <Button
+      {!opened && <Affix position={{ bottom: rem(20), right: "calc(50vw - 14px)" }}>
+        <ActionIcon
         onClick={opened ? close : open}
+        variant={"filled"}
+        color={"blue"}
         radius={90}
         >
-        Tests
-        </Button>
+          <AiOutlineArrowUp/>
+        </ActionIcon>
       </Affix>}
     </>
   );
