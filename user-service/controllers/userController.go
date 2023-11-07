@@ -205,24 +205,28 @@ func (controller *UserController) ChangePassword(c *fiber.Ctx) error {
 }
 
 func (controller *UserController) ChangeName(c *fiber.Ctx) error {
-	var user models.User
+	var name struct{ Name string }
 
-	if err := c.BodyParser(&user); err != nil {
+	if err := c.BodyParser(&name); err != nil {
 		return err
 	}
 
-	if len(user.Name) < utils.MinNameLength {
+	if len(name.Name) < utils.MinNameLength {
 		return utils.ErrorResponse(c, utils.NameTooShort)
 	}
 
-	// Find user with this email
-	res := controller.DB.Where("email = ?", user.Email).First(&user)
-	if res.RowsAffected == 0 {
-		return utils.ErrorResponse(c, utils.InvalidEmail)
+	token, err := utils.GetAuthBearerToken(c)
+	if err != nil {
+		return utils.UnauthorizedResponse(c, err.Error())
+	}
+
+	user, err := utils.GetCurrentUser(controller.DB, c, controller.SecretKey, token)
+
+	if err != nil {
+		return utils.UnauthorizedResponse(c, utils.UserNotFound)
 	}
 
 	// Update name of this user
-	controller.DB.Model(&user).Update("name", user.Name)
-
+	controller.DB.First(&models.User{UserId: user.UserId}).Update("name", name.Name)
 	return utils.ResponseBody(c, utils.NameChanged)
 }
