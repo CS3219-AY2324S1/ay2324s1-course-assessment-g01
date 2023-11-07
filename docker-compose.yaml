@@ -1,3 +1,6 @@
+include:
+  - judge-service/docker-compose-judge.yml
+  
 services:
   question-service:
     build: ./question-service
