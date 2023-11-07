@@ -18,9 +18,7 @@ type UserController struct {
 }
 
 func (controller *UserController) GetUserByJwt(c *fiber.Ctx) error {
-
 	token, err := utils.GetAuthBearerToken(c)
-
 	if err != nil {
 		return utils.UnauthorizedResponse(c, err.Error())
 	}
@@ -111,7 +109,6 @@ func (controller *UserController) Deregister(c *fiber.Ctx) error {
 
 func (controller *UserController) Login(c *fiber.Ctx) error {
 	var data map[string]string
-
 	if err := c.BodyParser(&data); err != nil {
 		return err
 	}
@@ -135,7 +132,7 @@ func (controller *UserController) Login(c *fiber.Ctx) error {
 		"iss":   "Peerprep",
 		"aud":   "User",
 		"iat":   time.Now().Unix(),
-		"sub":   user.UserId,
+		"sub":   strconv.Itoa(int(user.UserId)),
 		"exp":   time.Now().Add(time.Hour).Unix(), // 1 hour
 		"roles": user.AccessType,
 	})
