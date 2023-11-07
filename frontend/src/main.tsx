@@ -38,7 +38,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   <Route path="/" index element={<LandingPage />} />
                   <Route path="/question/:id" element={<QuestionPage />} />
                   <Route path="/collab/:id" element={<CollabRoomPage />} />
-                  <Route path="/profile" element={<UserProfilePage />} />
+                  <Route path="/user/:id" element={<UserProfilePage />} />
                   
                   <Route path="/logout" element={<Logout />} />
 

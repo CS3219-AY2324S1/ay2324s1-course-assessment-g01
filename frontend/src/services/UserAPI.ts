@@ -31,6 +31,11 @@ export const getUserData = async () => {
   return data.data;
 };
 
+export const getOtherUserData = async (id: number) => {
+  const data = await baseInstance.get<User>("/user", { params: { id } });
+  return data.data;
+};
+
 export const logout = () => {
   baseInstance.interceptors.request.clear();
   localStorage.removeItem("jwt");
