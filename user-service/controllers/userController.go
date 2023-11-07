@@ -64,21 +64,27 @@ func (controller *UserController) Register(c *fiber.Ctx) error {
 		return err
 	}
 
+	var user models.User
+
 	token, authErr := utils.GetAuthBearerToken(c)
-	access_type, parseErr := utils.ParseUint(data["access_type"])
 
-	if parseErr != nil || authErr != nil || token != controller.SecretKey {
-		access_type = 2
+	if authErr != nil || token != controller.SecretKey {
+		user.AccessType = 1
 	}
 
-	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
-
-	user := models.User{
-		Email:      data["email"],
-		Password:   password,
-		Name:       data["name"],
-		AccessType: access_type,
+	inputPassword := data["password"]
+	if len(inputPassword) < utils.MinPasswordLength {
+		return utils.ErrorResponse(c, utils.PasswordTooShort)
 	}
+	name := data["name"]
+	if len(name) < utils.MinNameLength {
+		return utils.ErrorResponse(c, utils.NameTooShort)
+	}
+
+	password, _ := bcrypt.GenerateFromPassword([]byte(inputPassword), bcrypt.DefaultCost)
+	user.Email = data["email"]
+	user.Name = name
+	user.Password = password
 
 	if err := controller.DB.Create(&user).Error; err != nil {
 		return utils.ErrorResponse(c, utils.DuplicateRecord)
@@ -87,16 +93,14 @@ func (controller *UserController) Register(c *fiber.Ctx) error {
 }
 
 func (controller *UserController) Deregister(c *fiber.Ctx) error {
-	var data map[string]uint
+	var user models.User
 
-	if err := c.BodyParser(&data); err != nil {
+	if err := c.BodyParser(&user); err != nil {
 		return err
 	}
 
-	var user models.User
-
 	// Find user by user_id
-	res := controller.DB.Where("user_id = ?", data["user_id"]).First(&user)
+	res := controller.DB.Where("user_id = ?", user.UserId).First(&user)
 	if res.RowsAffected == 0 {
 		return utils.ErrorResponse(c, utils.RecordNotFound)
 	}
@@ -111,9 +115,9 @@ func (controller *UserController) Login(c *fiber.Ctx) error {
 	if err := c.BodyParser(&data); err != nil {
 		return err
 	}
+	inputPassword := data["password"]
 
 	var user models.User
-
 	controller.DB.Where("email = ?", data["email"]).First(&user)
 
 	if user.UserId == 0 {
@@ -122,7 +126,7 @@ func (controller *UserController) Login(c *fiber.Ctx) error {
 	}
 
 	// Check password
-	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data["password"])); err != nil {
+	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(inputPassword)); err != nil {
 		return utils.ErrorResponse(c, utils.IncorrectPassword)
 	}
 
@@ -131,7 +135,7 @@ func (controller *UserController) Login(c *fiber.Ctx) error {
 		"iss":   "Peerprep",
 		"aud":   "User",
 		"iat":   time.Now().Unix(),
-		"sub":   strconv.Itoa(int(user.UserId)),
+		"sub":   user.UserId,
 		"exp":   time.Now().Add(time.Hour).Unix(), // 1 hour
 		"roles": user.AccessType,
 	})
@@ -146,13 +150,11 @@ func (controller *UserController) Login(c *fiber.Ctx) error {
 }
 
 func (controller *UserController) ResetPassword(c *fiber.Ctx) error {
-	var data map[string]string
+	var user models.User
 
-	if err := c.BodyParser(&data); err != nil {
+	if err := c.BodyParser(&user); err != nil {
 		return err
 	}
-
-	var user models.User
 
 	// Generate a random password
 	minSpecialChar := 1
@@ -161,7 +163,7 @@ func (controller *UserController) ResetPassword(c *fiber.Ctx) error {
 	passwordLength := 6
 	newPw := utils.GeneratePassword(passwordLength, minSpecialChar, minNum, minUpperCase)
 	hashedNewPw, _ := bcrypt.GenerateFromPassword([]byte(newPw), 14)
-	emailTo := data["email"]
+	emailTo := user.Email
 
 	// Find user with this email
 	res := controller.DB.Where("email = ?", emailTo).First(&user)
@@ -185,8 +187,13 @@ func (controller *UserController) ChangePassword(c *fiber.Ctx) error {
 		return err
 	}
 
+	inputPassword := data["password"]
+	if len(inputPassword) < utils.MinPasswordLength {
+		return utils.ErrorResponse(c, utils.PasswordTooShort)
+	}
+
 	var user models.User
-	hashedNewPw, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
+	hashedNewPw, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), bcrypt.DefaultCost)
 
 	// Find user with this email
 	res := controller.DB.Where("email = ?", data["email"]).First(&user)
@@ -201,22 +208,24 @@ func (controller *UserController) ChangePassword(c *fiber.Ctx) error {
 }
 
 func (controller *UserController) ChangeName(c *fiber.Ctx) error {
-	var data map[string]string
+	var user models.User
 
-	if err := c.BodyParser(&data); err != nil {
+	if err := c.BodyParser(&user); err != nil {
 		return err
 	}
 
-	var user models.User
+	if len(user.Name) < utils.MinNameLength {
+		return utils.ErrorResponse(c, utils.NameTooShort)
+	}
 
 	// Find user with this email
-	res := controller.DB.Where("email = ?", data["email"]).First(&user)
+	res := controller.DB.Where("email = ?", user.Email).First(&user)
 	if res.RowsAffected == 0 {
 		return utils.ErrorResponse(c, utils.InvalidEmail)
 	}
 
 	// Update name of this user
-	controller.DB.Model(&user).Update("name", data["name"])
+	controller.DB.Model(&user).Update("name", user.Name)
 
 	return utils.ResponseBody(c, utils.NameChanged)
 }

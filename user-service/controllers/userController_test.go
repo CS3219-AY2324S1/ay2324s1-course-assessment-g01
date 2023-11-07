@@ -68,7 +68,7 @@ func TestRegister(t *testing.T) {
 	// setup request for route
 	testUser := strings.NewReader(`{
 		"email": "test@test.com",
-		"password": "test",
+		"password": "password",
 		"name": "tester"
 	}`)
 	req := httptest.NewRequest(http.MethodPost, "/register", testUser)
@@ -92,7 +92,7 @@ func TestRegisterTwice_Fail(t *testing.T) {
 	// setup request for route
 	testUser := strings.NewReader(`{
 		"email": "test@test.com",
-		"password": "test",
+		"password": "password",
 		"name": "tester"
 	}`)
 	req := httptest.NewRequest(http.MethodPost, "/register", testUser)
@@ -112,7 +112,7 @@ func TestLogin(t *testing.T) {
 	// setup request for route
 	testUser := strings.NewReader(`{
 		"email": "test@test.com",
-		"password": "test"
+		"password": "password"
 	}`)
 	req := httptest.NewRequest(http.MethodPost, "/login", testUser)
 	req.Header.Set("Content-Type", "application/json")
@@ -130,7 +130,7 @@ func TestLogin_NonExistent(t *testing.T) {
 	// setup request for route
 	testUser := strings.NewReader(`{
 		"email": "non_existent@test.com",
-		"password": "test"
+		"password": "password"
 	}`)
 	req := httptest.NewRequest(http.MethodPost, "/login", testUser)
 	req.Header.Set("Content-Type", "application/json")

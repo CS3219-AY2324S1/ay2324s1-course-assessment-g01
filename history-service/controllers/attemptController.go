@@ -5,6 +5,7 @@ import (
 	"history-service/models"
 	"history-service/utils"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -30,19 +31,18 @@ func GetUserAttemptsByUserId(c *fiber.Ctx) error {
 }
 
 func AddUserAttempt(c *fiber.Ctx) error {
-	var data map[string]interface{}
+	var attempt models.Attempt
 
-	// Parse the request body into data
-	if err := c.BodyParser(&data); err != nil {
-		return err
+	location, err := time.LoadLocation("Singapore")
+	if err != nil {
+		return utils.ErrorResponse(c, utils.InternalServerError)
 	}
 
-	attempt := models.Attempt{
-		QuestionId: data["question_id"].(string),
-		UserId:     uint(data["user_id"].(float64)),
-		Code:       data["code"].(string),
-		Language:   data["language"].(string),
-		Passed:     data["passed"].(bool),
+	attempt.AttemptedOn = time.Now().In(location).Format("2006-01-02 15:04:05")
+
+	// Parse the request body into data
+	if err := c.BodyParser(&attempt); err != nil {
+		return err
 	}
 
 	if err := database.DB.Create(&attempt).Error; err != nil {
