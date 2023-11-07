@@ -2,7 +2,8 @@ import { UseQueryOptions, useQuery } from "@tanstack/react-query";
 import { User } from "../types/User";
 import { getUserData } from "../services/UserAPI";
 import { Attempt } from "../types/Attempt";
-import { getHistory } from "../services/HistoryAPI";
+import { getCollabs, getHistory } from "../services/HistoryAPI";
+import { Collab } from "../types/Collab";
 
 export const useUserQuery = (options?: UseQueryOptions<User>) =>
   useQuery<User>({
@@ -21,3 +22,16 @@ export const useAttemptsQuery = (
     ...options,
     enabled: !!userId,
   });
+
+
+  export const useCollabsQuery = (
+    userId?: number,
+    options?: UseQueryOptions<Collab[]>,
+  ) =>
+    useQuery<Collab[]>({
+      queryKey: ["collabs", userId],
+      queryFn: getCollabs,
+      ...options,
+      enabled: !!userId,
+    });
+  

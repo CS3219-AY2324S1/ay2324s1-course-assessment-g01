@@ -1,5 +1,9 @@
 import { Button, Grid, Paper, Stack, Table, Title } from "@mantine/core";
-import { useAttemptsQuery, useUserQuery } from "../hooks/queries";
+import {
+  useAttemptsQuery,
+  useCollabsQuery,
+  useUserQuery,
+} from "../hooks/queries";
 import UsernameComponent from "../components/UsernameComponent";
 import { FaCircle } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -8,6 +12,7 @@ import StatsComponent from "../components/StatsComponent";
 const UserProfilePage = () => {
   const { data: user } = useUserQuery();
   const { data: attempts } = useAttemptsQuery(user?.user_id);
+  const { data: collabs } = useCollabsQuery(user?.user_id);
 
   return (
     <Grid>
@@ -23,8 +28,8 @@ const UserProfilePage = () => {
           <ChangePassword />
         </Paper>
       </Grid.Col>
-      <Grid.Col>
-        <Paper p={"sm"} bg={"dark"}>
+      <Grid.Col span={12} lg={6}>
+        <Paper p={"sm"} bg={"dark"} mah={"33vh"} style={{ overflowY: "auto" }}>
           <Title order={2}>Problems Solved</Title>
           <Table striped>
             <thead>
@@ -59,6 +64,41 @@ const UserProfilePage = () => {
                       <FaCircle style={{ color: "red" }} />
                     )}
                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Paper>
+      </Grid.Col>
+      <Grid.Col span={12} lg={6}>
+        <Paper p={"sm"} bg={"dark"} mah={"33vh"} style={{ overflowY: "auto" }}>
+          <Title order={2}>Collaborations</Title>
+          <Table striped>
+            <thead>
+              <tr>
+                <th>User Id</th>
+                <th>Question Id</th>
+                <th>Attemped On</th>
+              </tr>
+            </thead>
+            <tbody>
+              {collabs?.map((collab) => (
+                <tr key={collab.room_id + collab.user_a_id + collab.user_b_id}>
+                  <td>
+                    {collab.user_a_id == user?.user_id
+                      ? collab.user_b_id
+                      : collab.user_a_id}
+                  </td>
+                  <td>
+                    <Button
+                      variant="light"
+                      component={Link}
+                      to={`/question/${collab.question_id}`}
+                    >
+                      {collab.question_id}
+                    </Button>
+                  </td>
+                  <td>{collab.created_on}</td>
                 </tr>
               ))}
             </tbody>
