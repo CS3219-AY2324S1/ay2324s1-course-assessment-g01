@@ -21,7 +21,7 @@ func main() {
 	db := database.Connect()
 	routes.Setup(app, db)
 
-	port := fmt.Sprintf(":%s", config.GoDotEnvVariable("REST_PORT"))
+	port := fmt.Sprintf(":%s", config.GoDotEnvVariable("USER_SERVICE_PORT"))
 
 	app.Listen(port)
 }
