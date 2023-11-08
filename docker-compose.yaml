@@ -52,7 +52,7 @@ services:
       - PGDATABASE=dev
       - PGSSLMODE=disable
       - SECRET_KEY=secret
-      - USER_SERVICE_PORT=3005
+      - USER_SERVICE_PORT=3000
     depends_on:
       postgres:
         condition: service_healthy
