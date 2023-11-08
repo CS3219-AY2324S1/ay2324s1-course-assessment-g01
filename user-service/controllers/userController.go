@@ -66,7 +66,7 @@ func (controller *UserController) Register(c *fiber.Ctx) error {
 
 	token, authErr := utils.GetAuthBearerToken(c)
 
-	if authErr != nil || token != controller.SecretKey {
+	if authErr == nil && token == controller.SecretKey {
 		user.AccessType = 1
 	}
 

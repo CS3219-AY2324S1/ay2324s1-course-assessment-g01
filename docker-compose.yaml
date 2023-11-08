@@ -47,8 +47,15 @@ services:
     build: ./user-service
     ports:
       - "3000:3000"
-    env_file:
-      - ./user-service/.env
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=123
+      - PGDATABASE=dev
+      - PGSSLMODE=disable
+      - SECRET_KEY=secret
+      - USER_SERVICE_PORT=3000
     depends_on:
       postgres:
         condition: service_healthy
@@ -104,7 +111,7 @@ services:
       - PGPASSWORD=123
       - PGDATABASE=dev
       - PGSSLMODE=disable
-      - REST_PORT=3005
+      - COLLABORATION_SERVICE_PORT=3005
     restart: on-failure
     depends_on:
       postgres:
@@ -128,7 +135,8 @@ services:
       - PGPASSWORD=123
       - PGDATABASE=dev
       - PGSSLMODE=disable
-      - REST_PORT=3008
+      - HISTORY_SERVICE_PORT=3008
+      - QUESTION_SERVICE_PORT=8080
     restart: on-failure
     depends_on:
       postgres:

@@ -23,7 +23,7 @@ func main() {
 
 	routes.Setup(app)
 
-	port := fmt.Sprintf(":%s", config.GoDotEnvVariable("REST_PORT"))
+	port := fmt.Sprintf(":%s", config.GoDotEnvVariable("HISTORY_SERVICE_PORT"))
 
 	app.Listen(port)
 }
