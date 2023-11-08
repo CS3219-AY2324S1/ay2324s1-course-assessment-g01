@@ -73,15 +73,14 @@ const UserProfilePage = () => {
             <Table striped>
               <thead>
                 <tr>
-                  <th>Question Id</th>
-                  <th>Question Name</th>
+                  <th>Question</th>
                   <th>Language</th>
                   <th>Attemped On</th>
                   <th>Passed</th>
                 </tr>
               </thead>
               <tbody>
-                {attempts?.map((attempt) => (
+                {attempts?.map(({ attempt, question }) => (
                   <tr key={attempt.attempt_id}>
                     <td>
                       <Button
@@ -89,11 +88,9 @@ const UserProfilePage = () => {
                         component={Link}
                         to={`/question/${attempt.question_id}`}
                       >
-                        {attempt.question_id}
+                        {question.title}
                       </Button>
                     </td>
-                    {/* TODO: change */}
-                    <td>Question Name</td>
                     <td>{attempt.language}</td>
                     <td>{attempt.attempted_on}</td>
                     <td>
@@ -122,45 +119,45 @@ const UserProfilePage = () => {
                 <tr>
                   <th>User 1</th>
                   <th>User 2</th>
-                  <th>Question Id</th>
+                  <th>Question</th>
                   <th>Attemped On</th>
                 </tr>
               </thead>
               <tbody>
-                {collabs?.map((collab) => (
+                {collabs?.map(({ collaboration, question }) => (
                   <tr
-                    key={collab.room_id + collab.user_a_id + collab.user_b_id}
+                    key={collaboration.room_id + collaboration.user_a_id + collaboration.user_b_id}
                   >
                     <td>
                       <Button
                         variant="light"
                         component={Link}
-                        to={`/user/${collab.user_a_id}`}
+                        to={`/user/${collaboration.user_a_id}`}
                       >
-                        {collab.user_a_id}
-                        {collab.user_a_id == parseInt(id!) && " (this user)"}
+                        {collaboration.user_a_id}
+                        {collaboration.user_a_id == parseInt(id!) && " (this user)"}
                       </Button>
                     </td>
                     <td>
                       <Button
                         variant="light"
                         component={Link}
-                        to={`/user/${collab.user_b_id}`}
+                        to={`/user/${collaboration.user_b_id}`}
                       >
-                        {collab.user_b_id}
-                        {collab.user_b_id == parseInt(id!) && " (this user)"}
+                        {collaboration.user_b_id}
+                        {collaboration.user_b_id == parseInt(id!) && " (this user)"}
                       </Button>
                     </td>
                     <td>
                       <Button
                         variant="light"
                         component={Link}
-                        to={`/question/${collab.question_id}`}
+                        to={`/question/${collaboration.question_id}`}
                       >
-                        {collab.question_id}
+                        {question.title}
                       </Button>
                     </td>
-                    <td>{collab.created_on}</td>
+                    <td>{collaboration.created_on}</td>
                   </tr>
                 ))}
               </tbody>
