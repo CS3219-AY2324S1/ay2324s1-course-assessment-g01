@@ -3,6 +3,7 @@ package controllers
 import (
 	"history-service/database"
 	"history-service/models"
+	"history-service/services"
 	"history-service/utils"
 	"strconv"
 
@@ -25,5 +26,26 @@ func GetUserCollaborationByUserId(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, utils.CollaborationNotFound)
 	}
 
-	return utils.GetRequestResponse(c, collaborations)
+	// Create a slice of maps
+	response := []map[string]interface{}{}
+
+	for _, collab := range collaborations {
+		// Get question from question service by questionId
+		var question models.Question
+		question, err := services.GetQuestionById(collab.QuestionId)
+		if err != nil {
+			return utils.ErrorResponse(c, utils.QuestionNotFound)
+		}
+
+		// Create a map for this collaboration and its question
+		collabMap := map[string]interface{}{
+			"question":      question,
+			"collaboration": collab,
+		}
+
+		// Add the map to the response slice
+		response = append(response, collabMap)
+	}
+
+	return utils.GetRequestResponse(c, response)
 }

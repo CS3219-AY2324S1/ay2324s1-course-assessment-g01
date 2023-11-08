@@ -50,3 +50,11 @@ func GetPostgresConnectionStr() string {
 
 	return postgresConnectionStr
 }
+
+func GetQuestionServicePort() string {
+	return ":" + GoDotEnvVariable("QUESTION_SERVICE_PORT")
+}
+
+func GetQuestionServiceURL() string {
+	return "http://question-service" + GetQuestionServicePort() + "/api/v1/questions"
+}

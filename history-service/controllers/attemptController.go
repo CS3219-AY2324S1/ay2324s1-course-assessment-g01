@@ -3,6 +3,7 @@ package controllers
 import (
 	"history-service/database"
 	"history-service/models"
+	"history-service/services"
 	"history-service/utils"
 	"strconv"
 	"time"
@@ -27,7 +28,28 @@ func GetUserAttemptsByUserId(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, utils.AttemptNotFound)
 	}
 
-	return utils.GetRequestResponse(c, attempts)
+	// Create a slice of maps
+	response := []map[string]interface{}{}
+
+	for _, attempt := range attempts {
+		// Get question from question service by questionId
+		var question models.Question
+		question, err := services.GetQuestionById(attempt.QuestionId)
+		if err != nil {
+			return utils.ErrorResponse(c, utils.QuestionNotFound)
+		}
+
+		// Create a map for this attempt and its question
+		attemptMap := map[string]interface{}{
+			"question": question,
+			"attempt":  attempt,
+		}
+
+		// Add the map to the response slice
+		response = append(response, attemptMap)
+	}
+
+	return utils.GetRequestResponse(c, response)
 }
 
 func AddUserAttempt(c *fiber.Ctx) error {
