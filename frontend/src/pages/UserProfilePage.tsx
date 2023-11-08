@@ -51,7 +51,7 @@ const UserProfilePage = () => {
                 </Text>
               </Title>
             )}
-            <StatsComponent />
+            <StatsComponent attempts={attempts || []}/>
           </Stack>
         </Grid.Col>
 
