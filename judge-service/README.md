@@ -9,6 +9,7 @@ Before you begin, ensure you have installed:
 1. Open Docker.
 2. Run docker compose command on the judge service.
 3. After the container is up, the judge service will be listening on [http://localhost:2358](http://localhost:8082).
+
 ```bash
 docker compose up -d
 ```
@@ -18,8 +19,8 @@ docker compose up -d
 The following actions can be done:
 
 - POST request to <http://localhost:2358/submissions> - to make a submission.
-- GET request to <http://localhost:2358/submissions/{submission_token}> - to view results of a submission 
-- GET request to <http://localhost:2358/languages> - to view all available languages and their id 
+- GET request to <http://localhost:2358/submissions/{submission_token}> - to view results of a submission
+- GET request to <http://localhost:2358/languages> - to view all available languages and their id
 
 ### Making a submission
 
