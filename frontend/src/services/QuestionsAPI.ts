@@ -13,6 +13,7 @@ import { baseInstance } from "./apiInstance";
 
 export const getQuestions = async () => {
   const data = await baseInstance.get<Question[]>("/questions");
+  data.data.sort((q1, q2) => Number(q1._id) - Number(q2._id));
   return data.data;
 };
 

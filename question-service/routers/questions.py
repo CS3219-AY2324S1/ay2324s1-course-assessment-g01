@@ -25,7 +25,7 @@ admin_router = APIRouter(
 )
 
 
-@router.get("/", description="Get all questions")
+@router.get("", description="Get all questions")
 async def get_questions() -> List[QuestionWithId]:
     try:
         questions: List[QuestionWithId] = await db.get_questions()

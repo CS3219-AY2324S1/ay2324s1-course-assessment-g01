@@ -89,8 +89,8 @@ const LandingPage = () => {
             <th>Category</th>
             <th>
               <MultiSelect
-              placeholder="Complexity"
-              w={300}
+                placeholder="Complexity"
+                w={300}
                 data={Object.values(Complexity).map((complexity) => ({
                   label: complexity,
                   value: complexity,
