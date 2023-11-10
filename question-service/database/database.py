@@ -87,15 +87,25 @@ async def add_question(question: Question) -> str:
     # Do not add questions manually with the same title
     check_presence = await db["questions"].find_one({"title": question.title})
     if not check_presence:
-        res = await db["questions"].insert_one(question.model_dump())
+        all_questions = await get_questions()
+        max_id = max([int(qn.id) for qn in all_questions])
+        res = await db["questions"].insert_one(
+            QuestionWithId(
+                _id=str(max_id + 1),
+                title=question.title,
+                description=question.description,
+                categories=question.categories,
+                complexity=question.complexity,
+            ).model_dump()
+        )
 
         # Check if inserted
         if not res.acknowledged:
             raise Exception("Failed to insert question")
 
-        return str(res.inserted_id)
+        return str(max_id + 1)
     else:
-        return "Question exists with id: " + str(check_presence["_id"])
+        return "Question exists with id: " + str(check_presence["id"])
 
 
 # Update a question
