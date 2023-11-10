@@ -2,6 +2,7 @@ db = db.getSiblingDB("questions");
 db.createCollection("questions");
 db.questions.insertMany([
   {
+    id: "1",
     title: "Reverse a String",
     description: `Write a function that reverses a string. The input string is given as an array of characters s.
     You must do this by modifying the input array in-place with O(1) extra memory.
@@ -20,6 +21,7 @@ db.questions.insertMany([
     complexity: "Easy",
   },
   {
+    id: "2",
     title: "Linked List Cycle Detection",
     description: `Given head, the head of a linked list, determine if the linked list has a cycle in it.
     There is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the next pointer.
@@ -50,6 +52,7 @@ db.questions.insertMany([
     complexity: "Easy",
   },
   {
+    id: "3",
     title: "Two Sum",
     description: `Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
     You may assume that each input would have exactly one solution, and you may not use the same element twice.
@@ -78,6 +81,7 @@ db.questions.insertMany([
     complexity: "Easy",
   },
   {
+    id: "4",
     title: "Longest Substring Without Repeating Characters",
     description: `Given a string s, find the length of the longest substring without repeating characters.
     
@@ -104,6 +108,7 @@ db.questions.insertMany([
     complexity: "Medium",
   },
   {
+    id: "5",
     title: "Median of Two Sorted Arrays",
     description: `Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.
     The overall run time complexity should be O(log (m+n)).
@@ -129,6 +134,7 @@ db.questions.insertMany([
     complexity: "Hard",
   },
   {
+    id: "6",
     title: "Longest Palindromic Substring",
     description: `Given a string s, return the longest palindromic substring in s.
     
@@ -148,6 +154,7 @@ db.questions.insertMany([
     complexity: "Medium",
   },
   {
+    id: "7",
     title: "Longest Substring Without Repeating Characters",
     description: `Given a string s, find the length of the longest substring without repeating characters.
     
@@ -174,6 +181,7 @@ db.questions.insertMany([
     complexity: "Medium",
   },
   {
+    id: "8",
     title: "Merge k Sorted Lists",
     description: `You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
     Merge all the linked-lists into one sorted linked-list and return it.
@@ -209,6 +217,7 @@ db.questions.insertMany([
     complexity: "Hard",
   },
   {
+    id: "9",
     title: "Regular Expression Matching",
     description: `Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
     '.' Matches any single character.​​​​

@@ -47,7 +47,7 @@ class QuestionWithId(BaseModel):
 
 def convert(question: dict) -> QuestionWithId:
     return QuestionWithId(
-        _id=str(question["_id"]),
+        _id=str(question["id"]),
         title=question["title"],
         description=question["description"],
         categories=question["categories"],

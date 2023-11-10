@@ -25,7 +25,7 @@ admin_router = APIRouter(
 )
 
 
-@router.get("/", description="Get all questions")
+@router.get("", description="Get all questions")
 async def get_questions() -> List[QuestionWithId]:
     try:
         questions: List[QuestionWithId] = await db.get_questions()
@@ -78,7 +78,7 @@ async def get_specific_question(question_id: str) -> QuestionWithId:
 
 
 @admin_router.post(
-    "/", description="Add a question if a question with the same title does not exist"
+    "", description="Add a question if a question with the same title does not exist"
 )
 async def add_question(question: Question) -> JSONResponse:
     try:
@@ -90,7 +90,7 @@ async def add_question(question: Question) -> JSONResponse:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@admin_router.put("/", description="Update a question")
+@admin_router.put("", description="Update a question")
 async def update_question(question: QuestionWithId):
     try:
         id: str = await db.update_question(question)

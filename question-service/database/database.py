@@ -24,7 +24,8 @@ async def update_db() -> None:
             # Fetch data from cloud function and update each question if necessary
             res = requests.get(Settings().questions_url).json()
             questions = [
-                Question(
+                QuestionWithId(
+                    _id=ques["id"],
                     title=ques["title"],
                     description=ques["description"],
                     categories=ques["categories"],
@@ -53,7 +54,7 @@ async def get_questions() -> List[QuestionWithId]:
 
 async def get_specific_question(question_id: str) -> QuestionWithId:
     # find one with id
-    data = await db["questions"].find_one({"_id": ObjectId(question_id)})
+    data = await db["questions"].find_one({"id": question_id})
     if data is None:
         raise Exception("Question not found")
     return convert(data)
@@ -86,21 +87,31 @@ async def add_question(question: Question) -> str:
     # Do not add questions manually with the same title
     check_presence = await db["questions"].find_one({"title": question.title})
     if not check_presence:
-        res = await db["questions"].insert_one(question.model_dump())
+        all_questions = await get_questions()
+        max_id = max([int(qn.id) for qn in all_questions])
+        res = await db["questions"].insert_one(
+            QuestionWithId(
+                _id=str(max_id + 1),
+                title=question.title,
+                description=question.description,
+                categories=question.categories,
+                complexity=question.complexity,
+            ).model_dump()
+        )
 
         # Check if inserted
         if not res.acknowledged:
             raise Exception("Failed to insert question")
 
-        return str(res.inserted_id)
+        return str(max_id + 1)
     else:
-        return "Question exists with id: " + str(check_presence["_id"])
+        return "Question exists with id: " + str(check_presence["id"])
 
 
 # Update a question
 async def update_question(question: QuestionWithId) -> str:
     res = await db["questions"].update_one(
-        {"_id": ObjectId(question.id)}, {"$set": question.model_dump()}
+        {"id": question.id}, {"$set": question.model_dump()}
     )
 
     # Check if updated
@@ -112,7 +123,7 @@ async def update_question(question: QuestionWithId) -> str:
 
 # Delete a question
 async def delete_question(question_id: str) -> int:
-    res = await db["questions"].delete_one({"_id": ObjectId(question_id)})
+    res = await db["questions"].delete_one({"id": question_id})
 
     # Check if deleted
     if not res.acknowledged or res.deleted_count != 1:
@@ -122,16 +133,16 @@ async def delete_question(question_id: str) -> int:
 
 
 # Sync question with Leetcode
-async def sync_question(question: Question) -> str:
+async def sync_question(question: QuestionWithId) -> str:
     # Insert directly if no existing question with the same title exists
-    check_presence = await db["questions"].find_one({"title": question.title})
+    check_presence = await db["questions"].find_one({"id": question.id})
     if not check_presence:
         res = await db["questions"].insert_one(question.model_dump())
         return str(res.inserted_id)
 
     # Replace question if it exists
     res = await db["questions"].update_one(
-        {"title": question.title}, {"$set": question.model_dump()}
+        {"id": question.id}, {"$set": question.model_dump()}
     )
 
     # Check if updated
