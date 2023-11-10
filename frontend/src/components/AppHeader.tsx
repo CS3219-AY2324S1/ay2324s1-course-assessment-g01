@@ -26,12 +26,12 @@ const AppHeader = () => {
         <Text size={24} component={Link} to="/">
           Home
         </Text>
-        <Menu transitionProps={{duration: 50}}>
+        <Menu transitionProps={{ duration: 50 }}>
           <Menu.Target>
             <Avatar bg={"blue"} component={UnstyledButton}></Avatar>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item component={Link} to="/profile">
+            <Menu.Item component={Link} to={`/user/${user?.user_id}`}>
               User Profile
             </Menu.Item>
             <Menu.Item

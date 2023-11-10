@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -32,4 +34,20 @@ func DeleteRequestResponse(c *fiber.Ctx, data interface{}) error {
 
 func UpdateRequestResponse(c *fiber.Ctx, data interface{}) error {
 	return c.Status(http.StatusAccepted).JSON(data)
+}
+
+func ParseResponseBody(resp *http.Response, data interface{}) error {
+	// read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	// unmarshal the response body into the data parameter
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

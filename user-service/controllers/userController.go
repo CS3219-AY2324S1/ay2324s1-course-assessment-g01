@@ -18,9 +18,7 @@ type UserController struct {
 }
 
 func (controller *UserController) GetUserByJwt(c *fiber.Ctx) error {
-
 	token, err := utils.GetAuthBearerToken(c)
-
 	if err != nil {
 		return utils.UnauthorizedResponse(c, err.Error())
 	}
@@ -68,13 +66,13 @@ func (controller *UserController) Register(c *fiber.Ctx) error {
 
 	token, authErr := utils.GetAuthBearerToken(c)
 
-	if authErr != nil || token != controller.SecretKey {
+	if authErr == nil && token == controller.SecretKey {
 		user.AccessType = 1
 	}
 
 	inputPassword := data["password"]
 	if len(inputPassword) < utils.MinPasswordLength {
-		return utils.ErrorResponse(c, utils.PasswordTooShort)
+		return utils.Error400(c, utils.PasswordTooShort)
 	}
 	name := data["name"]
 	if len(name) < utils.MinNameLength {
@@ -111,7 +109,6 @@ func (controller *UserController) Deregister(c *fiber.Ctx) error {
 
 func (controller *UserController) Login(c *fiber.Ctx) error {
 	var data map[string]string
-
 	if err := c.BodyParser(&data); err != nil {
 		return err
 	}
@@ -135,7 +132,7 @@ func (controller *UserController) Login(c *fiber.Ctx) error {
 		"iss":   "Peerprep",
 		"aud":   "User",
 		"iat":   time.Now().Unix(),
-		"sub":   user.UserId,
+		"sub":   strconv.Itoa(int(user.UserId)),
 		"exp":   time.Now().Add(time.Hour).Unix(), // 1 hour
 		"roles": user.AccessType,
 	})
@@ -208,24 +205,28 @@ func (controller *UserController) ChangePassword(c *fiber.Ctx) error {
 }
 
 func (controller *UserController) ChangeName(c *fiber.Ctx) error {
-	var user models.User
+	var name struct{ Name string }
 
-	if err := c.BodyParser(&user); err != nil {
+	if err := c.BodyParser(&name); err != nil {
 		return err
 	}
 
-	if len(user.Name) < utils.MinNameLength {
+	if len(name.Name) < utils.MinNameLength {
 		return utils.ErrorResponse(c, utils.NameTooShort)
 	}
 
-	// Find user with this email
-	res := controller.DB.Where("email = ?", user.Email).First(&user)
-	if res.RowsAffected == 0 {
-		return utils.ErrorResponse(c, utils.InvalidEmail)
+	token, err := utils.GetAuthBearerToken(c)
+	if err != nil {
+		return utils.UnauthorizedResponse(c, err.Error())
+	}
+
+	user, err := utils.GetCurrentUser(controller.DB, c, controller.SecretKey, token)
+
+	if err != nil {
+		return utils.UnauthorizedResponse(c, utils.UserNotFound)
 	}
 
 	// Update name of this user
-	controller.DB.Model(&user).Update("name", user.Name)
-
+	controller.DB.First(&models.User{UserId: user.UserId}).Update("name", name.Name)
 	return utils.ResponseBody(c, utils.NameChanged)
 }

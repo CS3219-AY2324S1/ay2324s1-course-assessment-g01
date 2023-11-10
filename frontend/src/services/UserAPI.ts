@@ -31,6 +31,11 @@ export const getUserData = async () => {
   return data.data;
 };
 
+export const getOtherUserData = async (id: number) => {
+  const data = await baseInstance.get<User>("/user", { params: { id } });
+  return data.data;
+};
+
 export const logout = () => {
   baseInstance.interceptors.request.clear();
   localStorage.removeItem("jwt");
@@ -42,10 +47,8 @@ export const deregister = async (user_id: number) => {
   return data.data;
 };
 
-// TODO: should use JWT to determine user and change name accordingly
-export const changeName = async (email: string, name: string) => {
+export const changeName = async (name: string) => {
   const data = await baseInstance.post("/user/changename", {
-    email,
     name,
   });
   return data.data;

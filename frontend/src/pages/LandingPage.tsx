@@ -81,7 +81,7 @@ const LandingPage = () => {
           }
         />
       </Flex>
-      <Table striped>
+      <Table striped withBorder my={10}>
         <thead>
           <tr>
             <th>Question Id</th>

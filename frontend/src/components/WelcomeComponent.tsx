@@ -20,7 +20,7 @@ const WelcomeComponent = () => {
   const [newName, setNewName] = useState("");
 
   const mutation = useMutation({
-    mutationFn: () => changeName(user!.email, newName),
+    mutationFn: () => changeName(newName),
     async onMutate() {
       // Optimistic updates
       client.setQueryData(["user"], (old: User | undefined) => {
