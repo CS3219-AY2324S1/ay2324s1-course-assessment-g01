@@ -1,5 +1,5 @@
 import { useToggle, upperFirst } from "@mantine/hooks";
-import { isEmail, useForm } from "@mantine/form";
+import { hasLength, isEmail, useForm } from "@mantine/form";
 import {
   TextInput,
   PasswordInput,
@@ -61,6 +61,7 @@ export function LoginPage() {
       email: isEmail("Invalid Email"),
       name: (value) =>
         type == "login" || value.length > 0 ? null : "Must have name!",
+      password: hasLength({ min: 6 }, "Password must be at least 6 characters"),
     },
     initialErrors: {
       error: "",
@@ -119,6 +120,7 @@ export function LoginPage() {
               onChange={(event) =>
                 form.setFieldValue("password", event.currentTarget.value)
               }
+              error={form.errors.password}
               radius="md"
             />
           </Stack>

@@ -72,7 +72,7 @@ func (controller *UserController) Register(c *fiber.Ctx) error {
 
 	inputPassword := data["password"]
 	if len(inputPassword) < utils.MinPasswordLength {
-		return utils.ErrorResponse(c, utils.PasswordTooShort)
+		return utils.Error400(c, utils.PasswordTooShort)
 	}
 	name := data["name"]
 	if len(name) < utils.MinNameLength {

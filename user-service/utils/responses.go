@@ -18,6 +18,12 @@ func ErrorResponse(c *fiber.Ctx, errMsg string) error {
 	})
 }
 
+func Error400(c *fiber.Ctx, errMsg string) error {
+	return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+		"error": errMsg,
+	})
+}
+
 func UnauthorizedResponse(c *fiber.Ctx, errMsg string) error {
 	return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": errMsg})
 }
