@@ -145,7 +145,7 @@ services:
   front-end:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     volumes:
       - "./frontend/src:/app/src"
       - "./frontend/vite.config.ts:/app/vite.config.ts"
