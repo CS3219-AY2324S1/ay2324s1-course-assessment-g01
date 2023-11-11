@@ -23,28 +23,30 @@ const SubmissionComponent = ({getCode, languageId, questionId, userId} : Props) 
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   
+  const [input, setInput] = useState<string>("");
+  // For displaying the expected output of the submitted code
   const [expected, setExpected] = useState<string | undefined>("");
+  // For textbox where user can key in their expected output before submitting code
+  const [expectedOutput, setExpectedOutput] = useState<string>("");
   const [token, setToken] = useState<JudgeToken | null>(null);
   const [results, setResults] = useState<CodeResult | null>(null);
 
   const timer = useRef<number | undefined>(undefined);
-  const input = useRef<HTMLTextAreaElement>(null);
-  const expectedOutput = useRef<HTMLTextAreaElement>(null);
 
   const submit = useCallback(async () => {
     setStatusMessage("");
     const code = getCode();
     if (!code) return handleNoCode();
     setIsLoading(true);
+    setExpected(expectedOutput);
+    setStatusMessage(LOADING_MESSAGE);
     setToken(await submitCode({
       "source_code" : code,
       "language_id" : languageId,
-      "stdin": input.current?.value,
-      "expected_output" : (expectedOutput.current?.value == "" ? undefined : expectedOutput.current?.value)
+      "stdin": input,
+      "expected_output" : (expectedOutput == "" ? undefined : expectedOutput)
     }));
-    setExpected(expectedOutput.current?.value);
-    setStatusMessage(LOADING_MESSAGE);
-  }, [getCode, languageId]);
+  }, [expectedOutput, getCode, input, languageId]);
 
   const handleNoCode = () => {
     setStatusMessage(NO_CODE_ERROR);
@@ -105,11 +107,17 @@ const SubmissionComponent = ({getCode, languageId, questionId, userId} : Props) 
             <Flex direction={"row"} gap={10} style={{padding: 10}}>
               <Flex direction={"column"}>
                 <Text> Input: </Text>
-                <Textarea ref={input} minRows={5}/>
+                <Textarea 
+                value={input}
+                onChange={(event) => setInput(event.currentTarget.value)} 
+                minRows={5}/>
               </Flex>
               <Flex direction={"column"}>
                 <Text> Expected Output: </Text>
-                <Textarea ref={expectedOutput} minRows={5}/>  
+                <Textarea 
+                value={expectedOutput} 
+                onChange={(event) => setExpectedOutput(event.currentTarget.value)}
+                minRows={5}/>  
               </Flex>
               <Button
               onClick={submit}
