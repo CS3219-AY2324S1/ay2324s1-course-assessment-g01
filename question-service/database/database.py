@@ -135,20 +135,17 @@ async def delete_question(question_id: str) -> int:
 # Sync question with Leetcode
 async def sync_question(question: QuestionWithId) -> str:
     # Insert directly if no existing question with the same title exists
-    check_presence = await db["questions"].find_one({"id": question.id})
-    if not check_presence:
-        res = await db["questions"].insert_one(question.model_dump())
-        return str(res.inserted_id)
+    check_presence = await db["questions"].delete_many({"id": question.id})
+    if check_presence:
+        # Replace question if it exists
+        await db["questions"].delete_many({"id": question.id})
 
-    # Replace question if it exists
-    res = await db["questions"].update_one(
-        {"id": question.id}, {"$set": question.model_dump()}
-    )
+    res = await db["questions"].insert_one(question.model_dump())
 
     # Check if updated
-    if not res.acknowledged or not res.raw_result["updatedExisting"]:
+    if not res.acknowledged:
         raise Exception(
             f"Failed to update question: {question.title}, {res.raw_result}"
         )
 
-    return str(res.upserted_id)
+    return str(res.inserted_id)
