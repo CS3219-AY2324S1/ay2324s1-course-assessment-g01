@@ -198,6 +198,11 @@ func (controller *UserController) ChangePassword(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, utils.InvalidEmail)
 	}
 
+	// Verify old password
+	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data["oldPassword"])); err != nil {
+		return utils.ErrorResponse(c, utils.IncorrectOldPassword)
+	}
+
 	// Update password of this user
 	controller.DB.Model(&user).Update("password", hashedNewPw)
 
