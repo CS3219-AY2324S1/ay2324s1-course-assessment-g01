@@ -1,6 +1,6 @@
 include:
   - judge-service/docker-compose-judge.yml
-  
+
 services:
   question-service:
     build: ./question-service
@@ -143,13 +143,30 @@ services:
         condition: service_healthy
 
   front-end:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - "./frontend/src:/app/src"
+      - "./frontend/vite.config.ts:/app/vite.config.ts"
+    ports:
+      - "5173:5173"
 
   collab-ws-server:
     build: ./collab-ws-server
+    ports:
+      - 4444:4444
+
   reverse_proxy:
     build: ./reverse-proxy
     ports:
       - 80:80
+    depends_on:
+      - front-end
+      - matching-service
+      - user-service
+      - collab-ws-server
+      - question-service
+      - collaboration-service
 volumes:
   postgres:
