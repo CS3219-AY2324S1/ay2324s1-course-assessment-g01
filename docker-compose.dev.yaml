@@ -82,8 +82,8 @@ services:
       - "15672:15672" # management
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
-      interval: 1s
-      timeout: 3s
+      interval: 10s
+      timeout: 5s
       retries: 30
 
   matching-service:
@@ -132,9 +132,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: wget --spider --no-verbose --tries=1 localhost:3005/ || exit 1
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 20
 
   history-service:
     build:
