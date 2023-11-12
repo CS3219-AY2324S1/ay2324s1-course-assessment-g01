@@ -29,7 +29,8 @@ Response:
     "question_id": "df2374892143", // string
     "user_a_id": 1, // uint
     "user_b_id": 2, // uint
-    "is_open": true // bool
+    "is_open": true, // bool
+    "created_on": "2023-10-20 09:54:25" // string in format "YYYY-MM-DD HH:MM:SS"
 }
 ```
 
