@@ -1,13 +1,20 @@
 import { CodeSubmission, JudgeToken } from "../types/Judge";
 import { baseInstance } from "./apiInstance";
 
+const config = {
+    headers: {
+        'X-RapidAPI-Key': 'e3c477ff22msh5ea05cb8ec457c5p10a50ejsn72948429c94d',
+        'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
+    }
+}
+
 export const submitCode = async (submission : CodeSubmission) => {
-    const data = await baseInstance.post("/judge/submissions", submission);
+    const data = await baseInstance.post("/judge/submissions", submission, config);
     return data.data;
 };
 
 export const getResult = async (token : JudgeToken) => {
-    const data = await baseInstance.get(`/judge/submissions/${token.token}`)
+    const data = await baseInstance.get(`/judge/submissions/${token.token}`, config)
         .catch(() => {
             return getBase64Result(token);
         });
@@ -15,7 +22,7 @@ export const getResult = async (token : JudgeToken) => {
 };
 
 const getBase64Result = async (token : JudgeToken) => {
-    const data = await baseInstance.get(`/judge/submissions/${token.token}?base64_encoded=true`)
+    const data = await baseInstance.get(`/submissions/${token.token}?base64_encoded=true`, config)
         .then((response) => {
             return {
                 status: response.status,

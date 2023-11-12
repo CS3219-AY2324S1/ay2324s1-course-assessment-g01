@@ -12,7 +12,7 @@ export default defineConfig({
       },
       "/api/v1/user": "http://user-service:3000",
       "/api/v1/judge": {
-        target: "http://judge-service:2358",
+        target: "https://judge0-ce.p.rapidapi.com",
         changeOrigin: true,
         rewrite(path) {
           return path.replace("/api/v1/judge", "");
