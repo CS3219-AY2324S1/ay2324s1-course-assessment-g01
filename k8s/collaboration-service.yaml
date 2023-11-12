@@ -1,45 +1,54 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
   annotations:
-    kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
-    kompose.version: 1.31.2 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: collaboration-service
   name: collaboration-service
 spec:
+  ports:
+    - port: 3005
+  selector:
+    io.kompose.service: collaboration-deployment
+status:
+  loadBalancer: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: collaboration-deployment
+  name: collaboration-deployment
+spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: collaboration-service
+      io.kompose.service: collaboration-deployment
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
-        kompose.version: 1.31.2 (HEAD)
-      creationTimestamp: null
       labels:
         io.kompose.network/peerprep-default: "true"
-        io.kompose.service: collaboration-service
+        io.kompose.service: collaboration-deployment
     spec:
       containers:
         - env:
             - name: COLLABORATION_SERVICE_PORT
               value: "3005"
             - name: PGDATABASE
-              value: dev
+              value: peerprep
             - name: PGHOST
-              value: postgres
+              value: ep-morning-shape-82504535-pooler.ap-southeast-1.aws.neon.tech
             - name: PGPASSWORD
-              value: "123"
+              value: z3jLWYrnNgE8
             - name: PGPORT
               value: "5432"
             - name: PGSSLMODE
-              value: disable
+              value: require
             - name: PGUSER
-              value: postgres
+              value: admin
           image: kxrt/peerprep-collaboration-service
           livenessProbe:
             exec:
@@ -48,7 +57,7 @@ spec:
             failureThreshold: 20
             periodSeconds: 10
             timeoutSeconds: 5
-          name: collaboration-service
+          name: collaboration-deployment
           ports:
             - containerPort: 3005
               hostPort: 3005
@@ -56,3 +65,4 @@ spec:
           resources: {}
       restartPolicy: Always
 status: {}
+

@@ -30,7 +30,16 @@ spec:
             service:
               name: user-service
               port:
-                number: 3000    
+                number: 3000  
+
+        # Collaboration WebSocket Server
+        - path: /collab/ws(/|$)(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: collab-ws-server-service
+              port:
+                number: 4444  
 
         # Frontend
         - path: /(/|$)(.*)

@@ -37,7 +37,7 @@ spec:
             - name: PGDATABASE
               value: peerprep
             - name: PGHOST
-              value: ep-morning-shape-82504535.ap-southeast-1.aws.neon.tech
+              value: ep-morning-shape-82504535-pooler.ap-southeast-1.aws.neon.tech
             - name: PGPASSWORD
               value: z3jLWYrnNgE8
             - name: PGPORT

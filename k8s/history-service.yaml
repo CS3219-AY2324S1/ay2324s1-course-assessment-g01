@@ -1,49 +1,57 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
-  annotations:
-    kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
-    kompose.version: 1.31.2 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: history-service
   name: history-service
 spec:
+  ports:
+    - port: 3008
+  selector:
+    io.kompose.service: history-deployment
+status:
+  loadBalancer: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: history-deployment
+  name: history-deployment
+spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: history-service
+      io.kompose.service: history-deployment
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
-        kompose.version: 1.31.2 (HEAD)
-      creationTimestamp: null
       labels:
         io.kompose.network/peerprep-default: "true"
-        io.kompose.service: history-service
+        io.kompose.service: history-deployment
     spec:
       containers:
         - env:
             - name: HISTORY_SERVICE_PORT
               value: "3008"
             - name: PGDATABASE
-              value: dev
+              value: peerprep
             - name: PGHOST
-              value: postgres
+              value: ep-morning-shape-82504535-pooler.ap-southeast-1.aws.neon.tech
             - name: PGPASSWORD
-              value: "123"
+              value: z3jLWYrnNgE8
             - name: PGPORT
               value: "5432"
             - name: PGSSLMODE
-              value: disable
+              value: require
             - name: PGUSER
-              value: postgres
+              value: admin
             - name: QUESTION_SERVICE_PORT
               value: "8080"
           image: kxrt/peerprep-history-service
-          name: history-service
+          name: history-deployment
           ports:
             - containerPort: 3008
               hostPort: 3008
