@@ -62,6 +62,7 @@ func GetRabbitMQConnString() string {
 		":", GoDotEnvVariable("RABBITMQ_PASS"),
 		"@", GoDotEnvVariable("RABBITMQ_HOST"),
 		":", GoDotEnvVariable("RABBITMQ_PORT"),
+		"//", GoDotEnvVariable("RABBITMQ_VHOST"),
 	)
 	return conn
 }
