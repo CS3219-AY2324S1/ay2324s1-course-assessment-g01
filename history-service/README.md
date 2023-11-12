@@ -73,8 +73,8 @@ Response:
     "user_id": 1, // uint
     "code": "print('hello world')",
     "language": "python", // python, javascript, java, c, c++, c#
-    "result": "passed", // Passed or Failed
-    "submitted_datetime": ""
+    "passed": true, // failed - false, passed - true
+    "attempted_on": "2023-11-12 15:32:25"
 }
 ```
 
