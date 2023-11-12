@@ -2,13 +2,9 @@ import { Button, PasswordInput, Stack, Title } from "@mantine/core";
 import { Form, useForm } from "@mantine/form";
 import { useMutation } from "@tanstack/react-query";
 import { changePassword } from "../services/UserAPI";
-import { useUserQuery } from "../hooks/queries";
 import { useState } from "react";
-import { useToggle } from "@mantine/hooks";
 
 const ChangePassword = () => {
-  const { data: user } = useUserQuery();
-
   const form = useForm({
     initialValues: {
       curr_password: "",
@@ -23,35 +19,28 @@ const ChangePassword = () => {
     },
   });
 
-  const [updating, toggleUpdating] = useToggle();
   const [success, setSuccess] = useState<boolean | undefined>(undefined);
 
   const mutation = useMutation({
     mutationFn: ({
-      email,
       new_password,
+      curr_password,
     }: {
-      email: string;
       new_password: string;
-    }) => changePassword(email, new_password),
-    onMutate() {
-      toggleUpdating();
-    },
+      curr_password: string;
+    }) => changePassword(new_password, curr_password),
     onError() {
       setSuccess(false);
     },
     onSuccess() {
       setSuccess(true);
     },
-    onSettled() {
-      toggleUpdating();
-    },
   });
 
   return (
     <Form
-      onSubmit={({ new_password }) =>
-        mutation.mutate({ email: user!.email, new_password })
+      onSubmit={({ curr_password, new_password }) =>
+        mutation.mutate({ new_password, curr_password })
       }
       form={form}
     >
@@ -82,7 +71,7 @@ const ChangePassword = () => {
               Updating password failed
             </span>
           ))}
-        <Button type="submit" loading={updating}>
+        <Button type="submit" loading={mutation.isLoading}>
           Submit
         </Button>
       </Stack>
