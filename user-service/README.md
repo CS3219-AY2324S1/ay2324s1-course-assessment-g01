@@ -36,12 +36,23 @@ Response:
 
 **Post <http://localhost:3000/api/v1/user>**
 
-Response:
+Request:
 
 ```json
 {
 }
 Authorization: Bearer <JWT>
+```
+
+Response:
+
+```json
+{
+    "user_id": 1,
+    "email": "userA@example.com",
+    "name": "userA",
+    "access_type": 0 // 0: user, 1: admin
+}
 ```
 
 ### Get all users
