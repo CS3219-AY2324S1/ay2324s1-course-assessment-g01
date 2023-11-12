@@ -37,9 +37,9 @@ services:
       POSTGRES_DB: "dev"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 30
     volumes:
       - postgres:/var/lib/postgresql/data
 
