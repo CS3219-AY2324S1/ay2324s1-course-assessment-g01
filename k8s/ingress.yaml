@@ -69,7 +69,7 @@ spec:
                 number: 3008
 
         # Frontend
-        - path: /(/|$)(.*)
+        - path: /(.*)
           pathType: ImplementationSpecific
           backend:
             service:
