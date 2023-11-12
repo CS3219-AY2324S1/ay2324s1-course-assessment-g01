@@ -1,28 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: rabbitmq-service
+  name: rabbitmq-service
+spec:
+  ports:
+    - name: "5672"
+      port: 5672
+      targetPort: 5672
+    - name: "15672"
+      port: 15672
+      targetPort: 15672
+  selector:
+    io.kompose.service: rabbitmq-deployment
+status:
+  loadBalancer: {}
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
-    kompose.version: 1.31.2 (HEAD)
-  creationTimestamp: null
   labels:
-    io.kompose.service: rabbitmq
-  name: rabbitmq
+    io.kompose.service: rabbitmq-deployment
+  name: rabbitmq-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: rabbitmq
+      io.kompose.service: rabbitmq-deployment
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
-        kompose.version: 1.31.2 (HEAD)
-      creationTimestamp: null
       labels:
         io.kompose.network/peerprep-default: "true"
-        io.kompose.service: rabbitmq
+        io.kompose.service: rabbitmq-deployment
     spec:
       containers:
         - env:
@@ -38,7 +51,7 @@ spec:
             failureThreshold: 30
             periodSeconds: 10
             timeoutSeconds: 5
-          name: rabbitmq
+          name: rabbitmq-deployment
           ports:
             - containerPort: 5672
               hostPort: 5672

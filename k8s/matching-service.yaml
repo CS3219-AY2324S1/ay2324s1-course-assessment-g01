@@ -1,28 +1,36 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
-  annotations:
-    kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
-    kompose.version: 1.31.2 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: matching-service
   name: matching-service
 spec:
+  ports:
+    - port: 8082
+  selector:
+    io.kompose.service: matching-deployment
+status:
+  loadBalancer: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: matching-deployment
+  name: matching-deployment
+spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: matching-service
+      io.kompose.service: matching-deployment
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
-        kompose.version: 1.31.2 (HEAD)
-      creationTimestamp: null
       labels:
         io.kompose.network/peerprep-default: "true"
-        io.kompose.service: matching-service
+        io.kompose.service: matching-deployment
     spec:
       containers:
         - env:
@@ -33,7 +41,7 @@ spec:
             - name: QUESTION_SERVICE_PORT
               value: "8080"
             - name: RABBITMQ_HOST
-              value: rabbitmq
+              value: rabbitmq-service.default.svc.cluster.local
             - name: RABBITMQ_PASS
               value: guest
             - name: RABBITMQ_PORT
@@ -43,10 +51,11 @@ spec:
             - name: USER_SERVICE_PORT
               value: "3000"
           image: kxrt/peerprep-matching-service
-          name: matching-service
+          name: matching-deployment
           ports:
             - containerPort: 8082
               protocol: TCP
           resources: {}
       restartPolicy: Always
 status: {}
+
