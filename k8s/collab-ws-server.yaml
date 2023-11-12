@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: collab-ws-server-service
+  name: collab-ws-server
+spec:
+  ports:
+    - port: 4444
+  selector:
+    io.kompose.service: collab-ws-server-deployment
+status:
+  loadBalancer: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: collab-ws-server-deployment
+  name: collab-ws-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: collab-ws-server-deployment
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.network/peerprep-default: "true"
+        io.kompose.service: collab-ws-server-deployment
+    spec:
+      containers:
+        - image: kxrt/peerprep-collab-ws-server
+          name: collab-ws-server-deployment
+          ports:
+            - containerPort: 4444
+              hostPort: 4444
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}

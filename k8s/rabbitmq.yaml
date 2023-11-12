@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: rabbitmq-service
+  name: rabbitmq-service
+spec:
+  ports:
+    - name: "5672"
+      port: 5672
+      targetPort: 5672
+    - name: "15672"
+      port: 15672
+      targetPort: 15672
+  selector:
+    io.kompose.service: rabbitmq-deployment
+status:
+  loadBalancer: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: rabbitmq-deployment
+  name: rabbitmq-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: rabbitmq-deployment
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.network/peerprep-default: "true"
+        io.kompose.service: rabbitmq-deployment
+    spec:
+      containers:
+        - env:
+            - name: RABBITMQ_DEFAULT_PASS
+              value: guest
+            - name: RABBITMQ_DEFAULT_USER
+              value: guest
+          image: rabbitmq:management
+          livenessProbe:
+            exec:
+              command:
+                - rabbitmq-diagnostics check_port_connectivity
+            failureThreshold: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: rabbitmq-deployment
+          ports:
+            - containerPort: 5672
+              hostPort: 5672
+              protocol: TCP
+            - containerPort: 15672
+              hostPort: 15672
+              protocol: TCP
+          resources: {}
+      hostname: prod-rabbitmq
+      restartPolicy: Always
+status: {}

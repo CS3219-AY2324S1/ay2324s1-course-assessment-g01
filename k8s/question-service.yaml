@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: question-service
+  name: question-service
+spec:
+  ports:
+    - port: 8080
+  selector:
+    io.kompose.service: question-deployment
+status:
+  loadBalancer: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: question-deployment
+  name: question-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: question-deployment
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.network/peerprep-default: "true"
+        io.kompose.service: question-deployment
+    spec:
+      containers:
+        - env:
+            - name: MONGODB_URL
+              value: mongodb+srv://admin:pass@peerprep.lbyyq3m.mongodb.net/?retryWrites=true&w=majority
+            - name: QUESTIONS_URL
+              value: https://asia-southeast1-peerprep-cs3219.cloudfunctions.net/getQuestions
+          image: kxrt/peerprep-question-service
+          name: question-deployment
+          ports:
+            - containerPort: 8080
+              hostPort: 8080
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
