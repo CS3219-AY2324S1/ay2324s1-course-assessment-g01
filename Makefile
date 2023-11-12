@@ -36,5 +36,3 @@ pods:
 
 svc:
 	kubectl get svc
-
-.PHONY: docker-dev docker-dev-nobuild docker-prod create run stop pods svc
