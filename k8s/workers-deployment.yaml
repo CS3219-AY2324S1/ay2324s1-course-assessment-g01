@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
+    kompose.version: 1.31.2 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: workers
+  name: workers
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: workers
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
+        kompose.version: 1.31.2 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/peerprep-default: "true"
+        io.kompose.service: workers
+    spec:
+      containers:
+        - args:
+            - ./scripts/workers
+          image: judge0/judge0:1.13.0
+          name: workers
+          resources: {}
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /judge0.conf
+              name: workers-claim0
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: workers-claim0
+          persistentVolumeClaim:
+            claimName: workers-claim0
+            readOnly: true
+status: {}

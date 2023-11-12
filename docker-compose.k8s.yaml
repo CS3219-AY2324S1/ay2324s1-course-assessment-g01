@@ -1,0 +1,177 @@
+services:
+  question-service:
+    image: kxrt/peerprep-question-service
+    ports:
+      - 8080:8080
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/questions
+      - QUESTIONS_URL=https://asia-southeast1-peerprep-cs3219.cloudfunctions.net/getQuestions
+
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - "5001:5432"
+    user: postgres
+    environment:
+      POSTGRES_PASSWORD: "123"
+      POSTGRES_DB: "dev"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  user-service:
+    image: kxrt/peerprep-user-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=123
+      - PGDATABASE=dev
+      - PGSSLMODE=disable
+      - SECRET_KEY=secret
+      - USER_SERVICE_PORT=3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  rabbitmq:
+    user: rabbitmq
+    image: rabbitmq:management
+    container_name: rabbitmq
+    restart: always
+    hostname: "prod-rabbitmq"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672" # amqp
+      - "15672:15672" # management
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  matching-service:
+    image: kxrt/peerprep-matching-service
+    environment:
+      - USER_SERVICE_PORT=3000
+      - COLLABORATION_SERVICE_PORT=3005
+      - MATCHING_SERVICE_PORT=8082
+      - QUESTION_SERVICE_PORT=8080
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    restart: always
+    ports:
+      - 8082
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      collaboration-service:
+        condition: service_healthy
+
+  collaboration-service:
+    image: kxrt/peerprep-collaboration-service
+    ports:
+      - "3005:3005"
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=123
+      - PGDATABASE=dev
+      - PGSSLMODE=disable
+      - COLLABORATION_SERVICE_PORT=3005
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: wget --spider --no-verbose --tries=1 localhost:3005/ || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  history-service:
+    image: kxrt/peerprep-history-service
+    ports:
+      - "3008:3008"
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=123
+      - PGDATABASE=dev
+      - PGSSLMODE=disable
+      - HISTORY_SERVICE_PORT=3008
+      - QUESTION_SERVICE_PORT=8080
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  front-end:
+    image: kxrt/peerprep-front-end
+    restart: always
+    ports:
+      - 80
+
+  collab-ws-server:
+    image: kxrt/peerprep-collab-ws-server
+    restart: always
+    ports:
+      - 4444:4444
+
+  judge-service:
+    image: judge0/judge0:1.13.0
+    volumes:
+      - ./judge-service/judge0.conf:/judge0.conf:ro
+    ports:
+      - "2358:2358"
+    privileged: true
+    restart: always
+
+  workers:
+    image: judge0/judge0:1.13.0
+    command: ["./scripts/workers"]
+    volumes:
+      - ./judge-service/judge0.conf:/judge0.conf:ro
+    privileged: true
+    restart: always
+
+  db:
+    image: postgres:13.0
+    ports:
+      - 5432
+    env_file: ./judge-service/judge0.conf
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/
+    restart: always
+
+  redis:
+    image: redis:6.0
+    ports:
+      - 6379
+    command:
+      [
+        "bash",
+        "-c",
+        'docker-entrypoint.sh --appendonly yes --requirepass "$$REDIS_PASSWORD"',
+      ]
+    env_file: ./judge-service/judge0.conf
+    volumes:
+      - redis-data:/data
+    restart: always
+
+volumes:
+  postgres:
+  postgres-data:
+  redis-data:

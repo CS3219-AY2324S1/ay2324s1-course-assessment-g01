@@ -1,0 +1,368 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
+    kompose.version: 1.31.2 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
+        kompose.version: 1.31.2 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/peerprep-default: "true"
+        io.kompose.service: redis
+    spec:
+      containers:
+        - args:
+            - bash
+            - -c
+            - docker-entrypoint.sh --appendonly yes --requirepass "$(REDIS)_PASSWORD"
+          env:
+            - name: ALLOWED_LANGUAGES_FOR_COMPILER_OPTIONS
+              valueFrom:
+                configMapKeyRef:
+                  key: ALLOWED_LANGUAGES_FOR_COMPILER_OPTIONS
+                  name: judge0
+            - name: ALLOW_ENABLE_NETWORK
+              valueFrom:
+                configMapKeyRef:
+                  key: ALLOW_ENABLE_NETWORK
+                  name: judge0
+            - name: ALLOW_ENABLE_PER_PROCESS_AND_THREAD_MEMORY_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: ALLOW_ENABLE_PER_PROCESS_AND_THREAD_MEMORY_LIMIT
+                  name: judge0
+            - name: ALLOW_ENABLE_PER_PROCESS_AND_THREAD_TIME_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: ALLOW_ENABLE_PER_PROCESS_AND_THREAD_TIME_LIMIT
+                  name: judge0
+            - name: ALLOW_IP
+              valueFrom:
+                configMapKeyRef:
+                  key: ALLOW_IP
+                  name: judge0
+            - name: ALLOW_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  key: ALLOW_ORIGIN
+                  name: judge0
+            - name: AUTHN_HEADER
+              valueFrom:
+                configMapKeyRef:
+                  key: AUTHN_HEADER
+                  name: judge0
+            - name: AUTHN_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  key: AUTHN_TOKEN
+                  name: judge0
+            - name: AUTHZ_HEADER
+              valueFrom:
+                configMapKeyRef:
+                  key: AUTHZ_HEADER
+                  name: judge0
+            - name: AUTHZ_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  key: AUTHZ_TOKEN
+                  name: judge0
+            - name: CALLBACKS_MAX_TRIES
+              valueFrom:
+                configMapKeyRef:
+                  key: CALLBACKS_MAX_TRIES
+                  name: judge0
+            - name: CALLBACKS_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  key: CALLBACKS_TIMEOUT
+                  name: judge0
+            - name: COUNT
+              valueFrom:
+                configMapKeyRef:
+                  key: COUNT
+                  name: judge0
+            - name: CPU_EXTRA_TIME
+              valueFrom:
+                configMapKeyRef:
+                  key: CPU_EXTRA_TIME
+                  name: judge0
+            - name: CPU_TIME_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: CPU_TIME_LIMIT
+                  name: judge0
+            - name: DISALLOW_IP
+              valueFrom:
+                configMapKeyRef:
+                  key: DISALLOW_IP
+                  name: judge0
+            - name: DISALLOW_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  key: DISALLOW_ORIGIN
+                  name: judge0
+            - name: ENABLE_ADDITIONAL_FILES
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_ADDITIONAL_FILES
+                  name: judge0
+            - name: ENABLE_BATCHED_SUBMISSIONS
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_BATCHED_SUBMISSIONS
+                  name: judge0
+            - name: ENABLE_CALLBACKS
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_CALLBACKS
+                  name: judge0
+            - name: ENABLE_COMMAND_LINE_ARGUMENTS
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_COMMAND_LINE_ARGUMENTS
+                  name: judge0
+            - name: ENABLE_COMPILER_OPTIONS
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_COMPILER_OPTIONS
+                  name: judge0
+            - name: ENABLE_NETWORK
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_NETWORK
+                  name: judge0
+            - name: ENABLE_PER_PROCESS_AND_THREAD_MEMORY_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_PER_PROCESS_AND_THREAD_MEMORY_LIMIT
+                  name: judge0
+            - name: ENABLE_PER_PROCESS_AND_THREAD_TIME_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_PER_PROCESS_AND_THREAD_TIME_LIMIT
+                  name: judge0
+            - name: ENABLE_SUBMISSION_DELETE
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_SUBMISSION_DELETE
+                  name: judge0
+            - name: ENABLE_WAIT_RESULT
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_WAIT_RESULT
+                  name: judge0
+            - name: INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  key: INTERVAL
+                  name: judge0
+            - name: JUDGE0_TELEMETRY_ENABLE
+              valueFrom:
+                configMapKeyRef:
+                  key: JUDGE0_TELEMETRY_ENABLE
+                  name: judge0
+            - name: MAINTENANCE_MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  key: MAINTENANCE_MESSAGE
+                  name: judge0
+            - name: MAINTENANCE_MODE
+              valueFrom:
+                configMapKeyRef:
+                  key: MAINTENANCE_MODE
+                  name: judge0
+            - name: MAX_CPU_EXTRA_TIME
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_CPU_EXTRA_TIME
+                  name: judge0
+            - name: MAX_CPU_TIME_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_CPU_TIME_LIMIT
+                  name: judge0
+            - name: MAX_EXTRACT_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_EXTRACT_SIZE
+                  name: judge0
+            - name: MAX_FILE_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_FILE_SIZE
+                  name: judge0
+            - name: MAX_MAX_FILE_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_MAX_FILE_SIZE
+                  name: judge0
+            - name: MAX_MAX_PROCESSES_AND_OR_THREADS
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_MAX_PROCESSES_AND_OR_THREADS
+                  name: judge0
+            - name: MAX_MEMORY_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_MEMORY_LIMIT
+                  name: judge0
+            - name: MAX_NUMBER_OF_RUNS
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_NUMBER_OF_RUNS
+                  name: judge0
+            - name: MAX_PROCESSES_AND_OR_THREADS
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_PROCESSES_AND_OR_THREADS
+                  name: judge0
+            - name: MAX_QUEUE_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_QUEUE_SIZE
+                  name: judge0
+            - name: MAX_STACK_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_STACK_LIMIT
+                  name: judge0
+            - name: MAX_SUBMISSION_BATCH_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_SUBMISSION_BATCH_SIZE
+                  name: judge0
+            - name: MAX_WALL_TIME_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_WALL_TIME_LIMIT
+                  name: judge0
+            - name: MEMORY_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: MEMORY_LIMIT
+                  name: judge0
+            - name: NUMBER_OF_RUNS
+              valueFrom:
+                configMapKeyRef:
+                  key: NUMBER_OF_RUNS
+                  name: judge0
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_DB
+                  name: judge0
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_HOST
+                  name: judge0
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: judge0
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_PORT
+                  name: judge0
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: POSTGRES_USER
+                  name: judge0
+            - name: RAILS_ENV
+              valueFrom:
+                configMapKeyRef:
+                  key: RAILS_ENV
+                  name: judge0
+            - name: RAILS_MAX_THREADS
+              valueFrom:
+                configMapKeyRef:
+                  key: RAILS_MAX_THREADS
+                  name: judge0
+            - name: RAILS_SERVER_PROCESSES
+              valueFrom:
+                configMapKeyRef:
+                  key: RAILS_SERVER_PROCESSES
+                  name: judge0
+            - name: REDIRECT_STDERR_TO_STDOUT
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIRECT_STDERR_TO_STDOUT
+                  name: judge0
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_HOST
+                  name: judge0
+            - name: REDIS_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_PASSWORD
+                  name: judge0
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_PORT
+                  name: judge0
+            - name: RESTART_MAX_TRIES
+              valueFrom:
+                configMapKeyRef:
+                  key: RESTART_MAX_TRIES
+                  name: judge0
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                configMapKeyRef:
+                  key: SECRET_KEY_BASE
+                  name: judge0
+            - name: STACK_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: STACK_LIMIT
+                  name: judge0
+            - name: SUBMISSION_CACHE_DURATION
+              valueFrom:
+                configMapKeyRef:
+                  key: SUBMISSION_CACHE_DURATION
+                  name: judge0
+            - name: USE_DOCS_AS_HOMEPAGE
+              valueFrom:
+                configMapKeyRef:
+                  key: USE_DOCS_AS_HOMEPAGE
+                  name: judge0
+            - name: WALL_TIME_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  key: WALL_TIME_LIMIT
+                  name: judge0
+          image: redis:6.0
+          name: redis
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /data
+              name: redis-data
+      restartPolicy: Always
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-data
+status: {}

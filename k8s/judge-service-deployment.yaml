@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
+    kompose.version: 1.31.2 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: judge-service
+  name: judge-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: judge-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.k8s.yaml -o k8s
+        kompose.version: 1.31.2 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/peerprep-default: "true"
+        io.kompose.service: judge-service
+    spec:
+      containers:
+        - image: judge0/judge0:1.13.0
+          name: judge-service
+          ports:
+            - containerPort: 2358
+              hostPort: 2358
+              protocol: TCP
+          resources: {}
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /judge0.conf
+              name: judge-service-claim0
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: judge-service-claim0
+          persistentVolumeClaim:
+            claimName: judge-service-claim0
+            readOnly: true
+status: {}
