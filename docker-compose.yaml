@@ -1,6 +1,6 @@
 include:
   - judge-service/docker-compose-judge.yml
-  
+
 services:
   question-service:
     build: ./question-service
@@ -74,8 +74,8 @@ services:
       - "15672:15672" # management
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
-      interval: 1s
-      timeout: 3s
+      interval: 10s
+      timeout: 5s
       retries: 30
 
   matching-service:
@@ -118,9 +118,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: wget --spider --no-verbose --tries=1 localhost:3005/ || exit 1
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 20
 
   history-service:
     build:
@@ -143,13 +143,26 @@ services:
         condition: service_healthy
 
   front-end:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
 
   collab-ws-server:
     build: ./collab-ws-server
+    ports:
+      - 4444:4444
+
   reverse_proxy:
     build: ./reverse-proxy
     ports:
       - 80:80
+    depends_on:
+      - front-end
+      - matching-service
+      - user-service
+      - collab-ws-server
+      - question-service
+      - collaboration-service
+      - history-service
 volumes:
   postgres:
