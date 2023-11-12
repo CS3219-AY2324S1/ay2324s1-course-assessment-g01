@@ -41,13 +41,15 @@ spec:
             - name: QUESTION_SERVICE_PORT
               value: "8080"
             - name: RABBITMQ_HOST
-              value: rabbitmq-service
+              value: mustang-01.rmq.cloudamqp.com
             - name: RABBITMQ_PASS
-              value: guest
+              value: EPnDiSwXRFnYOMlKOA-oWJZRCy3N0nI5
             - name: RABBITMQ_PORT
               value: "5672"
             - name: RABBITMQ_USER
-              value: guest
+              value: klmvmjup
+            - name: RABBITMQ_VHOST
+              value: klmvmjup
             - name: USER_SERVICE_PORT
               value: "3000"
           image: kxrt/peerprep-matching-service
