@@ -56,7 +56,6 @@ spec:
           name: history-deployment
           ports:
             - containerPort: 3008
-              hostPort: 3008
               protocol: TCP
           resources: {}
       restartPolicy: Always

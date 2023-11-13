@@ -37,7 +37,6 @@ spec:
           name: collab-ws-server-deployment
           ports:
             - containerPort: 4444
-              hostPort: 4444
               protocol: TCP
           resources: {}
       restartPolicy: Always

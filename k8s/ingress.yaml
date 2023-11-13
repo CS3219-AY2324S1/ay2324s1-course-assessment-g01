@@ -70,13 +70,13 @@ spec:
                 number: 3008
 
         # Judge Service - External
-        - path: /api/v1/judge
-          pathType: Prefix
-          backend:
-            service:
-              name: judge-service
-              port:
-                number: 80
+        # - path: /api/v1/judge
+        #   pathType: Prefix
+        #   backend:
+        #     service:
+        #       name: judge-service
+        #       port:
+        #         number: 80
 
         # Frontend
         - path: /(.*)

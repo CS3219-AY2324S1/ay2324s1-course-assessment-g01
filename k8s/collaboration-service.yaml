@@ -60,7 +60,6 @@ spec:
           name: collaboration-deployment
           ports:
             - containerPort: 3005
-              hostPort: 3005
               protocol: TCP
           resources: {}
       restartPolicy: Always
