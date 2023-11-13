@@ -8,6 +8,7 @@ metadata:
     # CORS
     nginx.ingress.kubernetes.io/enable-cors: 'true'
     nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.org/rewrites: "serviceName=judge-service rewrite=/"
 spec:
   ingressClassName: nginx
   rules:
@@ -72,7 +73,10 @@ spec:
         - path: /api/v1/judge(/|$)(.*)
           pathType: ImplementationSpecific
           backend:
-          
+            service:
+              name: judge-service
+              port:
+                number: 80
 
         # Frontend
         - path: /(.*)
