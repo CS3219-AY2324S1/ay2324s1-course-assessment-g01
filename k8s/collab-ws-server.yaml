@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     io.kompose.service: collab-ws-server-service
-  name: collab-ws-server
+  name: collab-ws-server-service
 spec:
   ports:
     - port: 4444
