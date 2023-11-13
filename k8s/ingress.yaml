@@ -68,6 +68,12 @@ spec:
               port: 
                 number: 3008
 
+        # Judge Service - External
+        - path: /api/v1/judge(/|$)(.*)
+          pathType: ImplementationSpecific
+          backend:
+          
+
         # Frontend
         - path: /(.*)
           pathType: ImplementationSpecific
