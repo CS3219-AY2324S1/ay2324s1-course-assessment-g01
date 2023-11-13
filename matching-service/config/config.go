@@ -26,6 +26,10 @@ func GoDotEnvVariable(key string) string {
 	return os.Getenv(key)
 }
 
+func IsProductionEnvironment() bool {
+	return GoDotEnvVariable("ENV") == "Production"
+}
+
 // return port used by matching-service
 func GetMatchingServicePort() string {
 	return ":" + GoDotEnvVariable("MATCHING_SERVICE_PORT")
@@ -33,14 +37,23 @@ func GetMatchingServicePort() string {
 
 // return port used by user-service
 func GetUserServicePort() string {
+	if IsProductionEnvironment() {
+		return ""
+	}
 	return ":" + GoDotEnvVariable("USER_SERVICE_PORT")
 }
 
 func GetCollaborationServicePort() string {
+	if IsProductionEnvironment() {
+		return ""
+	}
 	return ":" + GoDotEnvVariable("COLLABORATION_SERVICE_PORT")
 }
 
 func GetQuestionServicePort() string {
+	if IsProductionEnvironment() {
+		return ""
+	}
 	return ":" + GoDotEnvVariable("QUESTION_SERVICE_PORT")
 }
 

@@ -10,10 +10,6 @@ prod:
 prod-nobuild:
 	docker compose -f docker-compose.yaml up
 
-convert:
-	mkdir -p k8s
-	kompose convert -f docker-compose.k8s.yaml -o k8s
-
 run:
 	kubectl apply -f k8s
 

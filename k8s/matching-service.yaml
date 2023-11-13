@@ -52,6 +52,8 @@ spec:
               value: klmvmjup
             - name: USER_SERVICE_PORT
               value: "3000"
+            - name: ENV
+              value: Production
           image: kxrt/peerprep-matching-service
           name: matching-deployment
           ports:
