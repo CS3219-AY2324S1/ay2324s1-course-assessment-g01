@@ -1,5 +1,6 @@
 import { CodeSubmission, JudgeToken } from "../types/Judge";
-import { baseInstance } from "./apiInstance";
+// import { baseInstance } from "./apiInstance";
+import axios from "axios";
 
 const config = {
   headers: {
@@ -8,18 +9,18 @@ const config = {
   },
 };
 
+export const baseInstance = axios.create({
+  baseURL: "https://judge0-ce.p.rapidapi.com", // TODO: change
+});
+
 export const submitCode = async (submission: CodeSubmission) => {
-  const data = await baseInstance.post(
-    "/judge/submissions",
-    submission,
-    config,
-  );
+  const data = await baseInstance.post("/submissions", submission, config);
   return data.data;
 };
 
 export const getResult = async (token: JudgeToken) => {
   const data = await baseInstance
-    .get(`/judge/submissions/${token.token}`, config)
+    .get(`/submissions/${token.token}`, config)
     .catch(() => {
       return getBase64Result(token);
     });

@@ -18,7 +18,7 @@ run:
 	kubectl apply -f k8s
 
 services:
-	kubectl apply -f k8s/collab-ws-server.yaml,k8s/collaboration-service.yaml,k8s/frontend.yaml,k8s/history-service.yaml,k8s/matching-service.yaml,k8s/question-service.yaml,k8s/user-service.yaml,k8s/judge-service.yaml
+	kubectl apply -f k8s/collab-ws-server.yaml,k8s/collaboration-service.yaml,k8s/frontend.yaml,k8s/history-service.yaml,k8s/matching-service.yaml,k8s/question-service.yaml,k8s/user-service.yaml
 
 get-ingress:
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml

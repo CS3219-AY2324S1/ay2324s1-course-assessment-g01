@@ -5,8 +5,5 @@ metadata:
     io.kompose.service: judge-service
   name: judge-service
 spec:
-  ports:
-    - port: 80
-      protocol: TCP
-      targetPort: 80
-      name: http
+  type: ExternalName
+  externalName: judge0-ce.p.rapidapi.com
