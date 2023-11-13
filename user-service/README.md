@@ -174,6 +174,7 @@ Request:
 ```json
 {
     "email": "userA@example.com",
+    "oldPassword": "123456",
     "password": "456123" // new password (must be at least 6 characters long)
 }
 

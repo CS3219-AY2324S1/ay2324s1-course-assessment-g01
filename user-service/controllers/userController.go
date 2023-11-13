@@ -178,24 +178,36 @@ func (controller *UserController) ResetPassword(c *fiber.Ctx) error {
 }
 
 func (controller *UserController) ChangePassword(c *fiber.Ctx) error {
-	var data map[string]string
+
+	token, err := utils.GetAuthBearerToken(c)
+	if err != nil {
+		return utils.UnauthorizedResponse(c, err.Error())
+	}
+
+	user, err := utils.GetCurrentUser(controller.DB, c, controller.SecretKey, token)
+
+	if err != nil {
+		return utils.UnauthorizedResponse(c, utils.UserNotFound)
+	}
+
+	var data struct {
+		Password    string `json:"password"`
+		OldPassword string `json:"oldPassword"`
+	}
 
 	if err := c.BodyParser(&data); err != nil {
 		return err
 	}
 
-	inputPassword := data["password"]
-	if len(inputPassword) < utils.MinPasswordLength {
-		return utils.ErrorResponse(c, utils.PasswordTooShort)
+	if len(data.Password) < utils.MinPasswordLength {
+		return utils.Error400(c, utils.PasswordTooShort)
 	}
 
-	var user models.User
-	hashedNewPw, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), bcrypt.DefaultCost)
+	hashedNewPw, _ := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 
-	// Find user with this email
-	res := controller.DB.Where("email = ?", data["email"]).First(&user)
-	if res.RowsAffected == 0 {
-		return utils.ErrorResponse(c, utils.InvalidEmail)
+	// Verify old password
+	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data.OldPassword)); err != nil {
+		return utils.Error400(c, utils.IncorrectOldPassword)
 	}
 
 	// Update password of this user
