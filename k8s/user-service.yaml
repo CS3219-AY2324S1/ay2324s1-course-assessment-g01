@@ -51,6 +51,7 @@ spec:
             - name: USER_SERVICE_PORT
               value: "3000"
           image: kxrt/peerprep-user-service
+          imagePullPolicy: Always
           name: user-deployment
           ports:
             - containerPort: 3000

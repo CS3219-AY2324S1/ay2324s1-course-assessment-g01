@@ -53,6 +53,7 @@ spec:
             - name: ENV
               value: Production
           image: kxrt/peerprep-history-service
+          imagePullPolicy: Always
           name: history-deployment
           ports:
             - containerPort: 3008

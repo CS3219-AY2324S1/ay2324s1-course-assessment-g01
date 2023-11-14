@@ -50,6 +50,7 @@ spec:
             - name: PGUSER
               value: admin
           image: kxrt/peerprep-collaboration-service
+          imagePullPolicy: Always
           livenessProbe:
             exec:
               command:

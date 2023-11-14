@@ -39,6 +39,7 @@ spec:
             - name: QUESTIONS_URL
               value: https://asia-southeast1-peerprep-cs3219.cloudfunctions.net/getQuestions
           image: kxrt/peerprep-question-service
+          imagePullPolicy: Always
           name: question-deployment
           ports:
             - containerPort: 8080

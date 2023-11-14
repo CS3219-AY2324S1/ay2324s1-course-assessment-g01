@@ -55,6 +55,7 @@ spec:
             - name: ENV
               value: Production
           image: kxrt/peerprep-matching-service
+          imagePullPolicy: Always
           name: matching-deployment
           ports:
             - containerPort: 8082

@@ -34,6 +34,7 @@ spec:
     spec:
       containers:
         - image: kxrt/peerprep-collab-ws-server
+          imagePullPolicy: Always
           name: collab-ws-server-deployment
           ports:
             - containerPort: 4444
