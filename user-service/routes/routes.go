@@ -9,6 +9,10 @@ import (
 )
 
 func Setup(app *fiber.App, db *gorm.DB) {
+	app.Get("/", func(c *fiber.Ctx) error {
+		c.Status(200).JSON("Hello World!")
+		return nil
+	})
 	api := app.Group("/api/v1")
 	secretKey := config.GoDotEnvVariable("SECRET_KEY")
 	user_api := api.Group("/user")

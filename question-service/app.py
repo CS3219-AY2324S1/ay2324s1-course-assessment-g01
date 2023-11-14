@@ -35,6 +35,11 @@ def is_admin(access_type: Annotated[int, Depends(check_token)]):
         raise HTTPException(status_code=403, detail="Not an admin")
 
 
+@app.get("/", description="Health check")
+def health_check():
+    return "Hello"
+
+
 # Routers
 app.include_router(question_router)
 app.include_router(admin_router, dependencies=[Depends(is_admin)])

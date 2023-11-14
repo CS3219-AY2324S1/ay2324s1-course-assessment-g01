@@ -51,14 +51,7 @@ func GetPostgresConnectionStr() string {
 	return postgresConnectionStr
 }
 
-func IsProductionEnvironment() bool {
-	return GoDotEnvVariable("ENV") == "Production"
-}
-
 func GetQuestionServicePort() string {
-	if IsProductionEnvironment() {
-		return ""
-	}
 	return ":" + GoDotEnvVariable("QUESTION_SERVICE_PORT")
 }
 
