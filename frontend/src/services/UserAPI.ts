@@ -27,12 +27,12 @@ export const login = async (email: string, password: string) => {
 };
 
 export const getUserData = async () => {
-  const data = await baseInstance.post<User>("/user");
+  const data = await baseInstance.post<User>("/user/");
   return data.data;
 };
 
 export const getOtherUserData = async (id: number) => {
-  const data = await baseInstance.get<User>("/user", { params: { id } });
+  const data = await baseInstance.get<User>("/user/", { params: { id } });
   return data.data;
 };
 
@@ -54,7 +54,10 @@ export const changeName = async (name: string) => {
   return data.data;
 };
 
-export const changePassword = async (newPassword: string, oldPassword: string) => {
+export const changePassword = async (
+  newPassword: string,
+  oldPassword: string,
+) => {
   const data = await baseInstance.post("/user/changepassword", {
     password: newPassword,
     oldPassword,
