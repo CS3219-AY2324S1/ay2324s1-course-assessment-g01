@@ -1,0 +1,170 @@
+include:
+  - judge-service/docker-compose-judge.yml
+
+services:
+  question-service:
+    build: ./question-service
+    ports:
+      - 8080:8080
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/questions
+      - QUESTIONS_URL=https://asia-southeast1-peerprep-cs3219.cloudfunctions.net/getQuestions
+    depends_on:
+      - mongo
+
+  mongo:
+    image: bitnami/mongodb:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongodb/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    depends_on:
+      - mongo
+
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - "5001:5432"
+    user: postgres
+    environment:
+      POSTGRES_PASSWORD: "123"
+      POSTGRES_DB: "dev"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=123
+      - PGDATABASE=dev
+      - PGSSLMODE=disable
+      - SECRET_KEY=secret
+      - USER_SERVICE_PORT=3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  rabbitmq:
+    user: rabbitmq
+    image: rabbitmq:management
+    container_name: rabbitmq
+    restart: on-failure
+    hostname: "prod-rabbitmq"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672" # amqp
+      - "15672:15672" # management
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  matching-service:
+    build:
+      context: ./matching-service
+      dockerfile: Dockerfile
+    environment:
+      - USER_SERVICE_PORT=3000
+      - COLLABORATION_SERVICE_PORT=3005
+      - MATCHING_SERVICE_PORT=8082
+      - QUESTION_SERVICE_PORT=8080
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - ENV=Development
+    restart: on-failure
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      collaboration-service:
+        condition: service_healthy
+
+  collaboration-service:
+    build:
+      context: ./collaboration-service
+      dockerfile: Dockerfile
+    ports:
+      - "3005:3005"
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=123
+      - PGDATABASE=dev
+      - PGSSLMODE=disable
+      - COLLABORATION_SERVICE_PORT=3005
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: wget --spider --no-verbose --tries=1 localhost:3005/ || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  history-service:
+    build:
+      context: ./history-service
+      dockerfile: Dockerfile
+    ports:
+      - "3008:3008"
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=123
+      - PGDATABASE=dev
+      - PGSSLMODE=disable
+      - HISTORY_SERVICE_PORT=3008
+      - QUESTION_SERVICE_PORT=8080
+      - ENV=Development
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  front-end:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+  collab-ws-server:
+    build: ./collab-ws-server
+    ports:
+      - 4444:4444
+
+  reverse_proxy:
+    build: ./reverse-proxy
+    ports:
+      - 80:80
+    depends_on:
+      - front-end
+      - matching-service
+      - user-service
+      - collab-ws-server
+      - question-service
+      - collaboration-service
+      - history-service
+volumes:
+  postgres:

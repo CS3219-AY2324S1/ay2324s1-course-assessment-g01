@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    io.kompose.service: collaboration-service
+  name: collaboration-service
+spec:
+  ports:
+    - port: 3005
+  selector:
+    io.kompose.service: collaboration-deployment
+status:
+  loadBalancer: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: collaboration-deployment
+  name: collaboration-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: collaboration-deployment
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.network/peerprep-default: "true"
+        io.kompose.service: collaboration-deployment
+    spec:
+      containers:
+        - env:
+            - name: COLLABORATION_SERVICE_PORT
+              value: "3005"
+            - name: PGDATABASE
+              value: peerprep
+            - name: PGHOST
+              value: ep-morning-shape-82504535-pooler.ap-southeast-1.aws.neon.tech
+            - name: PGPASSWORD
+              value: z3jLWYrnNgE8
+            - name: PGPORT
+              value: "5432"
+            - name: PGSSLMODE
+              value: require
+            - name: PGUSER
+              value: admin
+          image: kxrt/peerprep-collaboration-service
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - wget --spider --no-verbose --tries=1 localhost:3005/ || exit 1
+            failureThreshold: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: collaboration-deployment
+          ports:
+            - containerPort: 3005
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
+
