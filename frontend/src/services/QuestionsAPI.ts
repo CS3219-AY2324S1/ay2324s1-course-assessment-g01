@@ -12,7 +12,7 @@ import { baseInstance } from "./apiInstance";
 // }
 
 export const getQuestions = async () => {
-  const data = await baseInstance.get<Question[]>("/questions");
+  const data = await baseInstance.get<Question[]>("/questions/all");
   data.data.sort((q1, q2) => Number(q1._id) - Number(q2._id));
   return data.data;
 };
@@ -28,6 +28,6 @@ export const deleteQuestion = async (id: string) => {
 };
 
 export const addQuestion = async (question: Omit<Question, "_id">) => {
-  const data = await baseInstance.post("/questions", question);
+  const data = await baseInstance.post("/questions/add", question);
   return data.data;
 };

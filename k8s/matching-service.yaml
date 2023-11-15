@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: matching-service
+  name: matching-service
+spec:
+  ports:
+    - port: 8082
+  selector:
+    io.kompose.service: matching-deployment
+status:
+  loadBalancer: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: matching-deployment
+  name: matching-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: matching-deployment
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.network/peerprep-default: "true"
+        io.kompose.service: matching-deployment
+    spec:
+      containers:
+        - env:
+            - name: COLLABORATION_SERVICE_PORT
+              value: "3005"
+            - name: MATCHING_SERVICE_PORT
+              value: "8082"
+            - name: QUESTION_SERVICE_PORT
+              value: "8080"
+            - name: RABBITMQ_HOST
+              value: mustang-01.rmq.cloudamqp.com
+            - name: RABBITMQ_PASS
+              value: EPnDiSwXRFnYOMlKOA-oWJZRCy3N0nI5
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              value: klmvmjup
+            - name: RABBITMQ_VHOST
+              value: klmvmjup
+            - name: USER_SERVICE_PORT
+              value: "3000"
+            - name: ENV
+              value: Production
+          image: kxrt/peerprep-matching-service
+          imagePullPolicy: Always
+          name: matching-deployment
+          ports:
+            - containerPort: 8082
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
+

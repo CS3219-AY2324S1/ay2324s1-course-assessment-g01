@@ -1,0 +1,88 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+    # CORS
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.org/rewrites: "serviceName=judge-service rewrite=/"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: localhost
+    http:
+      paths:
+        # Question Service
+        - path: /api/v1/questions(/|$)(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: question-service
+              port:
+                number: 8080
+
+        # User Service
+        - path: /api/v1/user(/|$)(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: user-service
+              port:
+                number: 3000  
+
+        # Collaboration WebSocket Server
+        - path: /collab/ws(/|$)(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: collab-ws-server-service
+              port:
+                number: 4444  
+
+        # Collaboration Service
+        - path: /api/v1/room(/|$)(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: collaboration-service
+              port: 
+                number: 3005
+
+        # Matching Service
+        - path: /ws(/|$)(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: matching-service
+              port: 
+                number: 8082
+
+        # History Service
+        - path: /api/v1/history(/|$)(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: history-service
+              port: 
+                number: 3008
+
+        # Judge Service - External
+        # - path: /api/v1/judge
+        #   pathType: Prefix
+        #   backend:
+        #     service:
+        #       name: judge-service
+        #       port:
+        #         number: 80
+
+        # Frontend
+        - path: /(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: front-end-service
+              port:
+                number: 80

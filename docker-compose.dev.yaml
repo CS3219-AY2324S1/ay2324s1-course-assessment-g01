@@ -103,6 +103,7 @@ services:
       - RABBITMQ_PASS=guest
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
+      - ENV=Development
     restart: on-failure
     depends_on:
       rabbitmq:
@@ -153,6 +154,7 @@ services:
       - PGSSLMODE=disable
       - HISTORY_SERVICE_PORT=3008
       - QUESTION_SERVICE_PORT=8080
+      - ENV=Development
     restart: on-failure
     depends_on:
       postgres:
