@@ -29,6 +29,11 @@ pipeline:
 	make get-ingress
 	make ingress
 
+cloud:
+	make services
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+	sleep 20
+
 stop:
 	kubectl delete ing ingress
 	kubectl delete all --all --namespace default
